@@ -18,7 +18,7 @@ export function SeatBadge({ info, tone, mano, turn, bubble, deadline, cards }: S
   const name = info.name ?? 'Libre';
   const remaining = deadline ? Math.max(0, deadline - Date.now()) : 0;
   return (
-    <div className={`seat seat--${tone}${turn ? ' seat--turn' : ''}`}>
+    <div className={`seat seat--${tone}${turn ? ' seat--turn' : ''}`} role="group" aria-label={`${name}${turn ? ', tiene el turno' : ''}${mano ? ', es mano' : ''}`}>
       <div className="seat__avatar">
         {turn && deadline !== null && (
           <svg className="ring" viewBox="0 0 56 56" key={deadline} aria-hidden="true">

@@ -64,7 +64,7 @@ function SwipeCard({ card, interactive, selected, onSet, eightKings }: {
     <button
       type="button"
       className={`card${selected ? ' card--selected' : ''}${dragging ? ' card--drag' : ''}`}
-      style={{ transform: `translateY(${lift}px)` }}
+      style={{ ['--card-lift' as string]: `${lift}px` }}
       disabled={!interactive}
       aria-pressed={selected}
       onPointerDown={down}

@@ -13,13 +13,14 @@ import { toast } from '../lib/toast.ts';
 
 export function Logo({ size = 84 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
+    <svg className="home__logo" width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
       <path d="M27 13 73 19 63 88 17 82Z" fill="#16392f" stroke="#547b61" strokeWidth="2" />
-      <path d="M33 10h42a8 8 0 0 1 8 8v62a8 8 0 0 1-8 8H25a8 8 0 0 1-8-8V18a8 8 0 0 1 8-8h8Z" fill="#e2b455" />
-      <path d="M33 17h42a1 1 0 0 1 1 1v62a1 1 0 0 1-1 1H25a1 1 0 0 1-1-1V18a1 1 0 0 1 1-1h8Z" fill="none" stroke="#f3d58f" strokeWidth="1.5" />
+      <path d="M33 10h42a8 8 0 0 1 8 8v62a8 8 0 0 1-8 8H25a8 8 0 0 1-8-8V18a8 8 0 0 1 8-8h8Z" fill="url(#logo-gold)" />
+      <path d="M33 17h42a1 1 0 0 1 1 1v62a1 1 0 0 1-1 1H25a1 1 0 0 1-1-1V18a1 1 0 0 1 1-1h8Z" fill="none" stroke="#fff0bd" strokeWidth="1.5" />
       <path d="M32 68V34l18 22 18-22v34" fill="none" stroke="#12372e" strokeWidth="7" strokeLinecap="square" strokeLinejoin="round" />
       <path d="m31 25 3-5 3 5-3 5Z" fill="#a8493e" />
       <path d="m66 75 3-5 3 5-3 5Z" fill="#a8493e" />
+      <defs><linearGradient id="logo-gold" x1="20" y1="12" x2="84" y2="88" gradientUnits="userSpaceOnUse"><stop stopColor="#f4d27c" /><stop offset="1" stopColor="#c48b2e" /></linearGradient></defs>
     </svg>
   );
 }
