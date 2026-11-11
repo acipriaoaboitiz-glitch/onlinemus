@@ -301,8 +301,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .score__row--them { --c: var(--them); }
 .score__name { font-size: 12.5px; font-weight: 800; letter-spacing: 0.04em; color: var(--c); text-transform: uppercase; }
 .score__stones { display: inline-flex; align-items: center; gap: 3px; min-width: 0; }
-.amarraco { width: 13px; height: 13px; border-radius: 4px; background: rgba(255, 255, 255, 0.09); transition: background 0.3s, transform 0.3s; flex: none; }
-.amarraco.on { background: var(--c); box-shadow: 0 0 10px color-mix(in srgb, var(--c) 45%, transparent); }
+.amarraco { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,.17); background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.12), transparent 55%), rgba(0,0,0,.18); transition: background 0.3s, transform 0.3s; flex: none; }
+.amarraco.on { border-color: color-mix(in srgb, var(--c) 76%, white); background: radial-gradient(circle at 35% 28%, color-mix(in srgb, var(--c) 55%, white), var(--c) 60%); box-shadow: 0 0 9px color-mix(in srgb, var(--c) 38%, transparent), inset 0 0 0 1px rgba(0,0,0,.15); transform: scale(1.05); }
 .score__gap { width: 6px; flex: none; }
 .piedra { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); transition: background 0.3s; flex: none; }
 .piedra.on { background: #f3ead2; }

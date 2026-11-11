@@ -29,42 +29,51 @@ function CourtIllustration({ rank, suit }: { rank: 10 | 11 | 12; suit: Card['sui
   const ink = SUIT_COLOR[suit];
   if (rank === 12) {
     return (
-      <g>
-        <path d="M37 53 39 40l7 6 4-11 5 11 7-6 2 13Z" fill="#d4a84e" stroke={ink} strokeWidth="1.5" />
-        <path d="M40 43h22M39 52h23" stroke="#f8e6ae" strokeWidth="1.4" />
-        <circle cx="50" cy="56" r="13" fill="#f3d9b1" stroke={ink} strokeWidth="1.4" />
-        <path d="M38 57c2-10 6-14 12-14s10 4 12 14l-4 9H42Z" fill="#50392d" />
-        <path d="M43 58c0-6 3-9 7-9s7 3 7 9v8H43Z" fill="#d59b68" />
-        <path d="M44 57h3m6 0h3m-7 5h3" stroke="#332c24" strokeWidth="1.4" strokeLinecap="round" />
-        <path d="m43 65 7 5 7-5 8 8v22H35V73Z" fill={ink} stroke="#f3d9b1" strokeWidth="1.4" />
-        <path d="m43 67 7 7 7-7m-7 7v17" fill="none" stroke="#d4a84e" strokeWidth="1.5" />
-        <SuitMark suit={suit} x={50} y={82} size={9} />
+      <g strokeLinejoin="round">
+        <path d="M40 41 39 31l7 5 4-10 5 10 7-5-1 12Z" fill="#e0b547" stroke="#653b22" strokeWidth="1.2" />
+        <path d="m43 35 3 1 4-8 4 8 4-1" fill="none" stroke="#fff0b4" strokeWidth="1.1" />
+        <circle cx="50" cy="26" r="1.8" fill="#bd3026" />
+        <path d="M39 42c2-5 6-7 11-7s9 2 11 7v5H39Z" fill="#b73329" stroke="#653b22" strokeWidth="1.2" />
+        <path d="M41 43c2-4 5-6 9-6s7 2 9 6" fill="none" stroke="#f3d788" strokeWidth="1.2" />
+        <path d="M43 43c1-4 4-6 7-6s6 2 7 6v12c0 5-3 8-7 8s-7-3-7-8Z" fill="#f0c99a" stroke="#653b22" strokeWidth="1.1" />
+        <path d="M43 46c2-2 4-3 7-3s5 1 7 3v5c-2-2-4-3-7-3s-5 1-7 3Z" fill="#49352c" />
+        <path d="M46 52h2m5 0h2m-6 5h2" stroke="#3b2b24" strokeWidth="1.2" strokeLinecap="round" />
+        <path d="M41 62 34 71l5 8-4 15h30l-4-15 5-8-7-9-9 5Z" fill={ink} stroke="#633b25" strokeWidth="1.4" />
+        <path d="m41 64 9 9 9-9m-9 9v19" fill="none" stroke="#efcf76" strokeWidth="1.5" />
+        <path d="m35 73 7 2m23-2-7 2" stroke="#f6e5bb" strokeWidth="1.2" />
+        <path d="M37 91h26" stroke="#e5ba55" strokeWidth="2" />
+        <SuitMark suit={suit} x={50} y={81} size={9} />
       </g>
     );
   }
   if (rank === 11) {
     return (
-      <g>
-        <path d="M38 47c2-10 8-14 17-11l7 4-5 5 6 4-6 8H40Z" fill="#d4a84e" stroke={ink} strokeWidth="1.5" />
-        <path d="M48 38c-2-8 2-12 8-14-1 6 3 7 7 8-4 2-6 5-6 9" fill="#a8493e" stroke={ink} strokeWidth="1.3" />
-        <path d="M42 49c2-6 6-9 11-8 5 1 7 6 6 12l-5 9H43Z" fill="#d59b68" stroke={ink} strokeWidth="1.2" />
-        <circle cx="54" cy="49" r="1.5" fill="#292820" />
-        <path d="m44 61 14-1 8 10-7 9 6 12H35l6-14-7-8Z" fill={ink} stroke="#f3d9b1" strokeWidth="1.4" />
-        <path d="m42 64 8 8 9-8m-9 8v17" fill="none" stroke="#d4a84e" strokeWidth="1.5" />
-        <path d="M35 88h30" stroke="#f3d9b1" strokeWidth="2" />
-        <SuitMark suit={suit} x={50} y={79} size={9} />
+      <g strokeLinejoin="round">
+        <path d="M37 70c2-5 7-8 13-8 4 0 7 2 10 5l5 2-3 5-8-1-8 5-11-2Z" fill="#ba5436" stroke="#603b2c" strokeWidth="1.4" />
+        <path d="M46 73c6-3 12-2 16 1l2 10-6 5H42l-6-5 2-8Z" fill="#dfb34c" stroke="#603b2c" strokeWidth="1.3" />
+        <path d="m42 84-3 11m6-10-1 11m12-11 2 10m5-12 4 12" fill="none" stroke="#633d2c" strokeWidth="2" strokeLinecap="round" />
+        <path d="m35 93 9 1m11 0 12 1" stroke="#4f382d" strokeWidth="1.4" />
+        <path d="M46 65c1-7 5-11 11-10 5 1 7 5 6 10l-5 6h-9Z" fill="#edc596" stroke="#603b2c" strokeWidth="1.2" />
+        <path d="M44 61c2-6 6-9 12-8l7 4-3 5-10-2-5 5Z" fill={ink} stroke="#603b2c" strokeWidth="1.2" />
+        <path d="m49 54 3-8 4 7m-3 0 6-5" fill="none" stroke="#d7a840" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="59" cy="62" r="1.1" fill="#322a24" />
+        <path d="M46 70 40 77m21-7 7 6" stroke="#f3e5c4" strokeWidth="1.4" />
+        <path d="m39 75 4 8m18-8-4 8" stroke="#c33529" strokeWidth="2" />
       </g>
     );
   }
   return (
-    <g>
-      <path d="M40 46c1-9 7-14 15-12 7 2 10 8 8 16l-5 9H42Z" fill="#d59b68" stroke={ink} strokeWidth="1.4" />
-      <path d="M37 42c2-9 9-15 18-13l9 5-3 6-12-2-8 9Z" fill={ink} stroke="#d4a84e" strokeWidth="1.5" />
-      <path d="m47 31 4-7 4 8m-4-1 7-5" fill="none" stroke="#d4a84e" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="55" cy="46" r="1.4" fill="#292820" />
-      <path d="M45 51c4 3 8 3 12 0" fill="none" stroke="#754c3b" strokeWidth="1.2" />
-      <path d="m42 59 12 2 7 9-4 8 8 13H34l8-13-5-9Z" fill={ink} stroke="#f3d9b1" strokeWidth="1.4" />
-      <path d="m43 64 9 8 8-7m-8 7v17" fill="none" stroke="#d4a84e" strokeWidth="1.5" />
+    <g strokeLinejoin="round">
+      <path d="M42 49c0-8 4-13 10-13 6 0 10 5 10 13l-4 8H46Z" fill="#edc596" stroke="#68412e" strokeWidth="1.2" />
+      <path d="M39 43c1-8 7-13 14-13 6 0 10 3 12 8l-5 3-3-3-5 4-5-3-5 7Z" fill={ink} stroke="#68412e" strokeWidth="1.2" />
+      <path d="m50 33 1-8 4 7m-3 0 7-5" fill="none" stroke="#d6a53c" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="56" cy="48" r="1.1" fill="#322a24" />
+      <path d="M48 54c2 2 5 2 7 0" fill="none" stroke="#794936" strokeWidth="1.1" />
+      <path d="M48 57 42 61l-7 13 6 4-2 16h27l-3-16 5-4-8-13-7-4-3 5Z" fill={ink} stroke="#68412e" strokeWidth="1.3" />
+      <path d="m43 63 9 7 9-7m-9 7v21" fill="none" stroke="#e5bd60" strokeWidth="1.5" />
+      <path d="m42 65-5 8m22-8 5 8" stroke="#f5e4bd" strokeWidth="1.4" />
+      <path d="M39 91h27" stroke="#d7a641" strokeWidth="2" />
+      <path d="m36 74 5-1m22 1 5-1" stroke="#c43b2e" strokeWidth="1.4" />
       <SuitMark suit={suit} x={52} y={80} size={9} />
     </g>
   );
