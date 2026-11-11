@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import type { Action, LegalAction, PublicState } from '@mus/engine';
 import { Button, HoldButton, Sheet } from './ui.tsx';
 
@@ -12,7 +13,7 @@ interface ActionBarProps {
 
 type Raise = Extract<LegalAction, { type: 'ENVIDO' }>;
 
-/** Botones grandes según lo que el motor permite ahora mismo. Nada que no sea legal aparece. */
+/** Acciones permitidas por el motor, presentadas como controles compactos de mesa. */
 export function ActionBar({ view, legal, busy, waiting, onSend }: ActionBarProps) {
   const [sheet, setSheet] = useState(false);
   const has = (t: LegalAction['type']) => legal.some((l) => l.type === t);
@@ -23,12 +24,18 @@ export function ActionBar({ view, legal, busy, waiting, onSend }: ActionBarProps
   useEffect(() => { if (!envido) setSheet(false); }, [envido]);
 
   if (legal.length === 0) {
-    return (<div className="actions actions--idle"><span>{waiting}</span></div>);
+    return (<div className="actions actions--idle actions--pills"><span>{waiting}</span></div>);
   }
 
   return (
     <>
-      <div className="actions">
+      <motion.div
+        className="actions actions--pills"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        layout
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+      >
         {has('MUS') && (
           <>
             <Button variant="primary" disabled={busy} onClick={() => onSend({ type: 'MUS' })}>Mus</Button>
@@ -48,7 +55,7 @@ export function ActionBar({ view, legal, busy, waiting, onSend }: ActionBarProps
             ¡Órdago!
           </HoldButton>
         )}
-      </div>
+      </motion.div>
       {envido && (
         <BetSheet
           open={sheet}

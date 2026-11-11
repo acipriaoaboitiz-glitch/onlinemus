@@ -7,7 +7,7 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'ok';
 export function Button({
   variant = 'secondary', block, className = '', ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; block?: boolean }) {
-  return <button type="button" {...rest} className={`btn btn--${variant}${block ? ' btn--block' : ''} ${className}`} />;
+  return <button type="button" {...rest} className={`btn btn--${variant}${block ? ' btn--block' : ''} focus-visible:ring-2 focus-visible:ring-amber-300 ${className}`} />;
 }
 
 export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title?: string; children: ReactNode }) {

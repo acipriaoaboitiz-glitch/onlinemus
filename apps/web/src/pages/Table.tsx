@@ -36,6 +36,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const [busy, setBusy] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [history, setHistory] = useState(false);
   const [rules, setRules] = useState(false);
   const [signs, setSigns] = useState(false);
   const [finalSeen, setFinalSeen] = useState(false);
@@ -119,7 +120,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
       if (e.metaKey || e.ctrlKey || e.altKey || busy || !view) return;
       const target = e.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
-      if (menu || rules || signs) return;
+      if (menu || history || rules || signs) return;
       const has = (t: string) => legal.some((l) => l.type === t);
       const k = e.key.toLowerCase();
       if (k === 'm' && has('MUS')) void send({ type: 'MUS' });
@@ -139,7 +140,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  });
+  }, [busy, discarding, history, legal, menu, rules, selected, send, setCard, signs, sortedHand, view]);
 
   if (!view) {
     return (<main className="table table--loading"><p>Conectando con la mesa…</p></main>);
@@ -194,35 +195,21 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
           <div className="turnbar" key={snap.deadline}><i style={{ animationDuration: `${Math.max(0, snap.deadline - Date.now())}ms` }} /></div>
         )}
 
+        {!discarding && (
+          <ActionBar view={view} legal={view.phase === 'handEnd' ? [] : legal} busy={busy} waiting={waiting} onSend={(a) => void send(a)} />
+        )}
+
         <Hand cards={sortedHand} interactive={discarding && !busy} selected={selected} onSet={setCard} eightKings={view.config.eightKings} />
 
-        {discarding ? (
+        {discarding && (
           <div className="actions actions--discard">
             <p>{selected.size === 0 ? 'Desliza hacia arriba las cartas que quieres cambiar' : `Cambiar ${selected.size} ${selected.size === 1 ? 'carta' : 'cartas'}`}</p>
             <Button variant="primary" disabled={busy || selected.size === 0} onClick={() => void send({ type: 'DISCARD', cardIds: [...selected] })}>
               Descartar{selected.size > 0 ? ` (${selected.size})` : ''}
             </Button>
           </div>
-        ) : (
-          <ActionBar view={view} legal={view.phase === 'handEnd' ? [] : legal} busy={busy} waiting={waiting} onSend={(a) => void send(a)} />
         )}
       </section>
-
-
-      <aside className="side" aria-label="Registro de la mano">
-        <h2>Registro</h2>
-        <ol className="log">
-          {feed.log.length === 0 && <li className="log__neutral">La partida acaba de empezar</li>}
-          {[...feed.log].reverse().slice(0, 16).map((l) => (<li key={l.id} className={`log__${l.tone}`}>{l.text}</li>))}
-        </ol>
-        <p className="side__keys">
-          <b>Atajos</b>
-          <span><kbd>M</kbd> mus · <kbd>N</kbd> no hay mus · <kbd>P</kbd> paso</span>
-          <span><kbd>Q</kbd> quiero · <kbd>X</kbd> no quiero</span>
-          <span><kbd>1</kbd>–<kbd>4</kbd> marcar carta · <kbd>Enter</kbd> descartar</span>
-          <span><kbd>S</kbd> señas</span>
-        </p>
-      </aside>
 
       {view.phase === 'handEnd' && (
         <HandEndOverlay view={view} mySeat={mySeat} seats={snap.seats} busy={busy} onContinue={() => void send({ type: 'CONTINUE' })} />
@@ -236,8 +223,22 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
 
       <SignSheet open={signs} onClose={() => setSigns(false)} hand={snap.hand} config={view.config} onSend={sendSign} />
       <RulesSheet open={rules} onClose={() => setRules(false)} eightKings={view.config.eightKings} />
+      <Sheet open={history} onClose={() => setHistory(false)} title="Registro de la mano">
+        <ol className="log w-full">
+          {feed.log.length === 0 && <li className="log__neutral">La partida acaba de empezar</li>}
+          {[...feed.log].reverse().slice(0, 16).map((l) => (<li key={l.id} className={`log__${l.tone}`}>{l.text}</li>))}
+        </ol>
+        <p className="side__keys">
+          <b>Atajos de escritorio</b>
+          <span><kbd>M</kbd> mus · <kbd>N</kbd> no hay mus · <kbd>P</kbd> paso</span>
+          <span><kbd>Q</kbd> quiero · <kbd>X</kbd> no quiero</span>
+          <span><kbd>1</kbd>–<kbd>4</kbd> marcar carta · <kbd>Enter</kbd> descartar</span>
+          <span><kbd>S</kbd> señas</span>
+        </p>
+      </Sheet>
       <Sheet open={menu} onClose={() => setMenu(false)} title="Menú">
         <div className="menu">
+          <button type="button" className="menu__item" onClick={() => { setMenu(false); setHistory(true); }}><IconBook /> Registro y atajos</button>
           <button type="button" className="menu__item" onClick={() => { setMenu(false); setRules(true); }}><IconBook /> Cómo se puntúa</button>
           <button type="button" className="menu__item" role="switch" aria-checked={soundOn} onClick={() => { setPref(PREFS.sound, !soundOn); setSoundOn(!soundOn); }}>
             <IconVolume /> Sonido <i className={`switch${soundOn ? ' on' : ''}`} />

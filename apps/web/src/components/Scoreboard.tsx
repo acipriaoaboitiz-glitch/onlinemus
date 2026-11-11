@@ -5,7 +5,7 @@ import type { PublicState, Seat } from '@mus/engine';
 export function Scoreboard({ view, mySeat }: { view: PublicState; mySeat: Seat }) {
   const boards = scoreboard(view.score, view.config);
   const mine = teamOf(mySeat);
-  const { juegosParaVaca: needJuegos, vacasParaPartida: needVacas } = view.config;
+  const { juegosParaVaca: needJuegos, vacasParaPartida: needVacas, targetPoints } = view.config;
 
   return (
     <div className="score" role="group" aria-label="Marcador">
@@ -28,8 +28,12 @@ export function Scoreboard({ view, mySeat }: { view: PublicState; mySeat: Seat }
                 </span>
               )}
             </span>
-            <span className="score__track" role="progressbar" aria-label={`${row === 0 ? 'Nosotros' : 'Ellos'}: ${b.total} de ${view.config.targetPoints} piedras`} aria-valuenow={Math.min(b.total, view.config.targetPoints)} aria-valuemin={0} aria-valuemax={view.config.targetPoints}>
-              <i key={b.total} style={{ width: `${Math.min(100, (b.total / view.config.targetPoints) * 100)}%` }} />
+            <span className="score__markers" aria-hidden="true">
+              {Array.from({ length: Math.ceil(targetPoints / 5) }, (_, i) => <i key={`a${i}`} className={`score__gem${i < b.amarracos ? ' on' : ''}`} />)}
+              {Array.from({ length: 4 }, (_, i) => <i key={`p${i}`} className={`score__stone${i < b.piedras ? ' on' : ''}`} />)}
+            </span>
+            <span className="score__track" role="progressbar" aria-label={`${row === 0 ? 'Nosotros' : 'Ellos'}: ${b.total} de ${targetPoints} piedras`} aria-valuenow={Math.min(b.total, targetPoints)} aria-valuemin={0} aria-valuemax={targetPoints}>
+              <i key={b.total} style={{ width: `${Math.min(100, (b.total / targetPoints) * 100)}%` }} />
             </span>
             <span className="score__units">{b.amarracos} amarracos <i /> {b.piedras} piedras</span>
           </div>

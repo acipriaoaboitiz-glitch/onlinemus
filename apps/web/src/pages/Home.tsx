@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import type { RoomConfig } from '@mus/engine';
 import { CardFace } from '../components/CardFace.tsx';
 import { ConfigForm, configSummary } from '../components/ConfigForm.tsx';
@@ -13,7 +14,8 @@ import { toast } from '../lib/toast.ts';
 
 export function Logo({ size = 84 }: { size?: number }) {
   return (
-    <svg className="home__logo" width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
+    <motion.svg className="home__logo will-change-transform" width={size} height={size} viewBox="0 0 100 100" aria-hidden="true"
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.65, ease: 'easeOut' }}>
       <path d="M27 13 73 19 63 88 17 82Z" fill="#16392f" stroke="#547b61" strokeWidth="2" />
       <path d="M33 10h42a8 8 0 0 1 8 8v62a8 8 0 0 1-8 8H25a8 8 0 0 1-8-8V18a8 8 0 0 1 8-8h8Z" fill="url(#logo-gold)" />
       <path d="M33 17h42a1 1 0 0 1 1 1v62a1 1 0 0 1-1 1H25a1 1 0 0 1-1-1V18a1 1 0 0 1 1-1h8Z" fill="none" stroke="#fff0bd" strokeWidth="1.5" />
@@ -21,7 +23,7 @@ export function Logo({ size = 84 }: { size?: number }) {
       <path d="m31 25 3-5 3 5-3 5Z" fill="#a8493e" />
       <path d="m66 75 3-5 3 5-3 5Z" fill="#a8493e" />
       <defs><linearGradient id="logo-gold" x1="20" y1="12" x2="84" y2="88" gradientUnits="userSpaceOnUse"><stop stopColor="#f4d27c" /><stop offset="1" stopColor="#c48b2e" /></linearGradient></defs>
-    </svg>
+    </motion.svg>
   );
 }
 
@@ -84,7 +86,9 @@ export function Home({ initialCode }: { initialCode?: string }) {
         </div>
       </header>
 
-      <section className="panel">
+      <motion.section className="panel motion-safe:transition-transform" initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }} whileHover={{ y: -3 }}
+        transition={{ duration: 0.32, ease: 'easeOut' }}>
         <div className="panel__head">
           <div>
             <span className="panel__eyebrow">PARTIDA ONLINE</span>
@@ -127,14 +131,15 @@ export function Home({ initialCode }: { initialCode?: string }) {
         {!online && !loading && (
           <p className="note">El modo online necesita conectar Supabase (mira el README). Mientras tanto puedes jugar contra bots.</p>
         )}
-      </section>
+      </motion.section>
 
       <div className="home__or"><span>O JUEGA POR TU CUENTA</span></div>
-      <Button className="home__bots" block onClick={() => { remember(); navigate('/local'); }}>
+      <motion.button type="button" className="btn btn--secondary btn--block home__bots focus-visible:ring-2 focus-visible:ring-amber-300"
+        whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} onClick={() => { remember(); navigate('/local'); }}>
         <span className="home__bot-mark" aria-hidden="true">♟</span>
         <span>Jugar contra bots<small>Sin conexión, cuando quieras</small></span>
         <span className="home__arrow" aria-hidden="true">→</span>
-      </Button>
+      </motion.button>
 
       <div className="home__links">
         <button type="button" onClick={() => setCfgOpen(true)}>
