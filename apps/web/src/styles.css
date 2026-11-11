@@ -445,11 +445,15 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 
 /* Acciones */
 .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 8px 12px calc(10px + var(--safe-b)); min-height: calc(var(--btn-h) * 2 + 28px + var(--safe-b)); align-content: start; }
-.actions--pills { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; width: fit-content; max-width: 100%; min-height: 0; margin: 0 auto; padding: 4px 12px 0; }
+.actions--pills { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; width: 100%; max-width: 760px; min-height: 0; margin: 0 auto; padding: 4px 12px 0; }
 .actions--pills .btn { min-height: 42px; padding: 0 17px; border-radius: 999px; font-size: 14px; box-shadow: 0 5px 16px rgba(0,0,0,.24), inset 0 1px rgba(255,255,255,.12); }
 .actions--pills .hold { min-height: 42px; padding: 0 18px; }
 .actions--pills .hold__label { font-size: 14px; }
 .actions--pills .hold__hint { font-size: 8px; }
+.actions__group { display: flex; flex: 1 1 auto; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; min-width: 0; }
+.actions--pills .actions__pass { flex: none; margin-left: auto; gap: 7px; padding: 0 16px; border-color: rgba(240,195,95,.56); background: linear-gradient(145deg, rgba(240,195,95,.18), rgba(32,42,35,.96)); color: #ffe3a0; box-shadow: 0 4px 14px rgba(0,0,0,.2), inset 0 0 0 1px rgba(240,195,95,.08); }
+.actions__pass span { font-size: 16px; line-height: 1; }
+.actions--pills .actions__pass:hover:not(:disabled) { border-color: var(--brass); background: rgba(240,195,95,.22); }
 .actions--idle { display: grid; place-items: center; color: var(--muted); font-size: 15px; }
 .actions--discard { grid-template-columns: 1fr; min-height: 0; text-align: center; align-content: center; gap: 8px; }
 .actions--discard p { color: var(--muted); font-size: 14px; }
@@ -636,6 +640,15 @@ kbd { font: inherit; font-weight: 800; font-size: 11.5px; padding: 1px 6px; bord
   .score__track { height: 5px; }
   .score__meta { gap: 3px; }
   .pip { width: 6px; height: 6px; }
+  .actions--pills { gap: 7px; padding-right: 10px; padding-left: 10px; }
+  .actions__group { gap: 7px; }
+}
+
+@media (max-width: 380px) {
+  .actions--pills { gap: 6px; padding-right: 8px; padding-left: 8px; }
+  .actions__group { gap: 6px; }
+  .actions--pills .btn { min-height: 40px; padding-right: 13px; padding-left: 13px; font-size: 13px; }
+  .actions--pills .actions__pass { margin-left: auto; padding-right: 12px; padding-left: 12px; }
 }
 
 @media (min-width: 900px) {

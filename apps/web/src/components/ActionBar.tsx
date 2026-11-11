@@ -36,24 +36,37 @@ export function ActionBar({ view, legal, busy, waiting, onSend }: ActionBarProps
         layout
         transition={{ duration: 0.18, ease: 'easeOut' }}
       >
-        {has('MUS') && (
-          <>
-            <Button variant="primary" disabled={busy} onClick={() => onSend({ type: 'MUS' })}>Mus</Button>
-            <Button variant="ok" disabled={busy} onClick={() => onSend({ type: 'NO_MUS' })}>No hay mus</Button>
-          </>
-        )}
-        {has('PASO') && <Button variant="secondary" disabled={busy} onClick={() => onSend({ type: 'PASO' })}>Paso</Button>}
-        {has('QUIERO') && <Button variant="ok" disabled={busy} onClick={() => onSend({ type: 'QUIERO' })}>Quiero</Button>}
-        {has('NO_QUIERO') && <Button variant="danger" disabled={busy} onClick={() => onSend({ type: 'NO_QUIERO' })}>No quiero</Button>}
-        {envido && (
-          <Button variant="primary" disabled={busy} onClick={() => setSheet(true)}>
-            {responding ? 'Subir…' : 'Envido…'}
+        <div className="actions__group">
+          {has('MUS') && (
+            <>
+              <Button variant="primary" disabled={busy} onClick={() => onSend({ type: 'MUS' })}>Mus</Button>
+              <Button variant="ok" disabled={busy} onClick={() => onSend({ type: 'NO_MUS' })}>No hay mus</Button>
+            </>
+          )}
+          {has('QUIERO') && <Button variant="ok" disabled={busy} onClick={() => onSend({ type: 'QUIERO' })}>Quiero</Button>}
+          {has('NO_QUIERO') && <Button variant="danger" disabled={busy} onClick={() => onSend({ type: 'NO_QUIERO' })}>No quiero</Button>}
+          {envido && (
+            <Button variant="primary" disabled={busy} onClick={() => setSheet(true)}>
+              {responding ? 'Subir…' : 'Envido…'}
+            </Button>
+          )}
+          {has('ORDAGO') && (
+            <HoldButton disabled={busy} onConfirm={() => onSend({ type: 'ORDAGO' })}>
+              ¡Órdago!
+            </HoldButton>
+          )}
+        </div>
+        {has('PASO') && (
+          <Button
+            variant="secondary"
+            className="actions__pass"
+            disabled={busy}
+            aria-label="Paso: pasar en este lance"
+            title="Pasar en este lance"
+            onClick={() => onSend({ type: 'PASO' })}
+          >
+            Paso <span aria-hidden="true">↗</span>
           </Button>
-        )}
-        {has('ORDAGO') && (
-          <HoldButton disabled={busy} className={responding ? '' : 'span-2'} onConfirm={() => onSend({ type: 'ORDAGO' })}>
-            ¡Órdago!
-          </HoldButton>
         )}
       </motion.div>
       {envido && (
