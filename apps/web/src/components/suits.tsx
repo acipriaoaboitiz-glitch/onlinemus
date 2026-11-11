@@ -2,13 +2,13 @@ import type { Suit } from '@mus/engine';
 
 /** Colores de tinta de cada palo sobre papel marfil. */
 export const SUIT_COLOR: Record<Suit, string> = {
-  oros: '#C2820F',
-  copas: '#B3261E',
-  espadas: '#223F6B',
-  bastos: '#2E6B3C',
+  oros: '#C78A13',
+  copas: '#BB3026',
+  espadas: '#214F83',
+  bastos: '#277044',
 };
 
-export const PAPER = '#F6F0E2';
+export const PAPER = '#FFFDF5';
 
 /** Glifos dibujados en una caja de 24×24; usan `currentColor` para el tinte del palo. */
 function SuitShape({ suit }: { suit: Suit }) {
@@ -16,38 +16,40 @@ function SuitShape({ suit }: { suit: Suit }) {
     case 'oros':
       return (
         <>
-          <circle cx="12" cy="12" r="10.6" fill="currentColor" />
-          <circle cx="12" cy="12" r="7.3" fill="none" stroke={PAPER} strokeOpacity=".6" strokeWidth="1.3" />
-          <circle cx="12" cy="12" r="2.6" fill={PAPER} fillOpacity=".65" />
+          <circle cx="12" cy="12" r="10.7" fill="currentColor" />
+          <circle cx="12" cy="12" r="8.6" fill="none" stroke="#f6d16e" strokeWidth="1" />
+          <circle cx="12" cy="12" r="6.8" fill="none" stroke="#7b4c12" strokeOpacity=".6" strokeWidth=".7" />
+          <path d="m12 6.3 1.4 4.1 4.3 1.6-4.3 1.5-1.4 4.2-1.4-4.2-4.3-1.5 4.3-1.6z" fill="#ffe38b" />
+          <circle cx="12" cy="12" r="1.2" fill="#9b5b0d" />
         </>
       );
     case 'copas':
       return (
         <>
-          <path d="M3.8 3.4h16.4c0 6.6-3.2 10.4-8.2 11-5-.6-8.2-4.4-8.2-11z" fill="currentColor" />
-          <path d="M10.6 14.4h2.8l.6 5h-4z" fill="currentColor" />
-          <path d="M6.4 22c0-1.6 2.5-2.4 5.6-2.4s5.6.8 5.6 2.4z" fill="currentColor" />
-          <path d="M6.8 6.2h10.4" stroke={PAPER} strokeOpacity=".5" strokeWidth="1.2" strokeLinecap="round" />
+          <path d="M3.1 3.4h17.8c0 6.8-3.5 10.5-8.9 11.2C6.6 13.9 3.1 10.2 3.1 3.4Z" fill="currentColor" stroke="#7f211c" strokeWidth=".65" />
+          <path d="M5.2 5.1c.2 4.8 2.7 7.3 6.8 8" fill="none" stroke="#ffd87a" strokeWidth="1" />
+          <path d="M10.5 14.1h3l.7 4.7H9.8z" fill="#d79c33" stroke="#85461b" strokeWidth=".6" />
+          <path d="M6.2 22c0-1.8 2.5-2.7 5.8-2.7s5.8.9 5.8 2.7z" fill="currentColor" stroke="#7f211c" strokeWidth=".65" />
+          <path d="M4.6 4.7h15" stroke="#ffd87a" strokeWidth="1.2" strokeLinecap="round" />
+          <circle cx="12" cy="7" r="1.1" fill="#ffe39b" />
         </>
       );
     case 'espadas':
       return (
         <>
-          <path d="M12 1.2l3 4.6v9.6H9V5.8z" fill="currentColor" />
-          <rect x="5" y="15.2" width="14" height="2.4" rx="1.2" fill="currentColor" />
-          <rect x="10.7" y="17.4" width="2.6" height="4" rx="1" fill="currentColor" />
-          <circle cx="12" cy="22.2" r="1.5" fill="currentColor" />
-          <path d="M12 4.6v10" stroke={PAPER} strokeOpacity=".5" strokeWidth="1.1" strokeLinecap="round" />
+          <path d="M12 1.1 16 6l-2 9H10L8 6z" fill="currentColor" stroke="#142c4c" strokeWidth=".8" />
+          <path d="m12 2.2 2.8 4-2.8 7.3L9.2 6.2z" fill="#d7ecf2" />
+          <path d="M5.1 14.5c2.4 1.3 4.6 1.7 6.9 1.7s4.5-.4 6.9-1.7l1.2 2.2c-2.5 2-5.3 2.8-8.1 2.8s-5.6-.8-8.1-2.8z" fill="#d2a13f" stroke="#63461c" strokeWidth=".7" />
+          <path d="M12 18v3.2m-2.5 1h5" stroke="#7a321f" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="12" cy="21.4" r="1.2" fill="#d2a13f" />
         </>
       );
     case 'bastos':
       return (
         <>
-          <path
-            d="M12 1.6c3.4 0 5.6 2.3 5.6 5.3 0 2.1-.9 3.5-1.9 4.7-.8 1-1.2 2-1.2 3.4v5.4c0 1.3-1 2.1-2.5 2.1s-2.5-.8-2.5-2.1v-5.4c0-1.4-.4-2.4-1.2-3.4-1-1.2-1.9-2.6-1.9-4.7 0-3 2.2-5.3 5.6-5.3z"
-            fill="currentColor"
-          />
-          <path d="M9.6 6.4l1.8.7M13 9.4l1.8-.6M10 11.6l1.6.5" stroke={PAPER} strokeOpacity=".55" strokeWidth="1.1" strokeLinecap="round" />
+          <path d="M12 1.4c3.2 0 5.3 2.1 5.3 5.1 0 2.1-.8 3.5-2.2 5.2-.8 1-1.1 2-1.1 3.3v4.5c0 1.8-.8 2.8-2 2.8s-2-1-2-2.8V15c0-1.3-.3-2.3-1.1-3.3C7.5 10 6.7 8.6 6.7 6.5c0-3 2.1-5.1 5.3-5.1z" fill="currentColor" stroke="#173b25" strokeWidth=".6" />
+          <path d="M9.1 6c1-.7 1.9-.7 2.9 0m1.1 4.1 2 .3m-5.7 2.5 2 .4" stroke="#f8d77b" strokeWidth="1" strokeLinecap="round" />
+          <path d="m8.3 18.5 3.7 2.1 3.7-2.1" fill="none" stroke="#f4d276" strokeWidth="1.1" />
         </>
       );
   }
