@@ -57,12 +57,32 @@ export function Home({ initialCode }: { initialCode?: string }) {
   return (
     <main className="home">
       <header className="home__hero">
-        <Logo />
-        <h1>Mus</h1>
-        <p>2 contra 2 · con tus amigos · en tiempo real</p>
+        <div className="home__brand">
+          <Logo size={60} />
+          <span><b>MUS</b><small>ONLINE</small></span>
+        </div>
+        <span className="home__eyebrow">EL JUEGO DE SIEMPRE, EN TU MESA</span>
+        <h1>La mesa<br /><em>está puesta.</em></h1>
+        <p>Reúne a tu pareja, prepara los envites<br className="home__desktop-break" /> y que empiece la partida.</p>
+        <div className="home__features" aria-label="Características">
+          <span>2 contra 2</span>
+          <span>En tiempo real</span>
+          <span>Con amigos o bots</span>
+        </div>
       </header>
 
       <section className="panel">
+        <div className="panel__head">
+          <div>
+            <span className="panel__eyebrow">PARTIDA ONLINE</span>
+            <h2>Crea una mesa privada</h2>
+            <p>Invita a tus amigos con un código.</p>
+          </div>
+          <span className={`connection${online ? ' connection--on' : loading ? ' connection--loading' : ''}`}>
+            <i />
+            {loading ? 'Conectando' : online ? 'Disponible' : 'Sin conexión'}
+          </span>
+        </div>
         <label className="field">
           <span>Tu nombre</span>
           <input
@@ -96,20 +116,34 @@ export function Home({ initialCode }: { initialCode?: string }) {
         )}
       </section>
 
-      <div className="home__or"><span>o</span></div>
-      <Button block onClick={() => { remember(); navigate('/local'); }}>Jugar contra bots</Button>
+      <div className="home__or"><span>O JUEGA POR TU CUENTA</span></div>
+      <Button className="home__bots" block onClick={() => { remember(); navigate('/local'); }}>
+        <span className="home__bot-mark" aria-hidden="true">♟</span>
+        <span>Jugar contra bots<small>Sin conexión, cuando quieras</small></span>
+        <span className="home__arrow" aria-hidden="true">→</span>
+      </Button>
 
       <div className="home__links">
         <button type="button" onClick={() => setCfgOpen(true)}>
+          <span className="home__link-mark" aria-hidden="true">01</span>
           <b>Ajustes de partida</b>
           <small>{configSummary(config)}</small>
         </button>
-        <button type="button" onClick={() => setRules(true)}><b>Reglas</b><small>Cómo se puntúa</small></button>
+        <button type="button" onClick={() => setRules(true)}>
+          <span className="home__link-mark" aria-hidden="true">02</span>
+          <b>Reglas</b><small>Cómo se puntúa</small>
+        </button>
         {installer.canInstall && (
-          <button type="button" onClick={() => void installer.install()}><b>Instalar la app</b><small>Icono en tu pantalla, a pantalla completa</small></button>
+          <button type="button" onClick={() => void installer.install()}>
+            <span className="home__link-mark" aria-hidden="true">↓</span>
+            <b>Instalar la app</b><small>Un acceso directo en tu dispositivo</small>
+          </button>
         )}
         {!installer.canInstall && installer.iosHint && (
-          <button type="button" onClick={() => setIosSheet(true)}><b>Instalar en el iPhone</b><small>Añadir a la pantalla de inicio</small></button>
+          <button type="button" onClick={() => setIosSheet(true)}>
+            <span className="home__link-mark" aria-hidden="true">↓</span>
+            <b>Instalar en el iPhone</b><small>Añadir a la pantalla de inicio</small>
+          </button>
         )}
       </div>
 
