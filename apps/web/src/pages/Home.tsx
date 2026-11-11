@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { RoomConfig } from '@mus/engine';
+import { CardFace } from '../components/CardFace.tsx';
 import { ConfigForm, configSummary } from '../components/ConfigForm.tsx';
 import { RulesSheet } from '../components/RulesSheet.tsx';
 import { Button, Sheet } from '../components/ui.tsx';
@@ -71,6 +72,14 @@ export function Home({ initialCode }: { initialCode?: string }) {
           <span>2 contra 2</span>
           <span>En tiempo real</span>
           <span>Con amigos o bots</span>
+        </div>
+        <div className="home__art" aria-hidden="true">
+          <div className="home__art-card home__art-card--back"><CardFace card={{ id: 'e7', rank: 7, suit: 'espadas' }} /></div>
+          <div className="home__art-card home__art-card--left"><CardFace card={{ id: 'c12', rank: 12, suit: 'copas' }} /></div>
+          <div className="home__art-card home__art-card--right"><CardFace card={{ id: 'o1', rank: 1, suit: 'oros' }} /></div>
+          <span className="home__art-chip home__art-chip--one">5</span>
+          <span className="home__art-chip home__art-chip--two">1</span>
+          <span className="home__art-spark">✦</span>
         </div>
       </header>
 
