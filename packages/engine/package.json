@@ -1,0 +1,12 @@
+{
+  "name": "@mus/engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Motor de Mus (8 reyes) puro y determinista. Sin dependencias: corre igual en Node, Deno (Supabase Edge Functions) y navegador.",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "test": "node --experimental-strip-types --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  }
+}

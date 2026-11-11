@@ -1,0 +1,15 @@
+{
+  "name": "mus-online",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Mus online 2 contra 2: motor de reglas, app móvil (React + Vite) y backend Supabase.",
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "dev": "npm run dev -w @mus/web",
+    "build": "npm run build -w @mus/web",
+    "test": "npm test -w @mus/engine && npm test -w @mus/web",
+    "typecheck": "npm run typecheck -w @mus/engine && npm run typecheck -w @mus/web",
+    "sync:engine": "node scripts/sync-engine.mjs",
+    "deploy:functions": "node scripts/sync-engine.mjs && npx supabase functions deploy game-action"
+  }
+}
