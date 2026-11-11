@@ -506,7 +506,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .sign b { font-size: 15.5px; }
 .sign small { color: var(--muted); font-size: 11.5px; line-height: 1.25; }
 .sign:disabled { opacity: 0.32; }
-.sign-toast { position: absolute; z-index: 30; left: 12px; right: 12px; bottom: calc(100% - 4px); display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: #1d2938; border: 1px solid var(--brass); box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5); animation: drop 0.3s cubic-bezier(0.2, 1.1, 0.3, 1) both; color: var(--brass); }
+.sign-toast { position: relative; z-index: 30; display: flex; align-items: center; gap: 10px; width: fit-content; max-width: min(100%, 440px); margin: 0 auto 6px; padding: 9px 12px; border-radius: 14px; background: #1d2938; border: 1px solid var(--brass); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32); animation: drop 0.3s cubic-bezier(0.2, 1.1, 0.3, 1) both; color: var(--brass); }
 .sign-toast div { display: grid; line-height: 1.2; }
 .sign-toast small { color: var(--muted); font-size: 12px; }
 .sign-toast b { font-size: 19px; font-family: var(--font-display); color: var(--text); }
@@ -581,6 +581,7 @@ kbd { font: inherit; font-weight: 800; font-size: 11.5px; padding: 1px 6px; bord
   .table__top { grid-column: 1; padding-left: 0; padding-right: 0; }
   .score { max-width: 920px; }
   .table__top { justify-content: space-between; }
+  .sign-toast { position: fixed; top: calc(var(--safe-t) + 82px); right: max(64px, calc((100vw - 1600px) / 2 + 72px)); width: min(320px, calc(100vw - 140px)); max-width: 320px; margin: 0; }
   .table__felt { grid-column: 1; margin: 0; border-radius: 34px; grid-template-columns: minmax(120px,.72fr) minmax(0,2fr) minmax(120px,.72fr); grid-template-rows: minmax(116px,auto) minmax(0,1fr); padding: 18px 12px; }
   .table__me { grid-column: 1; }
   .opponents { padding: 0; margin: 0; }
@@ -600,6 +601,12 @@ kbd { font: inherit; font-weight: 800; font-size: 11.5px; padding: 1px 6px; bord
   .panel { padding: 14px; }
   .panel__head { flex-direction: column; }
   .home__links button { padding: 10px; }
+}
+
+@media (max-height: 700px) {
+  .sign-toast { padding: 7px 10px; }
+  .sign-toast em { display: none; }
+  .sign-toast b { font-size: 16px; }
 }
 
 /* ───────────────────────────── Animaciones ─────────────────────────────── */
