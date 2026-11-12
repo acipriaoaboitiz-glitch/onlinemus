@@ -16,6 +16,11 @@ export interface Card {
 export type Seat = 0 | 1 | 2 | 3;
 export type Team = 0 | 1;
 export type Lance = 'grande' | 'chica' | 'pares' | 'juego' | 'punto';
+export type SignId =
+  | 'ciego' | 'dos_reyes' | 'tres_reyes' | 'cuatro_reyes' | 'solomillo'
+  | 'dos_cerdos' | 'tres_cerdos' | 'cuatro_cerdos'
+  | 'medias' | 'duples' | 'treinta_y_una' | 'treinta'
+  | 'quiero_mus' | 'no_mus';
 
 export interface RoomConfig {
   /** Piedras para ganar un juego (40 por defecto; 30 y 25 también son habituales). */
@@ -136,6 +141,12 @@ export interface MusState extends Omit<PublicState, 'handCounts' | 'stockCount' 
   stock: Card[];
   discards: Card[];
   revealed: boolean;
+  /** Seña vigente, privada salvo por el pulso público sin el identificador. */
+  signalWindow: { seat: Seat; id: SignId; startedAtMs: number; expiresAtMs: number } | null;
+  /** Cooldown validado por el servidor para evitar intentos repetidos de captura. */
+  signalCatchCooldowns: number[];
+  /** Pausa autoritativa de un segundo tras confirmar una seña cazada. */
+  signalPauseUntilMs: number;
 }
 
 export type Action =
@@ -174,7 +185,9 @@ export type GameEvent =
   | { t: 'showdown' }
   | { t: 'gameWon'; team: Team; by: 'points' | 'ordago' }
   | { t: 'vacaWon'; team: Team }
-  | { t: 'matchWon'; team: Team };
+  | { t: 'matchWon'; team: Team }
+  | { t: 'signal_pulse'; seat: Seat; at: number }
+  | { t: 'signal_resolution'; result: 'caught' | 'false_alarm'; signalSeat: Seat | null; catcher: Seat; team: Team };
 
 export type ActResult =
   | { ok: true; state: MusState; events: GameEvent[] }

@@ -4,9 +4,10 @@
  * validación de lo que manda el cliente, bots, turnos que caducan) y por eso se prueba en memoria.
  */
 import { botAction } from './bot.ts';
-import { act, autoAction, legalActions, newMatch, normalizeConfig } from './machine.ts';
-import { SEATS } from './seats.ts';
-import type { Action, GameEvent, MusState, Seat } from './types.ts';
+import { act, awardSignalPoint, autoAction, legalActions, newMatch, normalizeConfig } from './machine.ts';
+import { SEATS, teamOf } from './seats.ts';
+import { SIGNS, signIsTruthful } from './signs.ts';
+import type { Action, GameEvent, MusState, Seat, SignId, Team } from './types.ts';
 
 export type RoomStatus = 'lobby' | 'playing' | 'finished' | 'abandoned';
 
@@ -49,11 +50,15 @@ export interface ServerDeps {
   now(): number;
   /** [semilla del mazo, semilla de la mano inicial]. En producción sale de crypto. */
   randomSeed(): [number, number];
+  /** Publica una seña ya validada por el servidor en el canal privado de la pareja. */
+  publishSign(roomId: string, team: Team, payload: { id: SignId; from: Seat; at: number }): Promise<void>;
 }
 
 export type GameRequest =
   | { kind: 'start' }
   | { kind: 'action'; action: unknown }
+  | { kind: 'send_signal'; id: unknown }
+  | { kind: 'catch_signal_attempt' }
   | { kind: 'tick' };
 
 export interface GameResponse {
@@ -98,9 +103,89 @@ export async function handleGameRequest(
   switch (req.kind) {
     case 'start': return startMatch(deps, roomId, userId, players);
     case 'action': return applyAction(deps, roomId, me.seat as Seat, req.action, players);
+    case 'send_signal': return sendSignal(deps, roomId, me.seat as Seat, req.id);
+    case 'catch_signal_attempt': return catchSignal(deps, roomId, me.seat as Seat, players);
     case 'tick': return tickTurn(deps, roomId, players);
     default: return fail(400, 'Petición desconocida');
   }
+}
+
+async function sendSignal(deps: ServerDeps, roomId: string, seat: Seat, rawId: unknown): Promise<GameResponse> {
+  if (typeof rawId !== 'string' || !SIGNS.some((sign) => sign.id === rawId)) return fail(422, 'Seña no válida');
+  const id = rawId as SignId;
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const row = await deps.loadGame(roomId);
+    if (!row) return fail(404, 'La partida no ha empezado');
+    const s = structuredClone(row.state);
+    if (s.phase === 'matchEnd') return fail(422, 'La partida ha terminado');
+    const at = deps.now();
+    if (at < (s.signalPauseUntilMs ?? 0)) return fail(423, 'La mesa está resolviendo una seña');
+    if (s.config.truthfulSigns && !signIsTruthful(id, s.hands[seat], s.config)) {
+      return fail(422, 'Esa seña no coincide con tu mano');
+    }
+
+    s.signalWindow = { seat, id, startedAtMs: at, expiresAtMs: at + 3_000 };
+    s.version += 1;
+    const events: GameEvent[] = [{ t: 'signal_pulse', seat, at }];
+    const committed = await deps.commit({
+      roomId, expected: row.version, state: s, events, seat, action: { type: 'send_signal', id },
+    });
+    if (committed) {
+      await deps.publishSign(roomId, (seat % 2) as Team, { id, from: seat, at });
+      return ok({ ok: true, version: s.version });
+    }
+  }
+  return fail(409, 'conflict');
+}
+
+async function catchSignal(deps: ServerDeps, roomId: string, seat: Seat, players: PlayerRow[]): Promise<GameResponse> {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const row = await deps.loadGame(roomId);
+    if (!row) return fail(404, 'La partida no ha empezado');
+    const s = structuredClone(row.state);
+    if (s.phase === 'matchEnd') return fail(422, 'La partida ha terminado');
+
+    const now = deps.now();
+    if (now < (s.signalPauseUntilMs ?? 0)) return fail(423, 'La mesa está resolviendo una seña');
+    const cooldowns = s.signalCatchCooldowns ?? [0, 0, 0, 0];
+    if (now < (cooldowns[seat] ?? 0)) {
+      return { status: 429, body: { error: 'Espera un momento antes de volver a sospechar', remainingMs: cooldowns[seat] - now } };
+    }
+    s.signalCatchCooldowns = [...cooldowns];
+    s.signalCatchCooldowns[seat] = now + 2_000;
+
+    const window = s.signalWindow ?? null;
+    const caught = window !== null && now < window.expiresAtMs && teamOf(seat) !== teamOf(window.seat);
+    const events: GameEvent[] = [{
+      t: 'signal_resolution',
+      result: caught ? 'caught' : 'false_alarm',
+      signalSeat: caught ? window.seat : null,
+      catcher: seat,
+      team: teamOf(seat),
+    }];
+
+    if (caught) {
+      s.signalWindow = null;
+      s.signalPauseUntilMs = now + 1_000;
+      awardSignalPoint(s, teamOf(seat), events);
+    } else {
+      if (window && now >= window.expiresAtMs) s.signalWindow = null;
+      s.score.points[teamOf(seat)] = Math.max(0, s.score.points[teamOf(seat)] - 1);
+    }
+
+    s.version += 1;
+    const committed = await deps.commit({
+      roomId, expected: row.version, state: s, events, seat, action: { type: 'catch_signal_attempt' },
+    });
+    if (committed) {
+      const pauseMs = Math.max(0, (s.signalPauseUntilMs ?? 0) - deps.now());
+      if (pauseMs > 0) await new Promise((resolve) => setTimeout(resolve, pauseMs));
+      await runBots(deps, roomId, players);
+      return ok({ ok: true, version: s.version });
+    }
+  }
+  return fail(409, 'conflict');
 }
 
 async function startMatch(deps: ServerDeps, roomId: string, userId: string, players: PlayerRow[]): Promise<GameResponse> {
@@ -134,6 +219,7 @@ async function applyAction(
   for (let attempt = 0; attempt < 5; attempt++) {
     const row = await deps.loadGame(roomId);
     if (!row) return fail(404, 'La partida no ha empezado');
+    if (deps.now() < (row.state.signalPauseUntilMs ?? 0)) return fail(423, 'La mesa está resolviendo una seña');
     const res = act(row.state, seat, action);
     if (!res.ok) return fail(422, res.error);
     const committed = await deps.commit({
@@ -157,6 +243,19 @@ async function tickTurn(deps: ServerDeps, roomId: string, players: PlayerRow[]):
     const row = await deps.loadGame(roomId);
     if (!row) return fail(404, 'La partida no ha empezado');
     const s = row.state;
+    if (deps.now() < (s.signalPauseUntilMs ?? 0)) {
+      return ok({ ok: false, error: 'not_expired', remainingMs: s.signalPauseUntilMs - deps.now() });
+    }
+    if (s.signalWindow && deps.now() >= s.signalWindow.expiresAtMs) {
+      const state = structuredClone(s);
+      state.signalWindow = null;
+      state.version += 1;
+      const committed = await deps.commit({
+        roomId, expected: row.version, state, events: [], seat: null, action: { kind: 'signal_timeout' },
+      });
+      if (committed) return ok({ ok: true, expiredSignal: true });
+      continue;
+    }
     const limit = s.config.turnSeconds * 1000;
     if (limit <= 0 || s.phase === 'matchEnd') return ok({ ok: true, noop: true });
 
@@ -206,6 +305,7 @@ export async function runBots(deps: ServerDeps, roomId: string, players: PlayerR
       await deps.setRoomStatus(roomId, 'finished');
       return;
     }
+    if (deps.now() < (s.signalPauseUntilMs ?? 0)) return;
     const seat = SEATS.find((x) => bots.has(x) && legalActions(s, x).length > 0);
     if (seat === undefined) return;
 

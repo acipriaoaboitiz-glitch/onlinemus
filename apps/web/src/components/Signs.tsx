@@ -1,7 +1,9 @@
 import { SIGNS, signIsTruthful } from '@mus/engine';
 import type { Card, RoomConfig, SignId } from '@mus/engine';
+import { AnimatePresence, motion } from 'framer-motion';
 import type { IncomingSign } from '../game/types.ts';
-import { IconWink } from './icons.tsx';
+import type { GameEvent, Seat } from '@mus/engine';
+import { IconEye, IconWink } from './icons.tsx';
 import { Sheet } from './ui.tsx';
 
 const GROUPS: { id: 'cartas' | 'jugada' | 'mus'; label: string }[] = [
@@ -19,12 +21,55 @@ export function SignButton({ onClick, disabled }: { onClick: () => void; disable
   );
 }
 
+export function CatchSignalButton({ cooldownMs, disabled, windowOpen, onClick }: {
+  cooldownMs: number; disabled?: boolean; windowOpen?: boolean; onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`catch-signal${windowOpen ? ' catch-signal--window' : ''}`}
+      onClick={onClick}
+      disabled={disabled || cooldownMs > 0}
+      aria-label="¡Seña! Sospecho que un rival ha pasado una seña"
+    >
+      <IconEye />
+      <span>¡Seña!</span>
+      {cooldownMs > 0 && <small>{Math.ceil(cooldownMs / 1000)} s</small>}
+    </button>
+  );
+}
+
+export function SignalResolutionOverlay({ resolution, names }: {
+  resolution: Extract<GameEvent, { t: 'signal_resolution' }> | null; names: readonly string[];
+}) {
+  const caught = resolution?.result === 'caught';
+  const actor = resolution ? names[caught ? resolution.signalSeat ?? resolution.catcher : resolution.catcher] : '';
+  return (
+    <AnimatePresence>
+      {resolution && (
+        <motion.div
+          className={`signal-alert${caught ? ' signal-alert--caught' : ' signal-alert--false'}`}
+          role="alert"
+          initial={{ opacity: 0, scale: 0.88, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 1.04 }}
+          transition={{ duration: 0.22, ease: 'easeOut' }}
+        >
+          <span>{caught ? '¡SEÑA CAZADA!' : 'FALSA ALARMA'}</span>
+          <b>{caught ? `${actor} · el equipo rival gana 1 piedra` : `${actor} · su equipo pierde 1 piedra`}</b>
+          <small>{caught ? 'El servidor ha confirmado la seña' : 'La sospecha llegó tarde o no había seña'}</small>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 export function SignSheet({ open, onClose, hand, config, onSend }: {
   open: boolean; onClose: () => void; hand: Card[]; config: RoomConfig; onSend: (id: SignId) => void;
 }) {
   return (
     <Sheet open={open} onClose={onClose} title="Señas para tu pareja">
-      <p className="sheet__note">Solo las ve tu pareja. {config.truthfulSigns ? 'Solo puedes hacer las señas que son ciertas con tu mano.' : 'Aquí vale el farol.'}</p>
+      <p className="sheet__note">El contenido es privado para tu pareja; todos ven un microdestello. {config.truthfulSigns ? 'Solo puedes hacer las señas que son ciertas con tu mano.' : 'Aquí vale el farol.'}</p>
       {GROUPS.map((g) => (
         <div key={g.id} className="signs__group">
           <h3>{g.label}</h3>

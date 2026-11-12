@@ -109,7 +109,8 @@ export function createLocalSource(opts: LocalOptions): GameSource {
       commit(res.state, res.events);
       return null;
     },
-    sendSign() { /* la pareja bot no entiende de señas: el envío es solo de adorno */ },
+    async sendSign() { /* la pareja bot no entiende de señas: el envío es solo de adorno */ return null; },
+    async catchSignal() { return 'La sospecha solo está disponible en salas online'; },
     onSign(cb) {
       signListeners.add(cb);
       return () => { signListeners.delete(cb); };

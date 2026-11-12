@@ -30,3 +30,9 @@ export const IconWink = () => (
     <path d="M8.5 14.6c1 1.3 2.2 1.9 3.5 1.9s2.5-.6 3.5-1.9" />
   </Icon>
 );
+export const IconEye = () => (
+  <Icon>
+    <path d="M2.8 12s3.2-6 9.2-6 9.2 6 9.2 6-3.2 6-9.2 6-9.2-6-9.2-6Z" />
+    <circle cx="12" cy="12" r="2.5" />
+  </Icon>
+);

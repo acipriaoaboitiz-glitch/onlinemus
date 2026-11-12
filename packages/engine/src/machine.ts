@@ -70,6 +70,9 @@ export function newMatch(config: Partial<RoomConfig> = {}, seed = 1, mano: Seat 
     stock: [],
     discards: [],
     revealed: false,
+    signalWindow: null,
+    signalCatchCooldowns: [0, 0, 0, 0],
+    signalPauseUntilMs: 0,
   };
   dealHand(s);
   return s;
@@ -122,13 +125,23 @@ export function legalActions(s: LegalCtx, seat: Seat): LegalAction[] {
 
 /** Estado que puede ver cualquiera: sin manos, sin mazo, sin semilla. */
 export function publicView(s: MusState): PublicState {
-  const { rng: _rng, hands, stock, discards: _discards, revealed, ...pub } = s;
+  const {
+    rng: _rng, hands, stock, discards: _discards, revealed,
+    signalWindow: _signalWindow, signalCatchCooldowns: _signalCatchCooldowns,
+    signalPauseUntilMs: _signalPauseUntilMs, ...pub
+  } = s;
   return {
     ...pub,
     handCounts: hands.map((h) => h.length),
     stockCount: stock.length,
     revealedHands: revealed ? hands : null,
   };
+}
+
+/** Da una piedra por seña cazada y conserva las reglas normales de fin de juego. */
+export function awardSignalPoint(s: MusState, team: Team, ev: GameEvent[]): void {
+  s.score.points[team] = Math.min(s.config.targetPoints, s.score.points[team] + 1);
+  if (s.score.points[team] >= s.config.targetPoints) winGame(s, team, 'points', ev);
 }
 
 /** Las cartas de un asiento: solo se entregan a su dueño. */
@@ -179,6 +192,7 @@ function dealHand(s: MusState): GameEvent[] {
   s.awards = [];
   s.ready = [false, false, false, false];
   s.revealed = false;
+  s.signalWindow = null;
   s.handResult = null;
   return [{ t: 'handStart', mano: s.mano }];
 }

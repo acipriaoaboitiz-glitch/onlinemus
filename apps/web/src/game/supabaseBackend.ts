@@ -146,9 +146,6 @@ export function createSupabaseBackend(client: SupabaseClient): Backend {
         ch = channel;
       });
       return {
-        send(p) {
-          void ch?.send({ type: 'broadcast', event: 'sign', payload: p });
-        },
         close() {
           alive = false;
           if (ch) void client.removeChannel(ch);

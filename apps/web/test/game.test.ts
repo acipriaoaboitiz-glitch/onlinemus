@@ -234,19 +234,19 @@ test('Online: cuatro humanos juegan una partida entera; cada uno solo ve sus car
   clients.forEach((c) => c.destroy());
 });
 
-test('Online: las señas solo las recibe la pareja', async () => {
+test('Online: la seña validada solo la recibe la pareja', async () => {
   const { clients } = await lobby({ humans: ['u1', 'u2', 'u3', 'u4'] });
   await clients[0].start();
   await settle(6);
   const bySeat = new Map(clients.map((c) => [c.getSnapshot().mySeat, c]));
   const got: Record<number, string[]> = { 0: [], 1: [], 2: [], 3: [] };
   for (const [seat, c] of bySeat) c.onSign((s) => got[seat].push(`${s.id}@${s.from}`));
-  bySeat.get(0)!.sendSign('medias');
+  assert.equal(await bySeat.get(0)!.sendSign('quiero_mus'), null);
   await settle(3);
-  bySeat.get(3)!.sendSign('duples');
+  assert.equal(await bySeat.get(3)!.sendSign('quiero_mus'), null);
   await settle(3);
   // 0 y 2 son pareja; 1 y 3 son pareja. Los rivales no ven nada.
-  assert.deepEqual(got, { 0: [], 1: ['duples@3'], 2: ['medias@0'], 3: [] });
+  assert.deepEqual(got, { 0: [], 1: ['quiero_mus@3'], 2: ['quiero_mus@0'], 3: [] });
   clients.forEach((c) => c.destroy());
 });
 

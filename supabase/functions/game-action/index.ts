@@ -22,6 +22,30 @@ const cors = {
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
 
+async function publishTeamSign(roomId: string, team: number, payload: { id: string; from: number; at: number }): Promise<void> {
+  const channel = admin.channel(`room:${roomId}:team:${team}`, {
+    config: { private: true, broadcast: { self: false, ack: true } },
+  });
+  try {
+    await new Promise<void>((resolve, reject) => {
+      let sent = false;
+      channel.subscribe((status) => {
+        if (status === 'SUBSCRIBED' && !sent) {
+          sent = true;
+          void channel.send({ type: 'broadcast', event: 'sign', payload }).then((result) => {
+            if (result === 'ok') resolve();
+            else reject(new Error(`No se pudo publicar la seña: ${result}`));
+          }, reject);
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          reject(new Error(`Canal de señas no disponible: ${status}`));
+        }
+      });
+    });
+  } finally {
+    await admin.removeChannel(channel);
+  }
+}
+
 const deps: ServerDeps = {
   async getRoom(id) {
     const { data, error } = await admin.from('rooms').select('id, host_id, status, config').eq('id', id).maybeSingle();
@@ -58,6 +82,7 @@ const deps: ServerDeps = {
     if (error) throw error;
   },
   now: () => Date.now(),
+  publishSign: publishTeamSign,
   randomSeed: () => {
     const r = crypto.getRandomValues(new Uint32Array(2));
     return [r[0], r[1]];
@@ -83,8 +108,14 @@ Deno.serve(async (req) => {
   if (!/^[0-9a-f-]{36}$/i.test(roomId)) return json({ error: 'Sala no válida' }, 400);
 
   const kind = body.kind;
-  if (kind !== 'start' && kind !== 'action' && kind !== 'tick') return json({ error: 'Petición desconocida' }, 400);
-  const request: GameRequest = kind === 'action' ? { kind, action: body.action } : { kind };
+  if (kind !== 'start' && kind !== 'action' && kind !== 'tick' && kind !== 'send_signal' && kind !== 'catch_signal_attempt') {
+    return json({ error: 'Petición desconocida' }, 400);
+  }
+  const request: GameRequest = kind === 'action'
+    ? { kind, action: body.action }
+    : kind === 'send_signal'
+      ? { kind, id: body.id }
+      : { kind };
 
   try {
     const res = await handleGameRequest(deps, roomId, auth.user.id, request);

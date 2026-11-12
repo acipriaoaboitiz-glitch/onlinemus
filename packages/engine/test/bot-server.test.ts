@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   act, botAction, handleGameRequest, legalActions, newMatch, nextRandom, publicView, sanitizeAction, SEATS,
 } from '../src/index.ts';
-import type { Action, GameRow, MusState, PlayerRow, RoomRow, Seat, ServerDeps } from '../src/index.ts';
+import type { Action, GameEvent, GameRow, MusState, PlayerRow, RoomRow, Seat, ServerDeps } from '../src/index.ts';
 
 function seededRand(seed: number): () => number {
   let s = seed;
@@ -77,9 +77,11 @@ function memory(opts: { humans: number; config?: Record<string, unknown> }) {
       : { seat, user_id: null, is_bot: true });
   const room: RoomRow = { id: 'r1', host_id: 'u0', status: 'lobby', config: opts.config ?? { targetPoints: 30, turnSeconds: 20 } };
   let game: GameRow | null = null;
+  let lastEvents: GameEvent[] = [];
   let clock = 1_000_000;
   let failNextCommit = 0;
   const commits: { seat: number | null; version: number }[] = [];
+  const publishedSigns: { roomId: string; team: 0 | 1; id: string; from: Seat; at: number }[] = [];
   const deps: ServerDeps = {
     async getRoom() { return room; },
     async getPlayers() { return players; },
@@ -88,12 +90,14 @@ function memory(opts: { humans: number; config?: Record<string, unknown> }) {
       if (failNextCommit > 0) { failNextCommit--; return false; }
       if (c.expected < 0 ? game !== null : game === null || game.version !== c.expected) return false;
       game = { version: c.state.version, state: structuredClone(c.state), updatedAtMs: clock };
+      lastEvents = structuredClone(c.events);
       commits.push({ seat: c.seat, version: c.state.version });
       return true;
     },
     async setRoomStatus(_id, status) { room.status = status; },
     now: () => clock,
     randomSeed: () => [4242, 2],
+    async publishSign(roomId, team, payload) { publishedSigns.push({ roomId, team, ...payload }); },
   };
   return {
     deps, room, players, commits,
@@ -101,6 +105,8 @@ function memory(opts: { humans: number; config?: Record<string, unknown> }) {
     failCommits: (n: number) => { failNextCommit = n; },
     get state() { return game!.state; },
     get game() { return game; },
+    get events() { return lastEvents; },
+    get publishedSigns() { return publishedSigns; },
   };
 }
 
@@ -218,4 +224,56 @@ test('sanitizeAction: acepta lo legítimo y descarta basura', () => {
     { type: 'DISCARD', cardIds: [1] }, { type: 'DISCARD', cardIds: ['a', 'b', 'c', 'd', 'e'] }]) {
     assert.equal(sanitizeAction(bad), null, JSON.stringify(bad));
   }
+});
+
+test('Servidor: valida la verdad de la seña, la retransmite en privado y la captura una sola vez', async () => {
+  const m = memory({ humans: 4 });
+  await start(m);
+  m.game!.state.hands[0] = [
+    { id: 'o7', suit: 'oros', rank: 7 },
+    { id: 'c7', suit: 'copas', rank: 7 },
+    { id: 'e7', suit: 'espadas', rank: 7 },
+    { id: 'b5', suit: 'bastos', rank: 5 },
+  ];
+
+  const invalid = await handleGameRequest(m.deps, 'r1', 'u0', { kind: 'send_signal', id: 'cuatro_reyes' });
+  assert.equal(invalid.status, 422, 'el servidor no acepta una seña falsa');
+  const sent = await handleGameRequest(m.deps, 'r1', 'u0', { kind: 'send_signal', id: 'medias' });
+  assert.equal(sent.status, 200);
+  assert.deepEqual(m.publishedSigns, [{ roomId: 'r1', team: 0, id: 'medias', from: 0, at: 1_000_000 }]);
+  assert.deepEqual(m.state.signalWindow, {
+    seat: 0, id: 'medias', startedAtMs: 1_000_000, expiresAtMs: 1_003_000,
+  });
+  assert.ok(!JSON.stringify(publicView(m.state)).includes('"id":"medias"'), 'el público no recibe la seña');
+  assert.equal(m.state.version, 1);
+
+  const caught = await handleGameRequest(m.deps, 'r1', 'u1', { kind: 'catch_signal_attempt' });
+  assert.equal(caught.status, 200);
+  assert.equal(m.state.score.points[1], 1, 'el equipo rival gana una piedra');
+  assert.equal(m.state.signalWindow, null);
+  assert.equal((await send(m, 'u0', { type: 'MUS' })).status, 423, 'el juego se pausa tras una captura');
+  assert.equal((await handleGameRequest(m.deps, 'r1', 'u1', { kind: 'catch_signal_attempt' })).status, 423);
+  m.advance(1_001);
+  assert.equal((await handleGameRequest(m.deps, 'r1', 'u1', { kind: 'catch_signal_attempt' })).status, 429);
+
+  m.advance(1_000);
+  m.state.score.points[1] = 2;
+  const falseAlarm = await handleGameRequest(m.deps, 'r1', 'u3', { kind: 'catch_signal_attempt' });
+  assert.equal(falseAlarm.status, 200);
+  assert.equal(m.state.score.points[1], 1, 'el equipo que acusa sin seña pierde una piedra');
+  assert.equal(m.game!.state.signalCatchCooldowns[3], 1_004_001);
+});
+
+test('Servidor: una captura después de tres segundos se penaliza según el reloj del servidor', async () => {
+  const m = memory({ humans: 2 });
+  await start(m);
+  assert.equal((await handleGameRequest(m.deps, 'r1', 'u0', { kind: 'send_signal', id: 'quiero_mus' })).status, 200);
+  m.state.score.points[1] = 2;
+  m.advance(3_001);
+
+  const late = await handleGameRequest(m.deps, 'r1', 'u1', { kind: 'catch_signal_attempt' });
+  assert.equal(late.status, 200);
+  assert.equal(m.state.score.points[1], 1);
+  assert.equal(m.state.signalWindow, null);
+  assert.equal(m.events[0].t, 'signal_resolution');
 });

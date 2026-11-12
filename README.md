@@ -5,7 +5,7 @@ Mus 2 contra 2 para jugar con amigos en tiempo real: **web en navegador (móvil 
 - Baraja española de 40 (cartas de la primera baraja de **Fournier, 1878**, dominio público; ver `apps/web/public/cards/ATTRIBUTION.txt`) con **8 reyes** (el 3 es rey y el 2 es as/«cerdo»), Mus y descarte, Grande · Chica · Pares · Juego/Punto, envites, órdago y **deje**.
 - **Contador automático** con piedras y amarracos (5 piedras), aviso de «dentro», juegos y vacas. Partidas a 40 o 30 (configurable).
 - **Salas privadas** con código de 4 a 6 dígitos, parejas enfrentadas, bots para rellenar asientos, revancha y reconexión.
-- **Señas secretas** que solo ve tu pareja (canal privado por pareja protegido con RLS).
+- **Señas secretas**: solo la pareja recibe su contenido; toda la mesa ve un microdestello. La Edge Function valida la mano y abre una ventana de 3 s para que un rival pueda cazarlas; el acierto da una piedra y una falsa alarma la resta (cooldown validado por el servidor).
 - Móvil primero: botones grandes, cartas que se marcan deslizando hacia arriba, modo oscuro, zonas seguras, vibración y sonidos discretos. En escritorio: mesa ancha, registro de la mano y atajos de teclado.
 
 ## Probarlo en 1 minuto (sin servidor)
@@ -24,7 +24,7 @@ packages/engine/         Motor de reglas puro y determinista (TypeScript, sin de
   src/machine.ts           máquina de estados: act(), legalActions(), publicView()
   src/bot.ts               bots heurísticos
   src/server.ts            núcleo del servidor (arranque, validación, bots, turnos que caducan)
-  test/                    35 tests: reglas, ejemplos oficiales de Pagat, bots, servidor
+  test/                    tests: reglas, ejemplos oficiales de Pagat, bots, servidor
 apps/web/                React + Vite + CSS propio (sin librerías de UI)
   src/game/                fuentes de partida: local (bots) y remota (Supabase) + backend en memoria para tests
   src/components/ pages/   mesa, mano, marcador, señas, lobby…
@@ -41,9 +41,20 @@ scripts/sync-engine.mjs    copia el motor a la Edge Function
 El servidor es la autoridad: el cliente solo envía intenciones; el motor decide, y cada jugador solo recibe **su** mano (RLS). Las acciones se confirman en una transacción con control de versión.
 
 ```
-móvil → Edge Function game-action → motor (act) → commit_game_update (atómico)
-      ← Realtime: game_public (todos) · game_hands (solo su dueño) · canal privado de la pareja (señas)
+móvil → Edge Function game-action → motor/validador → commit_game_update (atómico)
+      ← Realtime: game_public (pulso y resolución públicos) · game_hands (solo su dueño)
+      ← broadcast privado de señas emitido por la Edge Function (solo la pareja)
 ```
+
+Payloads del sistema de sospecha:
+
+```json
+{ "kind": "send_signal", "id": "medias" }
+{ "kind": "catch_signal_attempt" }
+{ "t": "signal_resolution", "result": "caught", "signalSeat": 0, "catcher": 1, "team": 1 }
+```
+
+El `signal_pulse` público solo incluye asiento y hora; el identificador de la seña se entrega por el canal privado de la pareja.
 
 ### En local
 
@@ -110,13 +121,14 @@ Contrastadas con Pagat y con el reglamento vasco.
 - **Deje**: un «no quiero» paga al instante lo ya aceptado (1 piedra si era el primer envite). Lo aceptado se reparte al enseñar, en orden Grande, Chica, Pares y Juego; quien llega antes al tope gana el juego.
 - **Reparto**: Grande y Chica, 1 si todos pasan o lo envidado si se ve. Pares: 1 / 2 / 3 (pares, medias, duples) por cada compañero del equipo ganador. Juego: 3 por el 31, 2 por los demás. Punto: 1 extra. Con un envite rechazado en Pares/Juego/Punto gana quien envidó, sin comparar cartas.
 - **Órdago aceptado**: gana el juego quien gane ese lance; lo pendiente de lances anteriores no cuenta.
+- **Sistema de sospecha**: el servidor valida las señas con las cartas y mide los 3 segundos con su propio reloj. Una captura rival válida suma 1 piedra y pausa la mesa 1 s; una falsa alarma resta 1 (mínimo 0). Los intentos tienen 2 s de cooldown.
 - **Configurable** por sala: 30 o 40 piedras, juegos por vaca, vacas por partida, 8 o 4 reyes, señas veraces, tiempo por turno.
 
 Simplificaciones: «¿hay pares?» y «¿hay juego?» se declaran solos (es información pública); un envite no puede superar el tope del juego (para ir a todo está el órdago); al acabar la mano se enseñan las cuatro manos.
 
 ## Qué se ha verificado y qué no
 
-**Verificado** en el entorno de desarrollo: 46 tests (reglas, bots, servidor y cliente online con servidor en memoria); tipos del motor y comprobaciones de la app con declaraciones mínimas de React; la app compilada con esbuild y jugada en Chromium en móvil (390×844, con toques reales) y en escritorio (1280×800): partida completa contra bots y flujo completo online (crear sala → bots → empezar → jugar) sin errores.
+**Verificado** en el entorno de desarrollo: pruebas del motor, reglas, bots, servidor y cliente online con servidor en memoria; comprobación de tipos del motor y la app. El backend realtime debe probarse también contra un proyecto Supabase real.
 
 **No verificado**: los tipos de React con las declaraciones reales, el SQL y la Edge Function contra un Supabase real, la compilación con Vite y las apps nativas en un dispositivo o emulador. La lógica online se probó con un servidor en memoria; al conectar con Supabase, comprueba especialmente que estén habilitados el acceso anónimo y Realtime.
 

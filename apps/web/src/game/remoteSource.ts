@@ -281,8 +281,15 @@ export function createRemoteSource(
       }
       return String(r.body.error ?? 'No se ha podido completar la acción');
     },
-    sendSign(id: SignId) {
-      team?.send({ id, from: mySeat, at: Date.now() });
+    async sendSign(id: SignId) {
+      const r = await backend.gameRequest(roomId, { kind: 'send_signal', id });
+      if (r.status >= 200 && r.status < 300) return null;
+      return String(r.body.error ?? 'No se ha podido enviar la seña');
+    },
+    async catchSignal() {
+      const r = await backend.gameRequest(roomId, { kind: 'catch_signal_attempt' });
+      if (r.status >= 200 && r.status < 300) return null;
+      return String(r.body.error ?? 'No se ha podido resolver la sospecha');
     },
     onSign(cb) {
       signListeners.add(cb);

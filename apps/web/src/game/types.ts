@@ -44,7 +44,8 @@ export interface GameSource {
   subscribe(cb: () => void): () => void;
   /** null = aceptada; texto = motivo del rechazo. */
   send(action: Action): Promise<string | null>;
-  sendSign(id: SignId): void;
+  sendSign(id: SignId): Promise<string | null>;
+  catchSignal(): Promise<string | null>;
   onSign(cb: (s: IncomingSign) => void): () => void;
   onEvents(cb: (events: GameEvent[]) => void): () => void;
   /** El cliente avisa de que se acabó el tiempo; el servidor decide si es cierto. */

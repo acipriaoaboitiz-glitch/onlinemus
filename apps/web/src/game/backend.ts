@@ -49,7 +49,6 @@ export interface Watcher {
 }
 
 export interface TeamChannel {
-  send(p: SignPayload): void;
   close(): void;
 }
 

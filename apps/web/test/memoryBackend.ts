@@ -42,6 +42,13 @@ export class MemoryServer {
     },
     now: () => this.clock,
     randomSeed: () => [20260, 3],
+    publishSign: async (roomId, team, payload) => {
+      for (const t of this.teams) {
+        if (t.roomId === roomId && t.team === team && t.userId !== this.ownerOf(roomId, payload.from)) {
+          queueMicrotask(() => t.cb(structuredClone(payload)));
+        }
+      }
+    },
   };
 
   /** Como cuando supabase-js recupera la conexión: avisa a todos los suscriptores de que están conectados. */
@@ -229,12 +236,6 @@ export function createMemoryBackend(server: MemoryServer, userId: string): Backe
       const sub = { roomId, team, userId, cb: onSign };
       if (allowed) server.teams.add(sub); // la política RLS de Realtime: solo los de la pareja
       return {
-        send(p) {
-          if (!allowed) return;
-          for (const t of server.teams) {
-            if (t.roomId === roomId && t.team === team && t.userId !== userId) queueMicrotask(() => t.cb(structuredClone(p)));
-          }
-        },
         close() { server.teams.delete(sub); },
       };
     },

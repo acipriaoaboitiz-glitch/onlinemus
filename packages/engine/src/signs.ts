@@ -6,11 +6,8 @@ import { handTotal, norm, paresInfo } from './evaluate.ts';
 import type { Rules } from './evaluate.ts';
 import type { Card } from './types.ts';
 
-export type SignId =
-  | 'ciego' | 'dos_reyes' | 'tres_reyes' | 'cuatro_reyes' | 'solomillo'
-  | 'dos_cerdos' | 'tres_cerdos' | 'cuatro_cerdos'
-  | 'medias' | 'duples' | 'treinta_y_una' | 'treinta'
-  | 'quiero_mus' | 'no_mus';
+import type { SignId } from './types.ts';
+export type { SignId } from './types.ts';
 
 export interface SignDef {
   id: SignId;

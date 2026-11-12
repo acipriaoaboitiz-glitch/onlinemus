@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { legalActions, teamOf } from '@mus/engine';
 import type { Action, Seat, SignId } from '@mus/engine';
 import { ActionBar } from '../components/ActionBar.tsx';
@@ -9,11 +10,12 @@ import { HandEndOverlay, MatchEndOverlay } from '../components/Overlays.tsx';
 import { RulesSheet } from '../components/RulesSheet.tsx';
 import { Scoreboard } from '../components/Scoreboard.tsx';
 import { SeatBadge } from '../components/SeatBadge.tsx';
-import { SignButton, SignSheet, SignToast } from '../components/Signs.tsx';
+import { CatchSignalButton, SignalResolutionOverlay, SignButton, SignSheet, SignToast } from '../components/Signs.tsx';
 import { Avatar, Button, Sheet } from '../components/ui.tsx';
 import { sortHand } from '../game/describe.ts';
 import type { GameSource, IncomingSign } from '../game/types.ts';
 import { useFeed, useSnapshot } from '../game/useGame.ts';
+import { useSignalingSystem } from '../game/useSignalingSystem.ts';
 import { PREFS, haptic, prefOn, setPref, sound } from '../lib/feedback.ts';
 import { toast } from '../lib/toast.ts';
 import { useWakeLock } from '../lib/wakeLock.ts';
@@ -30,6 +32,7 @@ interface TableProps {
 export function Table({ source, endAction, endNote, onExit }: TableProps) {
   const snap = useSnapshot(source);
   const { view, mySeat } = snap;
+  const signaling = useSignalingSystem(source);
   const names = snap.seats.map((x) => x.name ?? '');
   const feed = useFeed(source, mySeat, names);
 
@@ -43,8 +46,22 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
   const [incoming, setIncoming] = useState<IncomingSign | null>(null);
   const [soundOn, setSoundOn] = useState(() => prefOn(PREFS.sound));
   const [hapticOn, setHapticOn] = useState(() => prefOn(PREFS.haptic));
+  const signHoldTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useWakeLock(true);
+
+  useEffect(() => () => {
+    if (signHoldTimer.current !== null) clearTimeout(signHoldTimer.current);
+  }, []);
+
+  const startSignHold = () => {
+    if (view?.phase === 'matchEnd') return;
+    signHoldTimer.current = setTimeout(() => { signHoldTimer.current = null; setSigns(true); }, 450);
+  };
+  const cancelSignHold = () => {
+    if (signHoldTimer.current !== null) clearTimeout(signHoldTimer.current);
+    signHoldTimer.current = null;
+  };
 
   const legal = view ? legalActions(view, mySeat) : [];
   const discarding = legal.some((l) => l.type === 'DISCARD');
@@ -108,9 +125,10 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
     });
   }, []);
 
-  const sendSign = (id: SignId) => {
-    source.sendSign(id);
-    toast('Seña enviada a tu pareja', 'ok', 1600);
+  const sendSign = async (id: SignId) => {
+    const error = await signaling.sendSignal(id);
+    if (error) toast(error, 'error');
+    else toast('Seña enviada a tu pareja', 'ok', 1600);
   };
 
 
@@ -154,6 +172,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
     <SeatBadge
       info={snap.seats[seat]} tone={tone} mano={view.mano === seat} turn={turnSeat === seat}
       bubble={feed.bubbles[seat]} deadline={snap.deadline} cards={view.handCounts[seat]}
+      signalPulseAt={signaling.pulseAt(seat)}
     />
   );
   const secs = view.config.turnSeconds;
@@ -177,6 +196,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
       <section className="table__status" aria-label="Estado de la mano">
         <Center view={view} mySeat={mySeat} names={names} banner={feed.banner} />
       </section>
+      <SignalResolutionOverlay resolution={signaling.resolution} names={names} />
 
       <section className="table__felt" aria-label="Mesa de juego">
         <div className="opponents">
@@ -190,12 +210,40 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
         <SignToast sign={incoming} partner={names[partner] || 'Tu pareja'} />
         <div className="me-row">
           <div className={`me${turnSeat === mySeat ? ' me--turn' : ''}`}>
-            <Avatar name={names[mySeat] || 'Tú'} tone="me" size={30} />
+            <motion.div
+              className="me__avatar"
+              key={signaling.pulseAt(mySeat) ?? 'idle'}
+              animate={signaling.pulseAt(mySeat) ? { opacity: [1, 0.78, 1], scale: [1, 1.035, 1] } : undefined}
+              transition={{ duration: 0.38, ease: 'easeOut' }}
+              role="button"
+              tabIndex={view.phase === 'matchEnd' ? -1 : 0}
+              aria-label="Mantén pulsado para pasar una seña"
+              onPointerDown={startSignHold}
+              onPointerUp={cancelSignHold}
+              onPointerLeave={cancelSignHold}
+              onPointerCancel={cancelSignHold}
+              onKeyDown={(event) => {
+                if ((event.key === 'Enter' || event.key === ' ') && view.phase !== 'matchEnd') {
+                  event.preventDefault();
+                  setSigns(true);
+                }
+              }}
+            >
+              <Avatar name={names[mySeat] || 'Tú'} tone="me" size={30} />
+            </motion.div>
             <b>{names[mySeat] || 'Tú'}</b>
             {view.mano === mySeat && <span className="chip-mano">Mano</span>}
             {myBubble && <span key={myBubble.at} className={`bubble bubble--${myBubble.tone} bubble--me`}>{myBubble.text}</span>}
           </div>
           <SignButton onClick={() => setSigns(true)} disabled={view.phase === 'matchEnd'} />
+          {snap.room && (
+            <CatchSignalButton
+              cooldownMs={signaling.catchCooldownMs}
+              disabled={!snap.connected || view.phase === 'matchEnd'}
+              windowOpen={signaling.windowOpen}
+              onClick={() => void signaling.catchSignal().then((error) => { if (error) toast(error, 'error'); })}
+            />
+          )}
         </div>
         {myTurn && snap.deadline !== null && secs > 0 && (
           <div className="turnbar" key={snap.deadline}><i style={{ animationDuration: `${Math.max(0, snap.deadline - Date.now())}ms` }} /></div>
