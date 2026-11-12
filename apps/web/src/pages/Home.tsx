@@ -48,11 +48,18 @@ export function Home({ initialCode }: { initialCode?: string }) {
   }
 
   return (
-    <main className="home">
-      <header className="home__hero">
+    <main className="home relative isolate">
+      <nav className="home__navbar" aria-label="Navegación principal">
         <LogoMus iconClassName="w-12 h-12 sm:w-14 sm:h-14" />
+        <span className="home__nav-tag">2 VS 2 <i /> ONLINE</span>
+      </nav>
+      <header className="home__hero">
         <span className="home__eyebrow">EL JUEGO DE SIEMPRE, EN TU MESA</span>
-        <h1>La mesa<br /><em>está puesta.</em></h1>
+        <h1>
+          <span className="home__headline-accent bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600 bg-clip-text font-serif text-transparent drop-shadow-[0_4px_22px_rgba(245,158,11,0.22)]">
+            La mesa<br />está puesta.
+          </span>
+        </h1>
         <p>Reúne a tu pareja, prepara los envites<br className="home__desktop-break" /> y que empiece la partida.</p>
         <div className="home__features" aria-label="Características">
           <span>2 contra 2</span>
@@ -60,16 +67,16 @@ export function Home({ initialCode }: { initialCode?: string }) {
           <span>Con amigos o bots</span>
         </div>
         <div className="home__art" aria-hidden="true">
-          <div className="home__art-card home__art-card--back"><CardFace card={{ id: 'e7', rank: 7, suit: 'espadas' }} /></div>
-          <div className="home__art-card home__art-card--left"><CardFace card={{ id: 'c12', rank: 12, suit: 'copas' }} /></div>
-          <div className="home__art-card home__art-card--right"><CardFace card={{ id: 'o1', rank: 1, suit: 'oros' }} /></div>
+          <div className="home__art-card home__art-card--back drop-shadow-2xl"><CardFace card={{ id: 'e7', rank: 7, suit: 'espadas' }} /></div>
+          <div className="home__art-card home__art-card--left drop-shadow-2xl"><CardFace card={{ id: 'c12', rank: 12, suit: 'copas' }} /></div>
+          <div className="home__art-card home__art-card--right drop-shadow-2xl"><CardFace card={{ id: 'o1', rank: 1, suit: 'oros' }} /></div>
           <span className="home__art-chip home__art-chip--one">5</span>
           <span className="home__art-chip home__art-chip--two">1</span>
           <span className="home__art-spark">✦</span>
         </div>
       </header>
 
-      <motion.section className="panel motion-safe:transition-transform" initial={{ opacity: 0, y: 18 }}
+      <motion.section className="panel !border-amber-500/10 !bg-zinc-950/60 backdrop-blur-md shadow-[0_24px_70px_rgba(0,0,0,.42)] motion-safe:transition-transform" initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }} whileHover={{ y: -3 }}
         transition={{ duration: 0.32, ease: 'easeOut' }}>
         <div className="panel__head">
@@ -93,7 +100,13 @@ export function Home({ initialCode }: { initialCode?: string }) {
             maxLength={20}
           />
         </label>
-        <Button variant="primary" block disabled={!online || !nameOk || busy !== null} onClick={() => void enter('create')}>
+        <Button
+          variant="primary"
+          block
+          className="home__create !border-amber-400/40 !bg-gradient-to-r !from-amber-600 !via-yellow-500 !to-amber-600 !text-zinc-950 shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:!shadow-[0_0_24px_rgba(245,158,11,0.35)]"
+          disabled={!online || !nameOk || busy !== null}
+          onClick={() => void enter('create')}
+        >
           {busy === 'create' ? 'Creando sala…' : 'Crear sala'}
         </Button>
         <div className="join">
@@ -117,7 +130,7 @@ export function Home({ initialCode }: { initialCode?: string }) {
       </motion.section>
 
       <div className="home__or"><span>O JUEGA POR TU CUENTA</span></div>
-      <motion.button type="button" className="btn btn--secondary btn--block home__bots focus-visible:ring-2 focus-visible:ring-amber-300"
+      <motion.button type="button" className="btn btn--secondary btn--block home__bots !border-amber-500/10 !bg-zinc-950/60 backdrop-blur-md focus-visible:ring-2 focus-visible:ring-amber-300"
         whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} onClick={() => { remember(); navigate('/local'); }}>
         <span className="home__bot-mark" aria-hidden="true">♟</span>
         <span>Jugar contra bots<small>Sin conexión, cuando quieras</small></span>

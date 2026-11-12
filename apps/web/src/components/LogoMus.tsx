@@ -55,14 +55,26 @@ export function LogoMus({
             <stop offset="1" stopColor="#fff" stopOpacity="0" />
           </linearGradient>
           <clipPath id={coin}>
-            <circle cx="50" cy="50" r="37" />
+            <circle cx="50" cy="50" r="32" />
           </clipPath>
         </defs>
 
-        <circle cx="50" cy="50" r="44" fill="#111713" stroke={`url(#${gold})`} strokeWidth="2" />
-        <circle cx="50" cy="50" r="38" fill={`url(#${gold})`} />
-        <circle cx="50" cy="50" r="32" fill="#172019" stroke="#fef3c7" strokeOpacity=".7" strokeWidth="1.2" />
-        <circle cx="50" cy="50" r="27" fill="none" stroke="#eab308" strokeOpacity=".55" strokeWidth=".8" />
+        <g filter="drop-shadow(0 3px 4px rgba(0,0,0,.7))">
+          <g fill="#111a14" stroke={`url(#${gold})`} strokeWidth="1.5">
+            <g transform="rotate(-24 34 50)">
+              <rect x="19" y="18" width="30" height="64" rx="4" />
+              <path d="M26 27h16M26 72h16" stroke="#fff3c4" strokeOpacity=".55" />
+            </g>
+            <g transform="rotate(24 66 50)">
+              <rect x="51" y="18" width="30" height="64" rx="4" />
+              <path d="M58 27h16M58 72h16" stroke="#fff3c4" strokeOpacity=".55" />
+            </g>
+          </g>
+        </g>
+        <circle cx="50" cy="50" r="35" fill="#111713" stroke={`url(#${gold})`} strokeWidth="2" />
+        <circle cx="50" cy="50" r="31" fill={`url(#${gold})`} />
+        <circle cx="50" cy="50" r="26" fill="#172019" stroke="#fef3c7" strokeOpacity=".7" strokeWidth="1.2" />
+        <circle cx="50" cy="50" r="22" fill="none" stroke="#eab308" strokeOpacity=".55" strokeWidth=".8" />
         <path
           d="M29 66V35l21 24 21-24v31"
           fill="none"
@@ -82,12 +94,12 @@ export function LogoMus({
           clipPath={`url(#${coin})`}
           transform="rotate(18 50 50)"
           animate={{ x: [-30, 130] }}
-          transition={{ duration: 0.9, repeat: Infinity, repeatDelay: 2.6, ease: 'easeInOut' }}
+          transition={{ duration: 0.9, repeat: Infinity, repeatDelay: 4.1, ease: 'easeInOut' }}
         />
       </motion.svg>
       <span className="home__wordmark">
-        <b className="text-white tracking-[0.2em]">MUS</b>
-        <small className="text-yellow-400 tracking-[0.28em]">ONLINE</small>
+        <b className="font-serif text-amber-300 tracking-[0.22em]">MUS</b>
+        <small className="font-sans text-white/80 tracking-[0.28em]">ONLINE</small>
       </span>
     </motion.div>
   );
