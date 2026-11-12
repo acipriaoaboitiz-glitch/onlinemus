@@ -218,7 +218,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .home__hero { position: relative; text-align: center; padding: 4px 0 112px; display: grid; justify-items: center; gap: 10px; animation: home-enter .7s cubic-bezier(.2,.8,.2,1) both; }
 .home__brand { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
 .home__brand > span { display: grid; gap: 1px; text-align: left; }
-.home__brand b { font-size: 14px; }
+.home__brand b { font-size: 19px; }
 .home__brand small { font-size: 10px; font-weight: 800; }
 .home__eyebrow, .panel__eyebrow { color: var(--brass); font-size: 10px; font-weight: 800; letter-spacing: .19em; }
 .home__hero h1 { font-family: var(--font-display); font-size: clamp(42px, 12vw, 58px); font-weight: 600; letter-spacing: -.035em; line-height: .98; }
