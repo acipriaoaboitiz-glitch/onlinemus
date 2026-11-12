@@ -2,7 +2,7 @@
 
 Mus 2 contra 2 para jugar con amigos en tiempo real: **web en navegador (móvil y ordenador), PWA instalable y app nativa Android/iOS** desde un único código.
 
-- Baraja española de 40 con **8 reyes** (el 3 es rey y el 2 es as/«cerdo»), Mus y descarte, Grande · Chica · Pares · Juego/Punto, envites, órdago y **deje**.
+- Baraja española de 40 (cartas de la primera baraja de **Fournier, 1878**, dominio público; ver `apps/web/public/cards/ATTRIBUTION.txt`) con **8 reyes** (el 3 es rey y el 2 es as/«cerdo»), Mus y descarte, Grande · Chica · Pares · Juego/Punto, envites, órdago y **deje**.
 - **Contador automático** con piedras y amarracos (5 piedras), aviso de «dentro», juegos y vacas. Partidas a 40 o 30 (configurable).
 - **Salas privadas** con código de 4 a 6 dígitos, parejas enfrentadas, bots para rellenar asientos, revancha y reconexión.
 - **Señas secretas** que solo ve tu pareja (canal privado por pareja protegido con RLS).
@@ -122,4 +122,4 @@ Simplificaciones: «¿hay pares?» y «¿hay juego?» se declaran solos (es info
 
 ## Capturas
 
-Tomadas de la propia app en Chromium (móvil 390×844 y escritorio 1280×800): `docs/screens/`.
+Tomadas de la propia app en Chromium (móvil 390×844): `docs/screens/`.
