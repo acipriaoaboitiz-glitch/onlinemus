@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import type { RoomConfig } from '@mus/engine';
 import { CardFace } from '../components/CardFace.tsx';
 import { ConfigForm, configSummary } from '../components/ConfigForm.tsx';
+import { LogoMus } from '../components/LogoMus.tsx';
 import { RulesSheet } from '../components/RulesSheet.tsx';
 import { Button, Sheet } from '../components/ui.tsx';
 import { useBackend } from '../lib/backendContext.tsx';
@@ -11,21 +12,6 @@ import { CONFIG_KEY, NAME_KEY, loadConfig, saveConfig } from '../lib/prefs.ts';
 import { navigate } from '../lib/router.ts';
 import { store } from '../lib/storage.ts';
 import { toast } from '../lib/toast.ts';
-
-export function Logo({ size = 84 }: { size?: number }) {
-  return (
-    <motion.svg className="home__logo will-change-transform" width={size} height={size} viewBox="0 0 100 100" aria-hidden="true"
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.65, ease: 'easeOut' }}>
-      <path d="M27 13 73 19 63 88 17 82Z" fill="#16392f" stroke="#547b61" strokeWidth="2" />
-      <path d="M33 10h42a8 8 0 0 1 8 8v62a8 8 0 0 1-8 8H25a8 8 0 0 1-8-8V18a8 8 0 0 1 8-8h8Z" fill="url(#logo-gold)" />
-      <path d="M33 17h42a1 1 0 0 1 1 1v62a1 1 0 0 1-1 1H25a1 1 0 0 1-1-1V18a1 1 0 0 1 1-1h8Z" fill="none" stroke="#fff0bd" strokeWidth="1.5" />
-      <path d="M32 68V34l18 22 18-22v34" fill="none" stroke="#12372e" strokeWidth="7" strokeLinecap="square" strokeLinejoin="round" />
-      <path d="m31 25 3-5 3 5-3 5Z" fill="#a8493e" />
-      <path d="m66 75 3-5 3 5-3 5Z" fill="#a8493e" />
-      <defs><linearGradient id="logo-gold" x1="20" y1="12" x2="84" y2="88" gradientUnits="userSpaceOnUse"><stop stopColor="#f4d27c" /><stop offset="1" stopColor="#c48b2e" /></linearGradient></defs>
-    </motion.svg>
-  );
-}
 
 export function Home({ initialCode }: { initialCode?: string }) {
   const { backend, loading } = useBackend();
@@ -64,10 +50,7 @@ export function Home({ initialCode }: { initialCode?: string }) {
   return (
     <main className="home">
       <header className="home__hero">
-        <div className="home__brand">
-          <Logo size={60} />
-          <span><b>MUS</b><small>ONLINE</small></span>
-        </div>
+        <LogoMus iconClassName="w-12 h-12 sm:w-14 sm:h-14" />
         <span className="home__eyebrow">EL JUEGO DE SIEMPRE, EN TU MESA</span>
         <h1>La mesa<br /><em>está puesta.</em></h1>
         <p>Reúne a tu pareja, prepara los envites<br className="home__desktop-break" /> y que empiece la partida.</p>
