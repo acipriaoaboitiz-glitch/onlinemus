@@ -213,8 +213,10 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
             <motion.div
               className="me__avatar"
               key={signaling.pulseAt(mySeat) ?? 'idle'}
-              animate={signaling.pulseAt(mySeat) ? { opacity: [1, 0.78, 1], scale: [1, 1.035, 1] } : undefined}
-              transition={{ duration: 0.38, ease: 'easeOut' }}
+              animate={signaling.pulseAt(mySeat)
+                ? { boxShadow: ['0 0 0 rgba(234,179,8,0)', '0 0 18px rgba(234,179,8,.75)', '0 0 0 rgba(234,179,8,0)'] }
+                : undefined}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
               role="button"
               tabIndex={view.phase === 'matchEnd' ? -1 : 0}
               aria-label="Mantén pulsado para pasar una seña"

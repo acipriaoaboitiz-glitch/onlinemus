@@ -24,8 +24,10 @@ export function SeatBadge({ info, tone, mano, turn, bubble, deadline, cards, sig
       <motion.div
         className="seat__avatar"
         key={signalPulseAt ?? 'idle'}
-        animate={signalPulseAt ? { opacity: [1, 0.78, 1], scale: [1, 1.035, 1] } : undefined}
-        transition={{ duration: 0.38, ease: 'easeOut' }}
+        animate={signalPulseAt
+          ? { boxShadow: ['0 0 0 rgba(234,179,8,0)', '0 0 18px rgba(234,179,8,.75)', '0 0 0 rgba(234,179,8,0)'] }
+          : undefined}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
       >
         {turn && deadline !== null && (
           <svg className="ring" viewBox="0 0 56 56" key={deadline} aria-hidden="true">
