@@ -141,9 +141,9 @@ export interface MusState extends Omit<PublicState, 'handCounts' | 'stockCount' 
   stock: Card[];
   discards: Card[];
   revealed: boolean;
-  /** Seña vigente, privada salvo por el pulso público sin el identificador. */
+  /** Seña vigente, privada salvo por el pulso y su identificador cuando se caza. */
   signalWindow: { seat: Seat; id: SignId; startedAtMs: number; expiresAtMs: number } | null;
-  /** Cooldown validado por el servidor para evitar intentos repetidos de captura. */
+  /** Cooldown de diez segundos validado por el servidor tras una falsa alarma. */
   signalCatchCooldowns: number[];
   /** Pausa autoritativa de un segundo tras confirmar una seña cazada. */
   signalPauseUntilMs: number;
@@ -187,7 +187,10 @@ export type GameEvent =
   | { t: 'vacaWon'; team: Team }
   | { t: 'matchWon'; team: Team }
   | { t: 'signal_pulse'; seat: Seat; at: number }
-  | { t: 'signal_resolution'; result: 'caught' | 'false_alarm'; signalSeat: Seat | null; catcher: Seat; team: Team };
+  | {
+    t: 'signal_resolution'; result: 'caught' | 'false_alarm'; signalSeat: Seat | null;
+    signalId: SignId | null; catcher: Seat; team: Team;
+  };
 
 export type ActResult =
   | { ok: true; state: MusState; events: GameEvent[] }

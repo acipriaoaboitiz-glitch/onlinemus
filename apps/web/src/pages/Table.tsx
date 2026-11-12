@@ -32,7 +32,7 @@ interface TableProps {
 export function Table({ source, endAction, endNote, onExit }: TableProps) {
   const snap = useSnapshot(source);
   const { view, mySeat } = snap;
-  const signaling = useSignalingSystem(source);
+  const signaling = useSignalingSystem(source, mySeat);
   const names = snap.seats.map((x) => x.name ?? '');
   const feed = useFeed(source, mySeat, names);
 
@@ -238,8 +238,8 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
           <SignButton onClick={() => setSigns(true)} disabled={view.phase === 'matchEnd'} />
           {snap.room && (
             <CatchSignalButton
-              cooldownMs={signaling.catchCooldownMs}
-              disabled={!snap.connected || view.phase === 'matchEnd'}
+              cooldownMs={signaling.catchCooldown}
+              disabled={!snap.connected || view.phase === 'matchEnd' || signaling.catching}
               windowOpen={signaling.windowOpen}
               onClick={() => void signaling.catchSignal().then((error) => { if (error) toast(error, 'error'); })}
             />

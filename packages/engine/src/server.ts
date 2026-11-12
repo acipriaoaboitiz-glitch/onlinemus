@@ -4,7 +4,7 @@
  * validación de lo que manda el cliente, bots, turnos que caducan) y por eso se prueba en memoria.
  */
 import { botAction } from './bot.ts';
-import { act, awardSignalPoint, autoAction, legalActions, newMatch, normalizeConfig } from './machine.ts';
+import { act, autoAction, legalActions, newMatch, normalizeConfig } from './machine.ts';
 import { SEATS, teamOf } from './seats.ts';
 import { SIGNS, signIsTruthful } from './signs.ts';
 import type { Action, GameEvent, MusState, Seat, SignId, Team } from './types.ts';
@@ -150,17 +150,16 @@ async function catchSignal(deps: ServerDeps, roomId: string, seat: Seat, players
     if (now < (s.signalPauseUntilMs ?? 0)) return fail(423, 'La mesa está resolviendo una seña');
     const cooldowns = s.signalCatchCooldowns ?? [0, 0, 0, 0];
     if (now < (cooldowns[seat] ?? 0)) {
-      return { status: 429, body: { error: 'Espera un momento antes de volver a sospechar', remainingMs: cooldowns[seat] - now } };
+      return { status: 429, body: { error: 'Espera antes de volver a sospechar', remainingMs: cooldowns[seat] - now } };
     }
     s.signalCatchCooldowns = [...cooldowns];
-    s.signalCatchCooldowns[seat] = now + 2_000;
-
     const window = s.signalWindow ?? null;
     const caught = window !== null && now < window.expiresAtMs && teamOf(seat) !== teamOf(window.seat);
     const events: GameEvent[] = [{
       t: 'signal_resolution',
       result: caught ? 'caught' : 'false_alarm',
       signalSeat: caught ? window.seat : null,
+      signalId: caught ? window.id : null,
       catcher: seat,
       team: teamOf(seat),
     }];
@@ -168,10 +167,9 @@ async function catchSignal(deps: ServerDeps, roomId: string, seat: Seat, players
     if (caught) {
       s.signalWindow = null;
       s.signalPauseUntilMs = now + 1_000;
-      awardSignalPoint(s, teamOf(seat), events);
     } else {
       if (window && now >= window.expiresAtMs) s.signalWindow = null;
-      s.score.points[teamOf(seat)] = Math.max(0, s.score.points[teamOf(seat)] - 1);
+      s.signalCatchCooldowns[seat] = now + 10_000;
     }
 
     s.version += 1;

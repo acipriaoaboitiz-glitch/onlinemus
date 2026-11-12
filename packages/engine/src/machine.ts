@@ -138,12 +138,6 @@ export function publicView(s: MusState): PublicState {
   };
 }
 
-/** Da una piedra por seña cazada y conserva las reglas normales de fin de juego. */
-export function awardSignalPoint(s: MusState, team: Team, ev: GameEvent[]): void {
-  s.score.points[team] = Math.min(s.config.targetPoints, s.score.points[team] + 1);
-  if (s.score.points[team] >= s.config.targetPoints) winGame(s, team, 'points', ev);
-}
-
 /** Las cartas de un asiento: solo se entregan a su dueño. */
 export const handOf = (s: MusState, seat: Seat): Card[] => s.hands[seat];
 

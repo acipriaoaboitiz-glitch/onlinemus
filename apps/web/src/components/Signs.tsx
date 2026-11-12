@@ -27,13 +27,13 @@ export function CatchSignalButton({ cooldownMs, disabled, windowOpen, onClick }:
   return (
     <button
       type="button"
-      className={`catch-signal${windowOpen ? ' catch-signal--window' : ''}`}
+      className={`catch-signal flex items-center justify-center gap-2 rounded-xl border px-3 py-2 font-semibold transition-transform active:scale-95 disabled:cursor-not-allowed${windowOpen ? ' catch-signal--window' : ''}`}
       onClick={onClick}
       disabled={disabled || cooldownMs > 0}
-      aria-label="¡Seña! Sospecho que un rival ha pasado una seña"
+      aria-label="¡Pillada! Sospecho que un rival ha pasado una seña"
     >
       <IconEye />
-      <span>¡Seña!</span>
+      <span>¡Pillada!</span>
       {cooldownMs > 0 && <small>{Math.ceil(cooldownMs / 1000)} s</small>}
     </button>
   );
@@ -44,6 +44,7 @@ export function SignalResolutionOverlay({ resolution, names }: {
 }) {
   const caught = resolution?.result === 'caught';
   const actor = resolution ? names[caught ? resolution.signalSeat ?? resolution.catcher : resolution.catcher] : '';
+  const sign = resolution?.signalId ? SIGNS.find((item) => item.id === resolution.signalId) : null;
   return (
     <AnimatePresence>
       {resolution && (
@@ -56,8 +57,8 @@ export function SignalResolutionOverlay({ resolution, names }: {
           transition={{ duration: 0.22, ease: 'easeOut' }}
         >
           <span>{caught ? '¡SEÑA CAZADA!' : 'FALSA ALARMA'}</span>
-          <b>{caught ? `${actor} · el equipo rival gana 1 piedra` : `${actor} · su equipo pierde 1 piedra`}</b>
-          <small>{caught ? 'El servidor ha confirmado la seña' : 'La sospecha llegó tarde o no había seña'}</small>
+          <b>{caught ? `${actor} estaba pasando ${sign?.label ?? 'una seña'}` : `${actor} · no había una seña activa`}</b>
+          <small>{caught ? 'La seña queda expuesta a toda la mesa' : 'Quien sospechó no podrá volver a intentarlo durante 10 segundos'}</small>
         </motion.div>
       )}
     </AnimatePresence>

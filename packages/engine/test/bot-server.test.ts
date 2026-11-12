@@ -246,25 +246,27 @@ test('Servidor: valida la verdad de la seña, la retransmite en privado y la cap
   });
   assert.ok(!JSON.stringify(publicView(m.state)).includes('"id":"medias"'), 'el público no recibe la seña');
   assert.equal(m.state.version, 1);
+  m.state.score.points[1] = 4;
 
   const caught = await handleGameRequest(m.deps, 'r1', 'u1', { kind: 'catch_signal_attempt' });
   assert.equal(caught.status, 200);
-  assert.equal(m.state.score.points[1], 1, 'el equipo rival gana una piedra');
+  assert.equal(m.state.score.points[1], 4, 'pillar una seña no modifica las piedras');
   assert.equal(m.state.signalWindow, null);
+  assert.deepEqual(m.events[0], {
+    t: 'signal_resolution', result: 'caught', signalSeat: 0, signalId: 'medias', catcher: 1, team: 1,
+  });
   assert.equal((await send(m, 'u0', { type: 'MUS' })).status, 423, 'el juego se pausa tras una captura');
   assert.equal((await handleGameRequest(m.deps, 'r1', 'u1', { kind: 'catch_signal_attempt' })).status, 423);
   m.advance(1_001);
-  assert.equal((await handleGameRequest(m.deps, 'r1', 'u1', { kind: 'catch_signal_attempt' })).status, 429);
 
-  m.advance(1_000);
-  m.state.score.points[1] = 2;
   const falseAlarm = await handleGameRequest(m.deps, 'r1', 'u3', { kind: 'catch_signal_attempt' });
   assert.equal(falseAlarm.status, 200);
-  assert.equal(m.state.score.points[1], 1, 'el equipo que acusa sin seña pierde una piedra');
-  assert.equal(m.game!.state.signalCatchCooldowns[3], 1_004_001);
+  assert.equal(m.state.score.points[1], 4, 'una falsa alarma tampoco modifica las piedras');
+  assert.equal(m.game!.state.signalCatchCooldowns[3], 1_011_001);
+  assert.equal((await handleGameRequest(m.deps, 'r1', 'u3', { kind: 'catch_signal_attempt' })).status, 429);
 });
 
-test('Servidor: una captura después de tres segundos se penaliza según el reloj del servidor', async () => {
+test('Servidor: una captura después de tres segundos es falsa alarma y activa diez segundos de cooldown', async () => {
   const m = memory({ humans: 2 });
   await start(m);
   assert.equal((await handleGameRequest(m.deps, 'r1', 'u0', { kind: 'send_signal', id: 'quiero_mus' })).status, 200);
@@ -273,7 +275,10 @@ test('Servidor: una captura después de tres segundos se penaliza según el relo
 
   const late = await handleGameRequest(m.deps, 'r1', 'u1', { kind: 'catch_signal_attempt' });
   assert.equal(late.status, 200);
-  assert.equal(m.state.score.points[1], 1);
+  assert.equal(m.state.score.points[1], 2);
   assert.equal(m.state.signalWindow, null);
-  assert.equal(m.events[0].t, 'signal_resolution');
+  assert.deepEqual(m.events[0], {
+    t: 'signal_resolution', result: 'false_alarm', signalSeat: null, signalId: null, catcher: 1, team: 1,
+  });
+  assert.equal(m.game!.state.signalCatchCooldowns[1], 1_013_001);
 });
