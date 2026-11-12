@@ -15,7 +15,7 @@ export interface Feed {
   log: (LogLine & { id: number })[];
 }
 
-/** Globos de cada jugador y mensajes destacados del centro, a partir de los eventos de la partida. */
+/** Globos de cada jugador y avisos temporales de la partida, a partir de sus eventos. */
 export function useFeed(source: GameSource, mySeat: Seat, names: readonly string[]): Feed {
   const [bubbles, setBubbles] = useState<Record<number, Bubble>>({});
   const [banner, setBanner] = useState<string | null>(null);
