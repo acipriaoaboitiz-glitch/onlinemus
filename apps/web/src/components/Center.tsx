@@ -3,7 +3,7 @@ import { LANCE_LABEL, betSummary, turnHint } from '../game/describe.ts';
 
 const ORDER: Lance[] = ['grande', 'chica', 'pares', 'juego'];
 
-/** Centro de la mesa: en qué lance estamos, qué apuesta hay y a quién le toca. */
+/** Resumen de la mano: lance activo, envite y turno. */
 export function Center({ view, mySeat, names, banner }: { view: PublicState; mySeat: Seat; names: string[]; banner: string | null }) {
   const current = view.lance ? ORDER.indexOf(view.lance.lance === 'punto' ? 'juego' : view.lance.lance) : view.phase === 'handEnd' || view.phase === 'matchEnd' ? 4 : -1;
   const bet = betSummary(view, mySeat, names);

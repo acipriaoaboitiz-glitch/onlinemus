@@ -175,7 +175,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
       {!snap.connected && <div className="reconnect">Reconectando…</div>}
 
       <section className="table__status" aria-label="Estado de la mano">
-        <Center view={view} mySeat={mySeat} names={names} banner={null} />
+        <Center view={view} mySeat={mySeat} names={names} banner={feed.banner} />
       </section>
 
       <section className="table__felt" aria-label="Mesa de juego">
@@ -183,9 +183,6 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
           <div className="table__seat table__seat--left">{badge(left, 'them')}</div>
           <div className="table__seat table__seat--partner">{badge(partner, 'us')}</div>
           <div className="table__seat table__seat--right">{badge(right, 'them')}</div>
-        </div>
-        <div className="table__center" aria-hidden={feed.banner ? undefined : true}>
-          {feed.banner && <div className="table__announcement" key={feed.banner} role="status">{feed.banner}</div>}
         </div>
       </section>
 
