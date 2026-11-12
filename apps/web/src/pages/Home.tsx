@@ -50,7 +50,7 @@ export function Home({ initialCode }: { initialCode?: string }) {
   return (
     <main className="home relative isolate">
       <nav className="home__navbar" aria-label="Navegación principal">
-        <LogoMus iconClassName="w-12 h-12 sm:w-14 sm:h-14" />
+        <LogoMus iconClassName="w-16 h-16 sm:w-[4.5rem] sm:h-[4.5rem]" />
         <span className="home__nav-tag">2 VS 2 <i /> ONLINE</span>
       </nav>
       <header className="home__hero">
