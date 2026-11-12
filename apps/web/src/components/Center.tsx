@@ -11,7 +11,7 @@ export function Center({ view, mySeat, names, banner }: { view: PublicState; myS
   const isPunto = view.lance?.lance === 'punto' || view.settlements.some((s) => s.lance === 'punto');
 
   return (
-    <div className="center">
+    <div className="game-hud">
       <ol className="lances" aria-label="Lances">
         {ORDER.map((l, i) => {
           const st = view.settlements.find((s) => s.lance === (l === 'juego' && isPunto ? 'punto' : l));

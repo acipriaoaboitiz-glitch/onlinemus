@@ -165,11 +165,18 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
   return (
     <main className="table">
       <header className="table__top">
-        <Scoreboard view={view} mySeat={mySeat} />
+        <div className="table__score-island">
+          <span className="table__eyebrow">Partida en curso</span>
+          <Scoreboard view={view} mySeat={mySeat} />
+        </div>
         <button type="button" className="icon-btn" aria-label="Menú" onClick={() => setMenu(true)}><IconMenu /></button>
       </header>
 
       {!snap.connected && <div className="reconnect">Reconectando…</div>}
+
+      <section className="table__status" aria-label="Estado de la mano">
+        <Center view={view} mySeat={mySeat} names={names} banner={null} />
+      </section>
 
       <section className="table__felt">
         <div className="opponents">
@@ -177,7 +184,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
           {badge(partner, 'us')}
           {badge(right, 'them')}
         </div>
-        <Center view={view} mySeat={mySeat} names={names} banner={feed.banner} />
+        {feed.banner && <div className="table__announcement" key={feed.banner} role="status">{feed.banner}</div>}
       </section>
 
       <section className="table__me">
