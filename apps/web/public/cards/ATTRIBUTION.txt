@@ -1,0 +1,11 @@
+Spanish playing card artwork
+
+The card faces and reverse are adapted as individual image files from:
+Baraja espanola completa.png
+Artist: Basquetteur
+Source: https://commons.wikimedia.org/wiki/File:Baraja_espa%C3%B1ola_completa.png
+License: Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
+License URL: https://creativecommons.org/licenses/by-sa/3.0/
+
+The original sheet was split into individual card images for use in this app.
+The source images are provided by https://github.com/mcmd/playingcards.io-spanish.playing.cards.
