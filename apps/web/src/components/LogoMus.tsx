@@ -128,6 +128,7 @@ export function LogoMus({
         <b className="bg-gradient-to-b from-amber-100 via-yellow-400 to-amber-700 bg-clip-text font-serif text-transparent tracking-[0.16em]">MUS</b>
         <small className="font-sans text-white tracking-[0.28em]">ONLINE</small>
       </span>
+      <small className="home__tagline">EL JUEGO DE SIEMPRE, EN TU MESA</small>
     </motion.div>
   );
 }

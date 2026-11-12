@@ -54,7 +54,6 @@ export function Home({ initialCode }: { initialCode?: string }) {
         <span className="home__nav-tag">2 VS 2 <i /> ONLINE</span>
       </nav>
       <header className="home__hero">
-        <span className="home__eyebrow">EL JUEGO DE SIEMPRE, EN TU MESA</span>
         <h1>
           <span className="home__headline-accent bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600 bg-clip-text font-serif text-transparent drop-shadow-[0_4px_22px_rgba(245,158,11,0.22)]">
             La mesa<br />está puesta.
