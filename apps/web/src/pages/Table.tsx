@@ -178,16 +178,18 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
         <Center view={view} mySeat={mySeat} names={names} banner={null} />
       </section>
 
-      <section className="table__felt">
+      <section className="table__felt" aria-label="Mesa de juego">
         <div className="opponents">
-          {badge(left, 'them')}
-          {badge(partner, 'us')}
-          {badge(right, 'them')}
+          <div className="table__seat table__seat--left">{badge(left, 'them')}</div>
+          <div className="table__seat table__seat--partner">{badge(partner, 'us')}</div>
+          <div className="table__seat table__seat--right">{badge(right, 'them')}</div>
         </div>
-        {feed.banner && <div className="table__announcement" key={feed.banner} role="status">{feed.banner}</div>}
+        <div className="table__center" aria-hidden={feed.banner ? undefined : true}>
+          {feed.banner && <div className="table__announcement" key={feed.banner} role="status">{feed.banner}</div>}
+        </div>
       </section>
 
-      <section className="table__me">
+      <section className="table__me" aria-label="Tu zona de juego">
         <SignToast sign={incoming} partner={names[partner] || 'Tu pareja'} />
         <div className="me-row">
           <div className={`me${turnSeat === mySeat ? ' me--turn' : ''}`}>
