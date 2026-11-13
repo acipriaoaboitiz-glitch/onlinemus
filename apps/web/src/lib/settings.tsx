@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { PREFS, prefOn, setPref } from './feedback.ts';
+import { PREFS, getVolume, prefOn, setPref, setVolumeLevel } from './feedback.ts';
 import { playSound } from './sounds.ts';
 import type { SoundType } from './sounds.ts';
 import { store } from './storage.ts';
@@ -22,6 +22,9 @@ export interface GameSettings {
   isMuted: boolean;
   setMuted: (muted: boolean) => void;
   toggleMute: () => void;
+  /** Volumen general del juego, entre 0 y 1. */
+  volume: number;
+  setVolume: (level: number) => void;
   /** Color del tapete de la mesa. */
   tableColor: TableColor;
   setTableColor: (color: TableColor) => void;
@@ -35,6 +38,7 @@ const Ctx = createContext<GameSettings | null>(null);
 export function GameSettingsProvider({ children }: { children: ReactNode }) {
   // El silencio comparte clave con el interruptor de sonido de siempre (mus.sound), así no hay dos ajustes distintos.
   const [isMuted, setMutedState] = useState(() => !prefOn(PREFS.sound));
+  const [volume, setVolumeState] = useState<number>(() => getVolume());
   const [tableColor, setColorState] = useState<TableColor>(() => {
     const saved = store.get(TABLE_KEY);
     return isTableColor(saved) ? saved : 'verde';
@@ -49,14 +53,19 @@ export function GameSettingsProvider({ children }: { children: ReactNode }) {
     setMutedState(muted);
   }, []);
   const toggleMute = useCallback(() => setMuted(prefOn(PREFS.sound)), [setMuted]); // sonando → silenciar, y al revés
+  const setVolume = useCallback((level: number) => {
+    const next = Math.min(1, Math.max(0, Number(level) || 0));
+    setVolumeLevel(next);
+    setVolumeState(next);
+  }, []);
   const setTableColor = useCallback((color: TableColor) => {
     store.set(TABLE_KEY, color);
     setColorState(color);
   }, []);
 
   const value = useMemo<GameSettings>(
-    () => ({ isMuted, setMuted, toggleMute, tableColor, setTableColor, playSound }),
-    [isMuted, setMuted, toggleMute, tableColor, setTableColor],
+    () => ({ isMuted, setMuted, toggleMute, volume, setVolume, tableColor, setTableColor, playSound }),
+    [isMuted, setMuted, toggleMute, volume, setVolume, tableColor, setTableColor],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

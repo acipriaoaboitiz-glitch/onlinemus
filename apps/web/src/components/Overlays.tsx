@@ -1,5 +1,6 @@
+import { motion } from 'framer-motion';
 import { teamOf } from '@mus/engine';
-import type { PublicState, Seat } from '@mus/engine';
+import type { PublicState, Seat, Team } from '@mus/engine';
 import { LANCE_LABEL, awardRows, describeHand, teamLabel } from '../game/describe.ts';
 import type { SeatInfo } from '../game/types.ts';
 import { CardFace } from './CardFace.tsx';
@@ -21,6 +22,8 @@ interface HandEndProps {
 export function HandEndOverlay({ view, mySeat, seats, busy, onContinue, continueLabel = 'Continuar', final = false }: HandEndProps) {
   const res = view.handResult;
   const rows = awardRows(view.awards, mySeat);
+  const pointsByTeam: [number, number] = [0, 0];
+  rows.forEach((row) => { pointsByTeam[row.team] += row.points; });
   const revealed = view.revealedHands;
   const waiting = seats.filter((s) => !s.isBot && !view.ready[s.seat]).map((s) => s.name ?? '');
   const iAmReady = !final && view.ready[mySeat];
@@ -55,14 +58,47 @@ export function HandEndOverlay({ view, mySeat, seats, busy, onContinue, continue
 
         <ul className="awards">
           {rows.length === 0 && <li className="awards__empty">Nadie ha puntuado en esta mano</li>}
-          {rows.map((r) => (
-            <li key={r.key} className={`awards__row awards__row--${r.team === teamOf(mySeat) ? 'us' : 'them'}`}>
+          {rows.map((r, index) => (
+            <motion.li
+              key={r.key}
+              className={`awards__row awards__row--${r.team === teamOf(mySeat) ? 'us' : 'them'}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.2, ease: 'easeOut' }}
+            >
               <span className="awards__lance">{LANCE_LABEL[r.lance]}</span>
               <span className="awards__label">{r.label}</span>
-              <b>{r.who} +{r.points}</b>
-            </li>
+              <b>{r.who} <span>+{r.points}</span></b>
+            </motion.li>
           ))}
         </ul>
+
+        <section className="hand-score" aria-label="Recuento de puntos de esta mano">
+          <h3>Recuento de esta mano</h3>
+          <div className="hand-score__teams">
+            {([teamOf(mySeat), 1 - teamOf(mySeat)] as Team[]).map((team, teamIndex) => {
+              const points = pointsByTeam[team];
+              return (
+                <div key={team} className={`hand-score__team hand-score__team--${team === teamOf(mySeat) ? 'us' : 'them'}`}>
+                  <div className="hand-score__head">
+                    <span>{teamLabel(team, mySeat)}</span>
+                    <b>+{points}</b>
+                  </div>
+                  <div className="hand-score__stones" aria-label={`${points} ${points === 1 ? 'piedra' : 'piedras'}`}>
+                    {Array.from({ length: points }, (_, index) => (
+                      <motion.i
+                        key={index}
+                        initial={{ opacity: 0, scale: 0.3, y: 7 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ duration: 0.22, delay: Math.min(rows.length * 0.2, 1.6) + teamIndex * 0.12 + index * 0.07 }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
       </div>
 
       <div className="overlay__foot">

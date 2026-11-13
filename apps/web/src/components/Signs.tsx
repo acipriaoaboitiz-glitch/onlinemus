@@ -15,8 +15,9 @@ const GROUPS: { id: 'cartas' | 'jugada' | 'mus'; label: string }[] = [
 /** Botón discreto: sin color, sin etiqueta, para no llamar la atención de quien mire por encima del hombro. */
 export function SignButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
   return (
-    <button type="button" className="sign-btn" onClick={onClick} disabled={disabled} aria-label="Señas a tu pareja">
+    <button type="button" className="sign-btn" onClick={onClick} disabled={disabled} aria-label="Abrir señas a tu pareja">
       <IconWink />
+      <span>Señas</span>
     </button>
   );
 }

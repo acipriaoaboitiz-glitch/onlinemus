@@ -5,7 +5,7 @@ import { IconClose, IconGear } from './icons.tsx';
 
 /** Modal central de cristal oscuro: silencio global y color del tapete (se previsualiza al instante en la mesa de detrás). */
 export function SettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { isMuted, toggleMute, tableColor, setTableColor, playSound } = useGameSettings();
+  const { isMuted, toggleMute, tableColor, setTableColor, playSound, volume, setVolume } = useGameSettings();
 
   useEffect(() => {
     if (!open) return;
@@ -61,6 +61,25 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
               </span>
               <i className={`switch${isMuted ? ' on' : ''}`} />
             </button>
+
+            <div className="mt-5 space-y-3">
+              <div className="cfg__volume">
+                <div className="mb-2 flex items-center justify-between gap-3 text-[12px] uppercase tracking-[0.18em] text-stone-400">
+                  <span>Volumen</span>
+                  <b className="text-[11px] font-bold text-amber-300">{Math.round(volume * 100)}%</b>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={5}
+                  value={Math.round(volume * 100)}
+                  aria-label="Volumen del juego"
+                  onChange={(e) => setVolume(Number(e.target.value) / 100)}
+                  className="w-full accent-amber-400"
+                />
+              </div>
+            </div>
 
             <div className="mt-5">
               <span className="mb-3 block text-xs uppercase tracking-widest text-stone-400">Color del tapete</span>

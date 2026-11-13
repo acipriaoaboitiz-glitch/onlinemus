@@ -1,15 +1,28 @@
 import { isNative, nativeVibrate } from './native.ts';
 import { store } from './storage.ts';
 
-export const PREFS = { sound: 'mus.sound', haptic: 'mus.haptic' } as const;
+export const PREFS = { sound: 'mus.sound', haptic: 'mus.haptic', volume: 'mus.volume' } as const;
 
 export function prefOn(key: string, fallback = true): boolean {
   const v = store.get(key);
   return v === null ? fallback : v === '1';
 }
 
+export function getVolume(): number {
+  const v = store.get(PREFS.volume);
+  if (v === null) return 1;
+  const num = Number(v);
+  if (!Number.isFinite(num)) return 1;
+  return Math.min(1, Math.max(0, num));
+}
+
 export function setPref(key: string, on: boolean): void {
   store.set(key, on ? '1' : '0');
+}
+
+export function setVolumeLevel(level: number): void {
+  const v = Math.min(1, Math.max(0, Number(level) || 0));
+  store.set(PREFS.volume, String(v));
 }
 
 export function haptic(pattern: number | number[] = 10): void {
@@ -37,10 +50,11 @@ function tone(c: AudioContext, freq: number, at: number, dur: number, gain = 0.0
   const o = c.createOscillator();
   const g = c.createGain();
   const t0 = c.currentTime + at;
+  const level = Math.max(0.0001, gain * getVolume());
   o.type = type;
   o.frequency.value = freq;
   g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(gain, t0 + 0.012);
+  g.gain.exponentialRampToValueAtTime(level, t0 + 0.012);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
   o.connect(g).connect(c.destination);
   o.start(t0);
@@ -54,6 +68,8 @@ export type SoundName =
 /** Sonidos sintetizados (sin archivos): discretos y cortos. */
 export function sound(name: SoundName): void {
   if (!prefOn(PREFS.sound)) return;
+  const volume = getVolume();
+  if (volume <= 0) return;
   const c = audio();
   if (!c) return;
   switch (name) {
