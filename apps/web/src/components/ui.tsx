@@ -1,13 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { playSound } from '../lib/sounds.ts';
 import { useToasts } from '../lib/toast.ts';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'ok';
 
 export function Button({
-  variant = 'secondary', block, className = '', ...rest
+  variant = 'secondary', block, className = '', onClick, ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; block?: boolean }) {
-  return <button type="button" {...rest} className={`btn btn--${variant}${block ? ' btn--block' : ''} focus-visible:ring-2 focus-visible:ring-amber-300 ${className}`} />;
+  return (
+    <button
+      type="button"
+      {...rest}
+      onClick={(e) => { playSound('click'); onClick?.(e); }}
+      className={`btn btn--${variant}${block ? ' btn--block' : ''} focus-visible:ring-2 focus-visible:ring-amber-300 ${className}`}
+    />
+  );
 }
 
 export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title?: string; children: ReactNode }) {

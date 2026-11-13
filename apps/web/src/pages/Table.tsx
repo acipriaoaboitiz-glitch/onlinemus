@@ -5,11 +5,12 @@ import type { Action, Seat, SignId } from '@mus/engine';
 import { ActionBar } from '../components/ActionBar.tsx';
 import { Center } from '../components/Center.tsx';
 import { Hand } from '../components/Hand.tsx';
-import { IconBook, IconExit, IconMenu, IconVibrate, IconVolume } from '../components/icons.tsx';
+import { IconBook, IconExit, IconGear, IconMenu, IconVibrate } from '../components/icons.tsx';
 import { HandEndOverlay, MatchEndOverlay } from '../components/Overlays.tsx';
 import { RulesSheet } from '../components/RulesSheet.tsx';
 import { Scoreboard } from '../components/Scoreboard.tsx';
 import { SeatBadge } from '../components/SeatBadge.tsx';
+import { SettingsModal } from '../components/SettingsModal.tsx';
 import { CatchSignalButton, SignalResolutionOverlay, SignButton, SignSheet, SignToast } from '../components/Signs.tsx';
 import { Avatar, Button, Sheet } from '../components/ui.tsx';
 import { sortHand } from '../game/describe.ts';
@@ -17,6 +18,7 @@ import type { GameSource, IncomingSign } from '../game/types.ts';
 import { useFeed, useSnapshot } from '../game/useGame.ts';
 import { useSignalingSystem } from '../game/useSignalingSystem.ts';
 import { PREFS, haptic, prefOn, setPref, sound } from '../lib/feedback.ts';
+import { useGameSettings } from '../lib/settings.tsx';
 import { toast } from '../lib/toast.ts';
 import { useWakeLock } from '../lib/wakeLock.ts';
 
@@ -33,6 +35,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
   const snap = useSnapshot(source);
   const { view, mySeat } = snap;
   const signaling = useSignalingSystem(source, mySeat);
+  const { playSound } = useGameSettings();
   const names = snap.seats.map((x) => x.name ?? '');
   const feed = useFeed(source, mySeat, names);
 
@@ -42,9 +45,9 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
   const [history, setHistory] = useState(false);
   const [rules, setRules] = useState(false);
   const [signs, setSigns] = useState(false);
+  const [settings, setSettings] = useState(false);
   const [finalSeen, setFinalSeen] = useState(false);
   const [incoming, setIncoming] = useState<IncomingSign | null>(null);
-  const [soundOn, setSoundOn] = useState(() => prefOn(PREFS.sound));
   const [hapticOn, setHapticOn] = useState(() => prefOn(PREFS.haptic));
   const signHoldTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -91,14 +94,21 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
     return () => { off(); if (timer) clearTimeout(timer); };
   }, [source]);
 
-  // Sonidos de puntos, juegos y partida.
+  // Sonidos de la mano (repartir, descartar, envites), puntos, juegos, partida y sospecha de señas.
   useEffect(() => source.onEvents((events) => {
     for (const e of events) {
+      if (e.t === 'handStart') playSound('card_deal');
+      if (e.t === 'discard') playSound('card_play');
+      if (e.t === 'envido' || e.t === 'ordago' || e.t === 'quiero') playSound('chips');
       if (e.t === 'award' && e.kind === 'deje') sound('point');
       if (e.t === 'gameWon') sound('point');
       if (e.t === 'matchWon') sound(e.team === teamOf(mySeat) ? 'win' : 'lose');
+      if (e.t === 'signal_resolution') {
+        if (e.result === 'caught') { playSound('alert_caught'); haptic([30, 40, 30]); } // la alerta la ve toda la mesa
+        else if (e.catcher === mySeat) playSound('alert_fail'); // falsa alarma: solo suena a quien sospechó
+      }
     }
-  }), [source, mySeat]);
+  }), [source, mySeat, playSound]);
 
   // Turno caducado: cualquier cliente avisa al servidor, que decide con su reloj (y no se puede adelantar).
   useEffect(() => {
@@ -138,7 +148,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
       if (e.metaKey || e.ctrlKey || e.altKey || busy || !view) return;
       const target = e.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
-      if (menu || history || rules || signs) return;
+      if (menu || history || rules || signs || settings) return;
       const has = (t: string) => legal.some((l) => l.type === t);
       const k = e.key.toLowerCase();
       if (k === 'm' && has('MUS')) void send({ type: 'MUS' });
@@ -158,7 +168,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [busy, discarding, history, legal, menu, rules, selected, send, setCard, signs, sortedHand, view]);
+  }, [busy, discarding, history, legal, menu, rules, selected, send, setCard, settings, signs, sortedHand, view]);
 
   if (!view) {
     return (<main className="table table--loading"><p>Conectando con la mesa…</p></main>);
@@ -184,6 +194,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
   return (
     <main className="table">
       <header className="table__top">
+        <button type="button" className="icon-btn icon-btn--gear" aria-label="Ajustes" onClick={() => setSettings(true)}><IconGear /></button>
         <div className="table__score-island">
           <span className="table__eyebrow">Partida en curso</span>
           <Scoreboard view={view} mySeat={mySeat} />
@@ -277,6 +288,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
         <MatchEndOverlay view={view} mySeat={mySeat} primaryLabel={endAction?.label ?? null} onPrimary={() => endAction?.run()} onExit={onExit} note={endNote} />
       )}
 
+      <SettingsModal open={settings} onClose={() => setSettings(false)} />
       <SignSheet open={signs} onClose={() => setSigns(false)} hand={snap.hand} config={view.config} onSend={sendSign} />
       <RulesSheet open={rules} onClose={() => setRules(false)} eightKings={view.config.eightKings} />
       <Sheet open={history} onClose={() => setHistory(false)} title="Registro de la mano">
@@ -296,9 +308,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
         <div className="menu">
           <button type="button" className="menu__item" onClick={() => { setMenu(false); setHistory(true); }}><IconBook /> Registro y atajos</button>
           <button type="button" className="menu__item" onClick={() => { setMenu(false); setRules(true); }}><IconBook /> Cómo se puntúa</button>
-          <button type="button" className="menu__item" role="switch" aria-checked={soundOn} onClick={() => { setPref(PREFS.sound, !soundOn); setSoundOn(!soundOn); }}>
-            <IconVolume /> Sonido <i className={`switch${soundOn ? ' on' : ''}`} />
-          </button>
+          <button type="button" className="menu__item" onClick={() => { setMenu(false); setSettings(true); }}><IconGear /> Ajustes (sonido y tapete)</button>
           <button type="button" className="menu__item" role="switch" aria-checked={hapticOn} onClick={() => { setPref(PREFS.haptic, !hapticOn); setHapticOn(!hapticOn); }}>
             <IconVibrate /> Vibración <i className={`switch${hapticOn ? ' on' : ''}`} />
           </button>

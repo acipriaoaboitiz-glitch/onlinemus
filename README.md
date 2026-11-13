@@ -5,7 +5,8 @@ Mus 2 contra 2 para jugar con amigos en tiempo real: **web en navegador (móvil 
 - Baraja española de 40 (cartas de la primera baraja de **Fournier, 1878**, dominio público; ver `apps/web/public/cards/ATTRIBUTION.txt`) con **8 reyes** (el 3 es rey y el 2 es as/«cerdo»), Mus y descarte, Grande · Chica · Pares · Juego/Punto, envites, órdago y **deje**.
 - **Contador automático** con piedras y amarracos (5 piedras), aviso de «dentro», juegos y vacas. Partidas a 40 o 30 (configurable).
 - **Salas privadas** con código de 4 a 6 dígitos, parejas enfrentadas, bots para rellenar asientos, revancha y reconexión.
-- **Señas secretas**: solo la pareja recibe su contenido; toda la mesa ve un microdestello. La Edge Function valida la mano y abre una ventana de 3 s para que un rival pueda cazarlas; el acierto da una piedra y una falsa alarma la resta (cooldown validado por el servidor).
+- **Señas secretas**: solo la pareja recibe su contenido; toda la mesa ve un microdestello. La Edge Function valida la mano y abre una ventana de 3 s para que un rival pueda cazarlas con el ojo «¡Pillada!»; el acierto expone la jugada y la falsa alarma bloquea el ojo 10 s (cooldown validado por el servidor). No se suman ni se restan piedras.
+- **Ajustes** (engranaje): silencio global y color del tapete (verde, rojo u oscuro), guardados en el dispositivo; efectos de sonido en `public/sounds/`.
 - Móvil primero: botones grandes, cartas que se marcan deslizando hacia arriba, modo oscuro, zonas seguras, vibración y sonidos discretos. En escritorio: mesa ancha, registro de la mano y atajos de teclado.
 
 ## Probarlo en 1 minuto (sin servidor)
@@ -106,9 +107,14 @@ Cada vez que cambies la web: `npm run cap:sync`. Para publicar en Google Play / 
 ## Pruebas
 
 ```bash
-npm test             # motor (35) + capa de juego y cliente online (11)
+npm test             # motor + capa de juego, cliente online y sonidos
 npm run typecheck
 ```
+
+## Ajustes y sonidos
+
+- `useGameSettings()` (`src/lib/settings.tsx`) guarda `isMuted` y `tableColor` (`verde`, `rojo`, `oscuro`) en el dispositivo; el color se aplica a toda la app con el atributo `data-table` de `<html>`. El modal de ajustes (engranaje de la mesa y de la portada) permite silenciar el juego y elegir el tapete en directo.
+- `playSound(tipo)` (`src/lib/sounds.ts`) reproduce `public/sounds/<tipo>.mp3` con los tipos `card_deal`, `card_play`, `chips`, `alert_caught`, `alert_fail` y `click`. Si falta el archivo suena un sustituto sintetizado, así que no hace falta tener todos los MP3 (ver `public/sounds/README.txt`). `alert_caught` suena a toda la mesa cuando se caza una seña y `alert_fail` solo a quien hizo la falsa alarma.
 
 ## Reglas implementadas
 
@@ -121,7 +127,7 @@ Contrastadas con Pagat y con el reglamento vasco.
 - **Deje**: un «no quiero» paga al instante lo ya aceptado (1 piedra si era el primer envite). Lo aceptado se reparte al enseñar, en orden Grande, Chica, Pares y Juego; quien llega antes al tope gana el juego.
 - **Reparto**: Grande y Chica, 1 si todos pasan o lo envidado si se ve. Pares: 1 / 2 / 3 (pares, medias, duples) por cada compañero del equipo ganador. Juego: 3 por el 31, 2 por los demás. Punto: 1 extra. Con un envite rechazado en Pares/Juego/Punto gana quien envidó, sin comparar cartas.
 - **Órdago aceptado**: gana el juego quien gane ese lance; lo pendiente de lances anteriores no cuenta.
-- **Sistema de sospecha**: el servidor valida las señas con las cartas y mide los 3 segundos con su propio reloj. Una captura rival válida suma 1 piedra y pausa la mesa 1 s; una falsa alarma resta 1 (mínimo 0). Los intentos tienen 2 s de cooldown.
+- **Sistema de sospecha**: el servidor valida las señas con las cartas y mide los 3 segundos con su propio reloj. Una captura rival válida revela la seña a toda la mesa y la pausa 1 s; una falsa alarma bloquea el ojo de quien sospechó 10 s. **Ninguna de las dos cambia las piedras**: el castigo es solo la exposición de la jugada.
 - **Configurable** por sala: 30 o 40 piedras, juegos por vaca, vacas por partida, 8 o 4 reyes, señas veraces, tiempo por turno.
 
 Simplificaciones: «¿hay pares?» y «¿hay juego?» se declaran solos (es información pública); un envite no puede superar el tope del juego (para ir a todo está el órdago); al acabar la mano se enseñan las cuatro manos.

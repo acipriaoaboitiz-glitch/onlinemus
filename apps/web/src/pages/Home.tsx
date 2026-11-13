@@ -5,6 +5,7 @@ import { CardFace } from '../components/CardFace.tsx';
 import { ConfigForm, configSummary } from '../components/ConfigForm.tsx';
 import { LogoMus } from '../components/LogoMus.tsx';
 import { RulesSheet } from '../components/RulesSheet.tsx';
+import { SettingsButton } from '../components/SettingsModal.tsx';
 import { Button, Sheet } from '../components/ui.tsx';
 import { useBackend } from '../lib/backendContext.tsx';
 import { useInstall } from '../lib/install.ts';
@@ -51,7 +52,10 @@ export function Home({ initialCode }: { initialCode?: string }) {
     <main className="home relative isolate">
       <nav className="home__navbar" aria-label="Navegación principal">
         <LogoMus iconClassName="w-[4.25rem] h-[4.25rem] sm:w-20 sm:h-20" />
-        <span className="home__nav-tag">2 VS 2 <i /> ONLINE</span>
+        <span className="home__nav-actions">
+          <span className="home__nav-tag">2 VS 2 <i /> ONLINE</span>
+          <SettingsButton className="home__gear" />
+        </span>
       </nav>
       <header className="home__hero">
         <h1>

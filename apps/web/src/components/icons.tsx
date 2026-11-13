@@ -21,6 +21,14 @@ export const IconExit = () => (<Icon><path d="M14 4.5h4A1.5 1.5 0 0 1 19.5 6v12a
 export const IconVolume = () => (<Icon><path d="M4.5 9.5h3L12 6v12l-4.5-3.5h-3zM15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" /></Icon>);
 export const IconVibrate = () => (<Icon><rect x="8" y="4" width="8" height="16" rx="2" /><path d="M4.5 8.5v7M19.5 8.5v7" /></Icon>);
 
+export const IconGear = () => (
+  <Icon>
+    <circle cx="12" cy="12" r="3.2" />
+    <path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6 6l1.6 1.6M16.4 16.4 18 18M18 6l-1.6 1.6M7.6 16.4 6 18" />
+    <circle cx="12" cy="12" r="6.6" />
+  </Icon>
+);
+
 /** Cara guiñando: el botón discreto de las señas. */
 export const IconWink = () => (
   <Icon size={24}>

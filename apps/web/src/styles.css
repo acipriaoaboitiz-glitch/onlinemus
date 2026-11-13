@@ -1220,3 +1220,46 @@ kbd { font: inherit; font-weight: 800; font-size: 11.5px; padding: 1px 6px; bord
   .table__score-island { width: 620px; }
   .table__felt { padding: 22px 24px; }
 }
+
+/* ═══════════════ Ajustes globales: color del tapete y engranaje ═══════════════ */
+:root {
+  --tapete-a: rgba(13, 49, 38, .9);
+  --tapete-b: #0b211a;
+  --tapete-c: #091813;
+  --tapete-glow: rgba(18, 83, 60, .2);
+  --mesa-glow: rgba(12, 72, 53, .2);
+  --mesa-glow-2: rgba(31, 69, 54, .23);
+}
+:root[data-table='rojo'] {
+  --tapete-a: rgba(74, 20, 24, .92);
+  --tapete-b: #34100f;
+  --tapete-c: #230a0b;
+  --tapete-glow: rgba(150, 48, 44, .22);
+  --mesa-glow: rgba(110, 30, 30, .22);
+  --mesa-glow-2: rgba(80, 28, 30, .22);
+}
+:root[data-table='oscuro'] {
+  --tapete-a: rgba(36, 42, 47, .94);
+  --tapete-b: #171c20;
+  --tapete-c: #0d1013;
+  --tapete-glow: rgba(110, 124, 136, .16);
+  --mesa-glow: rgba(70, 80, 90, .18);
+  --mesa-glow-2: rgba(60, 68, 76, .18);
+}
+.table {
+  background:
+    radial-gradient(ellipse at 50% 48%, var(--mesa-glow), transparent 58%),
+    radial-gradient(ellipse at 50% 0%, var(--mesa-glow-2), transparent 54%),
+    #090d0c;
+}
+.table__felt {
+  background:
+    radial-gradient(ellipse at 50% 52%, var(--tapete-glow), transparent 52%),
+    radial-gradient(ellipse at center, var(--tapete-a), var(--tapete-b) 72%, var(--tapete-c) 100%);
+  transition: background .35s;
+}
+
+/* Engranaje: a la izquierda de la marcador en la mesa, junto a la etiqueta en la portada */
+.table__top > .icon-btn.icon-btn--gear { right: auto; left: max(8px, calc((100vw - 1544px) / 2)); }
+.home__nav-actions { display: inline-flex; align-items: center; gap: 8px; }
+.home__gear { width: 38px; height: 38px; border-radius: 50%; background: rgba(8, 13, 10, .55); backdrop-filter: blur(10px); }

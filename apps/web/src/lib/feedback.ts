@@ -47,7 +47,9 @@ function tone(c: AudioContext, freq: number, at: number, dur: number, gain = 0.0
   o.stop(t0 + dur + 0.03);
 }
 
-export type SoundName = 'tap' | 'turn' | 'point' | 'win' | 'lose' | 'sign';
+export type SoundName =
+  | 'tap' | 'turn' | 'point' | 'win' | 'lose' | 'sign'
+  | 'card_deal' | 'card_play' | 'chips' | 'alert_caught' | 'alert_fail' | 'click';
 
 /** Sonidos sintetizados (sin archivos): discretos y cortos. */
 export function sound(name: SoundName): void {
@@ -61,5 +63,12 @@ export function sound(name: SoundName): void {
     case 'sign': tone(c, 880, 0, 0.05, 0.03); tone(c, 880, 0.09, 0.05, 0.03); break;
     case 'win': [523, 659, 784, 1047].forEach((f, i) => tone(c, f, i * 0.11, 0.2)); break;
     case 'lose': [392, 330, 262].forEach((f, i) => tone(c, f, i * 0.14, 0.24, 0.035, 'triangle')); break;
+    // Sustitutos sintetizados de los MP3 de /sounds/ (ver lib/sounds.ts): suenan cuando falta el archivo.
+    case 'click': tone(c, 520, 0, 0.04, 0.03); break;
+    case 'card_deal': [260, 300, 340].forEach((f, i) => tone(c, f, i * 0.055, 0.045, 0.035, 'triangle')); break;
+    case 'card_play': tone(c, 210, 0, 0.07, 0.05, 'triangle'); tone(c, 150, 0.03, 0.06, 0.03, 'triangle'); break;
+    case 'chips': [1400, 1750, 1250].forEach((f, i) => tone(c, f, i * 0.045, 0.035, 0.022, 'square')); break;
+    case 'alert_caught': [440, 554, 740].forEach((f, i) => tone(c, f, i * 0.1, 0.12, 0.04, 'sawtooth')); tone(c, 988, 0.32, 0.34, 0.045, 'sawtooth'); break;
+    case 'alert_fail': tone(c, 300, 0, 0.13, 0.04, 'sawtooth'); tone(c, 190, 0.13, 0.22, 0.04, 'sawtooth'); break;
   }
 }
