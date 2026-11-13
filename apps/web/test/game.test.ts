@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { legalActions, nextRandom, signIsTruthful } from '@mus/engine';
-import type { Action, Card, Seat } from '@mus/engine';
+import { SIGNS, legalActions, nextRandom, signIsTruthful } from '@mus/engine';
+import type { Action, Card, GameEvent, Seat } from '@mus/engine';
 import { createLocalSource } from '../src/game/localSource.ts';
 import { createRemoteSource } from '../src/game/remoteSource.ts';
 import { awardRows, bannerFor, betSummary, bubbleFor, describeHand, rankName, turnHint } from '../src/game/describe.ts';
@@ -319,3 +319,97 @@ test('describe: turnHint y betSummary con una partida real', () => {
   assert.equal(betSummary(s.view!, 0, names), null);
   src.destroy();
 });
+
+// ─────────────────── Sospecha de señas contra bots (modo local) ──────────────────
+
+type Pulse = Extract<GameEvent, { t: 'signal_pulse' }>;
+type Resolution = Extract<GameEvent, { t: 'signal_resolution' }>;
+const pulses = (evs: GameEvent[]) => evs.filter((e): e is Pulse => e.t === 'signal_pulse');
+const resolutions = (evs: GameEvent[]) => evs.filter((e): e is Resolution => e.t === 'signal_resolution');
+
+/** Una partida local en la que un rival bot hace una seña (se prueban semillas hasta que su mano permite alguna). */
+async function localWithRivalSign(extra: Record<string, unknown> = {}) {
+  for (let seed = 1; seed < 60; seed++) {
+    const src = createLocalSource({
+      name: 'Ana', botDelay: [60_000, 60_000], seed, rivalSignChance: 1, rivalSignDelay: 0, catchChance: 0, catchPauseMs: 0, ...extra,
+    });
+    const events: GameEvent[] = [];
+    src.onEvents((e) => events.push(...e));
+    await new Promise((r) => setTimeout(r, 25));
+    if (pulses(events).length > 0) return { src, events };
+    src.destroy();
+  }
+  throw new Error('ninguna semilla produjo una seña rival');
+}
+
+test('Local: pillar una seña rival la revela, no toca los puntos y una falsa alarma bloquea el ojo', async () => {
+  const { src, events } = await localWithRivalSign();
+  const pulse = pulses(events)[0];
+  assert.deepEqual(Object.keys(pulse).sort(), ['at', 'seat', 't'], 'el aviso público no lleva el contenido de la seña');
+  assert.ok(pulse.seat === 1 || pulse.seat === 3, 'la seña es de un rival');
+  const score = JSON.stringify(src.getSnapshot().view!.score);
+
+  assert.equal(await src.catchSignal(), null);
+  const caught = resolutions(events);
+  assert.equal(caught.length, 1);
+  assert.equal(caught[0].result, 'caught');
+  assert.equal(caught[0].signalSeat, pulse.seat);
+  assert.ok(caught[0].signalId, 'se revela qué seña era');
+  assert.equal(caught[0].catcher, 0);
+  assert.equal(JSON.stringify(src.getSnapshot().view!.score), score, 'las piedras no cambian');
+
+  assert.equal(await src.catchSignal(), null, 'sin seña viva es una falsa alarma');
+  assert.equal(resolutions(events)[1].result, 'false_alarm');
+  assert.equal(resolutions(events)[1].signalId, null);
+  assert.equal(await src.catchSignal(), 'Espera antes de volver a sospechar', 'el ojo queda bloqueado');
+  assert.equal(JSON.stringify(src.getSnapshot().view!.score), score, 'tampoco cambian con la falsa alarma');
+  src.destroy();
+});
+
+test('Local: el bloqueo del ojo y la ventana de la seña caducan', async () => {
+  const quiet = createLocalSource({ name: 'Ana', botDelay: [60_000, 60_000], seed: 2, rivalSignChance: 0, catchChance: 0, catchCooldownMs: 30 });
+  assert.equal(await quiet.catchSignal(), null);
+  assert.equal(await quiet.catchSignal(), 'Espera antes de volver a sospechar');
+  await new Promise((r) => setTimeout(r, 50));
+  assert.equal(await quiet.catchSignal(), null, 'pasado el bloqueo se puede volver a intentar');
+  quiet.destroy();
+
+  const { src, events } = await localWithRivalSign({ signalMs: 40 });
+  await new Promise((r) => setTimeout(r, 70));
+  assert.equal(await src.catchSignal(), null);
+  assert.equal(resolutions(events)[0].result, 'false_alarm', 'la seña ya no estaba viva');
+  src.destroy();
+});
+
+test('Local: tu seña se valida con tu mano, avisa sin contenido y un rival bot puede pillártela', async () => {
+  const src = createLocalSource({
+    name: 'Ana', botDelay: [60_000, 60_000], seed: 5, rivalSignChance: 0, catchChance: 1, catchDelay: [0, 0], catchPauseMs: 80,
+  });
+  const events: GameEvent[] = [];
+  src.onEvents((e) => events.push(...e));
+  const snap = src.getSnapshot();
+  const cfg = snap.view!.config;
+  const mine = SIGNS.find((s) => signIsTruthful(s.id, snap.hand, cfg))?.id;
+  const lie = SIGNS.find((s) => !signIsTruthful(s.id, snap.hand, cfg))?.id;
+  assert.ok(mine && lie, 'la mano permite una seña verdadera y una falsa');
+  const score = JSON.stringify(snap.view!.score);
+
+  assert.equal(await src.sendSign(lie), 'Esa seña no coincide con tu mano');
+  assert.equal(pulses(events).length, 0);
+
+  assert.equal(await src.sendSign(mine), null);
+  assert.equal(pulses(events).length, 1);
+  assert.equal(pulses(events)[0].seat, 0);
+  await until(() => resolutions(events).length > 0, 1000);
+  const r = resolutions(events)[0];
+  assert.equal(r.result, 'caught');
+  assert.equal(r.signalSeat, 0);
+  assert.equal(r.signalId, mine);
+  assert.ok(r.catcher === 1 || r.catcher === 3);
+  assert.equal(JSON.stringify(src.getSnapshot().view!.score), score, 'las piedras no cambian');
+
+  assert.equal(await src.send({ type: 'MUS' }), 'La mesa está resolviendo una seña', 'la mesa se pausa un instante');
+  assert.equal(await src.catchSignal(), 'La mesa está resolviendo una seña');
+  src.destroy();
+});
+

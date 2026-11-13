@@ -1,4 +1,4 @@
-import { act, autoAction, botAction, legalActions, newMatch, publicView, signIsTruthful } from '@mus/engine';
+import { act, autoAction, botAction, legalActions, newMatch, publicView, signIsTruthful, teamOf } from '@mus/engine';
 import type { Action, GameEvent, MusState, RoomConfig, Seat, SignId } from '@mus/engine';
 import type { GameSource, IncomingSign, SeatInfo, Snapshot } from './types.ts';
 
@@ -12,6 +12,20 @@ export interface LocalOptions {
   signChance?: number;
   /** Espera (ms) entre repartir y que tu pareja bot te haga la seña. */
   signDelay?: number;
+  /** Probabilidad de que un rival bot se haga una seña con su pareja al repartir (tú puedes pillarla con el ojo). */
+  rivalSignChance?: number;
+  /** Espera (ms) entre repartir y la seña del rival bot. */
+  rivalSignDelay?: number;
+  /** Probabilidad de que un rival bot pille la seña que tú le haces a tu pareja. */
+  catchChance?: number;
+  /** Espera (ms) [mín, máx] que tarda un rival bot en pillar tu seña. */
+  catchDelay?: [number, number];
+  /** Cuánto dura viva una seña (ms). Por defecto 3 s, como en el servidor. */
+  signalMs?: number;
+  /** Pausa al cazar una seña (ms). Por defecto 1 s, como en el servidor. */
+  catchPauseMs?: number;
+  /** Bloqueo del ojo tras una falsa alarma (ms). Por defecto 10 s, como en el servidor. */
+  catchCooldownMs?: number;
 }
 
 /** Asientos 1..3; el 2 es tu pareja. */
@@ -41,7 +55,18 @@ export function createLocalSource(opts: LocalOptions): GameSource {
   const signListeners = new Set<(s: IncomingSign) => void>();
   let timer: ReturnType<typeof setTimeout> | null = null;
   let signTimer: ReturnType<typeof setTimeout> | null = null;
+  let rivalTimer: ReturnType<typeof setTimeout> | null = null;
+  const catchTimers = new Set<ReturnType<typeof setTimeout>>();
   let destroyed = false;
+
+  // Sospecha de señas contra bots: mismas reglas que el servidor (ventana de 3 s, pausa de 1 s, cooldown de 10 s)
+  // y sin tocar nunca las piedras. El contenido de la seña solo se revela al cazarla.
+  const signalMs = opts.signalMs ?? 3_000;
+  const pauseMs = opts.catchPauseMs ?? 1_000;
+  const cooldownMs = opts.catchCooldownMs ?? 10_000;
+  let signal: { seat: Seat; id: SignId; at: number } | null = null;
+  let cooldownUntil = 0;
+  let pauseUntil = 0;
 
   const seats: SeatInfo[] = names.map((name, i) => ({
     seat: i as Seat, userId: i === 0 ? 'me' : null, name, isBot: i !== 0, online: true,
@@ -57,7 +82,7 @@ export function createLocalSource(opts: LocalOptions): GameSource {
     snap = build();
     listeners.forEach((l) => l());
     eventListeners.forEach((l) => l(events));
-    if (events.some((e) => e.t === 'handStart')) scheduleSign();
+    if (events.some((e) => e.t === 'handStart')) { signal = null; scheduleSign(); scheduleRivalSign(); }
     schedule();
   }
 
@@ -65,7 +90,8 @@ export function createLocalSource(opts: LocalOptions): GameSource {
     if (destroyed || timer !== null || state.phase === 'matchEnd') return;
     const seat = ([1, 2, 3] as Seat[]).find((x) => legalActions(state, x).length > 0);
     if (seat === undefined) return;
-    const wait = state.phase === 'handEnd' ? 0 : dMin + Math.random() * (dMax - dMin);
+    const base = state.phase === 'handEnd' ? 0 : dMin + Math.random() * (dMax - dMin);
+    const wait = Math.max(base, pauseUntil - Date.now());
     timer = setTimeout(() => {
       timer = null;
       botStep(seat);
@@ -74,6 +100,7 @@ export function createLocalSource(opts: LocalOptions): GameSource {
 
   function botStep(seat: Seat): void {
     if (destroyed) return;
+    if (Date.now() < pauseUntil) { schedule(); return; } // la mesa está en pausa por una seña cazada
     let action = botAction(state, seat);
     let res = action ? act(state, seat, action) : null;
     if (!res || !res.ok) {
@@ -94,7 +121,49 @@ export function createLocalSource(opts: LocalOptions): GameSource {
     }, opts.signDelay ?? 900);
   }
 
+  function emit(events: GameEvent[]): void {
+    eventListeners.forEach((l) => l(events));
+  }
+
+  /** Una seña nueva: aviso público (solo quién y cuándo) y ventana de captura. */
+  function raise(seat: Seat, id: SignId): number {
+    const at = Date.now();
+    signal = { seat, id, at };
+    emit([{ t: 'signal_pulse', seat, at }]);
+    return at;
+  }
+
+  function resolve(catcher: Seat, caught: boolean): void {
+    const now = Date.now();
+    const s = signal;
+    if (caught && s) {
+      signal = null;
+      pauseUntil = now + pauseMs;
+    }
+    emit([{
+      t: 'signal_resolution',
+      result: caught ? 'caught' : 'false_alarm',
+      signalSeat: caught && s ? s.seat : null,
+      signalId: caught && s ? s.id : null,
+      catcher,
+      team: teamOf(catcher),
+    }]);
+  }
+
+  /** Un rival bot se hace una seña con su pareja: solo la pillas si pulsas el ojo a tiempo. */
+  function scheduleRivalSign(): void {
+    if (rivalTimer !== null) clearTimeout(rivalTimer);
+    rivalTimer = setTimeout(() => {
+      rivalTimer = null;
+      if (destroyed || state.phase !== 'mus' || Math.random() > (opts.rivalSignChance ?? 0.5)) return;
+      const seat: Seat = Math.random() < 0.5 ? 1 : 3;
+      const id = PARTNER_SIGNS.find((s) => signIsTruthful(s, state.hands[seat], state.config));
+      if (id) raise(seat, id);
+    }, opts.rivalSignDelay ?? 1400);
+  }
+
   scheduleSign();
+  scheduleRivalSign();
   schedule();
 
   return {
@@ -104,13 +173,43 @@ export function createLocalSource(opts: LocalOptions): GameSource {
       return () => { listeners.delete(cb); };
     },
     async send(action: Action) {
+      if (Date.now() < pauseUntil) return 'La mesa está resolviendo una seña';
       const res = act(state, 0, action);
       if (!res.ok) return res.error;
       commit(res.state, res.events);
       return null;
     },
-    async sendSign() { /* la pareja bot no entiende de señas: el envío es solo de adorno */ return null; },
-    async catchSignal() { return 'La sospecha solo está disponible en salas online'; },
+    /** Tu pareja bot no entiende de señas, pero los rivales bot pueden pillártelas. */
+    async sendSign(id: SignId) {
+      if (state.phase === 'matchEnd') return 'La partida ha terminado';
+      if (Date.now() < pauseUntil) return 'La mesa está resolviendo una seña';
+      if (state.config.truthfulSigns && !signIsTruthful(id, state.hands[0], state.config)) return 'Esa seña no coincide con tu mano';
+      const at = raise(0, id);
+      if (Math.random() < (opts.catchChance ?? 0.3)) {
+        const [cMin, cMax] = opts.catchDelay ?? [700, 1700];
+        const t = setTimeout(() => {
+          catchTimers.delete(t);
+          // Solo si sigue siendo tu seña, nadie la ha cazado ya y sigue viva.
+          if (destroyed || signal === null || signal.at !== at || Date.now() - at >= signalMs) return;
+          resolve(Math.random() < 0.5 ? 1 : 3, true);
+        }, cMin + Math.random() * (cMax - cMin));
+        catchTimers.add(t);
+      }
+      return null;
+    },
+    async catchSignal() {
+      const now = Date.now();
+      if (state.phase === 'matchEnd') return 'La partida ha terminado';
+      if (now < pauseUntil) return 'La mesa está resolviendo una seña';
+      if (now < cooldownUntil) return 'Espera antes de volver a sospechar';
+      const caught = signal !== null && now - signal.at < signalMs && teamOf(signal.seat) !== teamOf(0);
+      if (!caught) {
+        if (signal !== null && now - signal.at >= signalMs) signal = null;
+        cooldownUntil = now + cooldownMs;
+      }
+      resolve(0, caught);
+      return null;
+    },
     onSign(cb) {
       signListeners.add(cb);
       return () => { signListeners.delete(cb); };
@@ -124,6 +223,9 @@ export function createLocalSource(opts: LocalOptions): GameSource {
       destroyed = true;
       if (timer !== null) clearTimeout(timer);
       if (signTimer !== null) clearTimeout(signTimer);
+      if (rivalTimer !== null) clearTimeout(rivalTimer);
+      catchTimers.forEach((x) => clearTimeout(x));
+      catchTimers.clear();
       listeners.clear();
       eventListeners.clear();
       signListeners.clear();

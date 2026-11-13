@@ -249,14 +249,12 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
             {myBubble && <span key={myBubble.at} className={`bubble bubble--${myBubble.tone} bubble--me`}>{myBubble.text}</span>}
           </div>
           <SignButton onClick={() => setSigns(true)} disabled={view.phase === 'matchEnd'} />
-          {snap.room && (
-            <CatchSignalButton
-              cooldownMs={signaling.catchCooldown}
-              disabled={!snap.connected || view.phase === 'matchEnd' || signaling.catching}
-              windowOpen={signaling.windowOpen}
-              onClick={() => void signaling.catchSignal().then((error) => { if (error) toast(error, 'error'); })}
-            />
-          )}
+          <CatchSignalButton
+            cooldownMs={signaling.catchCooldown}
+            disabled={!snap.connected || view.phase === 'matchEnd' || signaling.catching}
+            windowOpen={signaling.windowOpen}
+            onClick={() => void signaling.catchSignal().then((error) => { if (error) toast(error, 'error'); })}
+          />
         </div>
         {myTurn && snap.deadline !== null && secs > 0 && (
           <div className="turnbar" key={snap.deadline}><i style={{ animationDuration: `${Math.max(0, snap.deadline - Date.now())}ms` }} /></div>
