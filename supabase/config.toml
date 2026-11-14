@@ -1,0 +1,9 @@
+# Configuración mínima para `supabase start` (el resto de valores son los de la CLI por defecto).
+project_id = "mus-online"
+
+[auth]
+# La app entra con una sesión anónima + apodo: nadie tiene que registrarse para jugar.
+enable_anonymous_sign_ins = true
+
+[functions.game-action]
+verify_jwt = true
