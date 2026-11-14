@@ -33,7 +33,7 @@ export function PhaseCinematic({ cine }: { cine: PhaseCine | null }) {
               exit={{ opacity: 0, transition: { duration: CINE.out } }}
             />
             <motion.h2
-              className="bg-gradient-to-b from-amber-50 via-yellow-400 to-amber-700 bg-clip-text pl-[.12em] font-[var(--font-display)] text-[clamp(54px,18vw,112px)] font-bold leading-none tracking-[.12em] text-transparent drop-shadow-[0_6px_30px_rgba(240,195,95,.35)]"
+              className="bg-gradient-to-b from-amber-50 via-yellow-400 to-amber-700 bg-clip-text pl-[.12em] font-[var(--font-display)] text-[clamp(44px,14.5vw,104px)] font-bold leading-none tracking-[.12em] text-transparent drop-shadow-[0_6px_30px_rgba(240,195,95,.35)]"
               initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.82, letterSpacing: '.3em' }}
               animate={reduce ? { opacity: 1 } : { opacity: 1, scale: 1, letterSpacing: '.12em', transition: { duration: CINE.in, ease: EASE } }}
               exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.08, transition: { duration: CINE.out, ease: 'easeIn' } }}

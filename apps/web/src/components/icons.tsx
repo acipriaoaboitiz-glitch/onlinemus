@@ -54,3 +54,29 @@ export const IconHand = () => (
     <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
   </Icon>
 );
+
+/** Información (círculo con «i»): abre el manual para quien nunca ha jugado. */
+export const IconInfo = ({ size = 22 }: { size?: number }) => (
+  <Icon size={size}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 11v5.5" />
+    <path d="M12 7.6h.01" />
+  </Icon>
+);
+export const IconUsers = () => (
+  <Icon>
+    <circle cx="9" cy="8.5" r="3.2" />
+    <path d="M3.5 19.5c.4-3 2.6-4.8 5.5-4.8s5.1 1.8 5.5 4.8" />
+    <path d="M16 5.6a3.1 3.1 0 0 1 0 5.8M17.5 14.9c1.8.5 3 2.1 3.3 4.6" />
+  </Icon>
+);
+export const IconChevronRight = () => (<Icon size={18}><path d="M9 5.5l6.5 6.5L9 18.5" /></Icon>);
+export const IconChevronLeft = () => (<Icon size={18}><path d="M15 5.5L8.5 12l6.5 6.5" /></Icon>);
+export const IconSliders = () => (
+  <Icon>
+    <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
+    <circle cx="15" cy="7" r="2" />
+    <circle cx="9" cy="17" r="2" />
+  </Icon>
+);
+export const IconDownload = () => (<Icon><path d="M12 4v10.5M7.5 10.5L12 15l4.5-4.5" /><path d="M5 19.5h14" /></Icon>);

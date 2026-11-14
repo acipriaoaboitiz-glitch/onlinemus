@@ -3,8 +3,8 @@ import type { GameEvent, Lance, Seat } from '@mus/engine';
 import { LANCE_LABEL } from './describe.ts';
 import type { GameSource } from './types.ts';
 
-/** Duración (en segundos) de cada tramo del cartel de fase: entra, se mantiene 1,5 s y se va. */
-export const CINE = { in: 0.7, hold: 1.5, out: 0.6 } as const;
+/** Duración (en segundos) de cada tramo del cartel de fase: entra, se mantiene un momento y se va (≈1,75 s en total). */
+export const CINE = { in: 0.45, hold: 0.9, out: 0.4 } as const;
 /** Cuánto permanece el cartel «SEÑA CAZADA» antes de devolver el control (ms). */
 export const CAUGHT_HOLD_MS = 3_600;
 

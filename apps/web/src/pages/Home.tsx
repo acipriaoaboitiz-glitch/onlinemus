@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import type { RoomConfig } from '@mus/engine';
 import { CardFace } from '../components/CardFace.tsx';
 import { ConfigForm, configSummary } from '../components/ConfigForm.tsx';
+import { IconBook, IconBot, IconChevronRight, IconDownload, IconInfo, IconSliders, IconUsers } from '../components/icons.tsx';
 import { LogoMus } from '../components/LogoMus.tsx';
-import { RulesSheet } from '../components/RulesSheet.tsx';
+import { Manual } from '../components/Manual.tsx';
+import type { ManualTab } from '../components/Manual.tsx';
 import { SettingsButton } from '../components/SettingsModal.tsx';
 import { Button, Sheet } from '../components/ui.tsx';
 import { useBackend } from '../lib/backendContext.tsx';
@@ -14,19 +17,56 @@ import { navigate } from '../lib/router.ts';
 import { store } from '../lib/storage.ts';
 import { toast } from '../lib/toast.ts';
 
+const INPUT =
+  'h-[clamp(36px,6.4dvh,48px)] w-full rounded-2xl border border-white/10 bg-black/35 px-4 text-[16px] text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60 focus:ring-2 focus:ring-amber-300/20 disabled:opacity-50';
+
+/** Hueco de una carta del abanico decorativo. */
+function FanCard({ children, className }: { children: ReactNode; className: string }) {
+  return (
+    <div className={`absolute aspect-[12/19] w-[clamp(50px,14.5vw,78px)] overflow-hidden rounded-[7px] shadow-[0_14px_30px_rgba(0,0,0,.6)] ring-1 ring-black/30 ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+function Tile({ icon, title, hint, onClick }: { icon: ReactNode; title: string; hint: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex min-w-0 flex-col items-center gap-0.5 rounded-2xl border border-white/10 bg-white/[.04] px-2 py-[clamp(5px,1.2dvh,10px)] text-center transition hover:bg-white/[.07] active:scale-[.97]"
+    >
+      <span className="text-amber-300">{icon}</span>
+      <b className="text-[13px] text-stone-100">{title}</b>
+      <small className="max-w-full truncate text-[10.5px] text-stone-500 [@media(max-height:620px)]:hidden">{hint}</small>
+    </button>
+  );
+}
+
+/**
+ * Portada. Cabe SIEMPRE en una pantalla (h-[100dvh]): el héroe es la única pieza elástica y se encoge o desaparece
+ * en pantallas bajas; si aun así no cupiera (móvil en horizontal) el contenido se desplaza dentro de la propia portada.
+ */
 export function Home({ initialCode }: { initialCode?: string }) {
   const { backend, loading } = useBackend();
   const [name, setName] = useState(() => store.get(NAME_KEY) ?? '');
   const [code, setCode] = useState(initialCode ?? '');
   const [config, setConfig] = useState<RoomConfig>(loadConfig);
   const [cfgOpen, setCfgOpen] = useState(false);
-  const [rules, setRules] = useState(false);
+  const [manual, setManual] = useState<ManualTab | null>(null);
   const [busy, setBusy] = useState<null | 'create' | 'join'>(null);
   const [iosSheet, setIosSheet] = useState(false);
   const installer = useInstall();
 
   const nameOk = name.trim().length >= 2;
   const online = backend !== null;
+  const canInstallHere = installer.canInstall || installer.iosHint;
+
+  // Sin scroll del documento: la portada gestiona su propio desplazamiento solo si no cupiera.
+  useEffect(() => {
+    document.documentElement.classList.add('table-lock');
+    return () => document.documentElement.classList.remove('table-lock');
+  }, []);
 
   const remember = () => {
     store.set(NAME_KEY, name.trim());
@@ -48,123 +88,144 @@ export function Home({ initialCode }: { initialCode?: string }) {
     }
   }
 
-  return (
-    <main className="home relative isolate">
-      <nav className="home__navbar" aria-label="Navegación principal">
-        <LogoMus iconClassName="w-[4.25rem] h-[4.25rem] sm:w-20 sm:h-20" />
-        <span className="home__nav-actions">
-          <span className="home__nav-tag">2 VS 2 <i /> ONLINE</span>
-          <SettingsButton className="home__gear" />
-        </span>
-      </nav>
-      <header className="home__hero">
-        <h1>
-          <span className="home__headline-accent bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600 bg-clip-text font-serif text-transparent drop-shadow-[0_4px_22px_rgba(245,158,11,0.22)]">
-            La mesa<br />está puesta.
-          </span>
-        </h1>
-        <p>Reúne a tu pareja, prepara los envites<br className="home__desktop-break" /> y que empiece la partida.</p>
-        <div className="home__features" aria-label="Características">
-          <span>2 contra 2</span>
-          <span>En tiempo real</span>
-          <span>Con amigos o bots</span>
-        </div>
-        <div className="home__art" aria-hidden="true">
-          <div className="home__art-card home__art-card--back drop-shadow-2xl"><CardFace card={{ id: 'e7', rank: 7, suit: 'espadas' }} /></div>
-          <div className="home__art-card home__art-card--left drop-shadow-2xl"><CardFace card={{ id: 'c12', rank: 12, suit: 'copas' }} /></div>
-          <div className="home__art-card home__art-card--right drop-shadow-2xl"><CardFace card={{ id: 'o1', rank: 1, suit: 'oros' }} /></div>
-          <span className="home__art-chip home__art-chip--one">5</span>
-          <span className="home__art-chip home__art-chip--two">1</span>
-          <span className="home__art-spark">✦</span>
-        </div>
-      </header>
+  const pill = online
+    ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300'
+    : loading ? 'border-amber-300/30 bg-amber-300/10 text-amber-200' : 'border-rose-400/30 bg-rose-400/10 text-rose-300';
 
-      <motion.section className="panel !border-amber-500/10 !bg-zinc-950/60 backdrop-blur-md shadow-[0_24px_70px_rgba(0,0,0,.42)] motion-safe:transition-transform" initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }} whileHover={{ y: -3 }}
-        transition={{ duration: 0.32, ease: 'easeOut' }}>
-        <div className="panel__head">
-          <div>
-            <span className="panel__eyebrow">PARTIDA ONLINE</span>
-            <h2>Crea una mesa privada</h2>
-            <p>Invita a tus amigos con un código.</p>
+  return (
+    <main className="relative isolate h-[100dvh] w-full overflow-y-auto overflow-x-hidden overscroll-contain text-stone-100">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_70%_38%_at_88%_6%,rgba(240,195,95,.17),transparent_70%),radial-gradient(ellipse_90%_45%_at_5%_100%,rgba(18,98,76,.38),transparent_70%)]" />
+
+      <div className="mx-auto flex min-h-full w-full max-w-[460px] flex-col gap-[min(1.4dvh,12px)] px-[clamp(16px,5vw,28px)] pb-[max(env(safe-area-inset-bottom),14px)] pt-[max(env(safe-area-inset-top),12px)]">
+        {/* Barra superior */}
+        <nav className="flex items-center justify-between" aria-label="Navegación principal">
+          <LogoMus tagline={false} iconClassName="size-[clamp(34px,5.8dvh,48px)]" />
+          <SettingsButton />
+        </nav>
+
+        {/* Héroe: elástico */}
+        <header className="relative flex min-h-[72px] flex-1 flex-col justify-center">
+          <motion.div className="relative z-10 grid max-w-[57%] gap-1.5" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }}>
+            <span className="text-[10px] font-extrabold uppercase tracking-[.26em] text-amber-300/80 [@media(max-height:620px)]:hidden">2 contra 2 · Online</span>
+            <h1 className="bg-gradient-to-b from-amber-100 via-yellow-400 to-amber-600 bg-clip-text font-[var(--font-display)] text-[clamp(28px,min(8.4vw,5.6dvh),48px)] font-bold leading-[.98] text-transparent drop-shadow-[0_4px_22px_rgba(245,158,11,.2)]">
+              La mesa<br />está puesta.
+            </h1>
+            <p className="text-[clamp(12px,3.5vw,15px)] leading-snug text-stone-400 [@media(max-height:740px)]:hidden">
+              Reúne a tu pareja, prepara los envites y que empiece la partida.
+            </p>
+            <div className="mt-1.5 hidden flex-wrap gap-1.5 [@media(min-height:760px)]:flex" aria-label="Características">
+              {['2 contra 2', 'Tiempo real', 'Con amigos o bots'].map((t) => (
+                <span key={t} className="rounded-full border border-white/10 bg-white/[.04] px-2.5 py-1 text-[11px] font-semibold text-stone-300">{t}</span>
+              ))}
+            </div>
+          </motion.div>
+          <div aria-hidden="true" className="pointer-events-none absolute -right-1 top-1/2 h-[min(100%,190px)] w-[41%] -translate-y-1/2 [@media(max-height:620px)]:hidden">
+            <motion.div className="absolute inset-0" initial={{ opacity: 0, scale: 0.9, rotate: -4 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}>
+              <FanCard className="left-[2%] top-[22%] -rotate-[15deg]"><CardFace card={{ id: 'c12', rank: 12, suit: 'copas' }} /></FanCard>
+              <FanCard className="left-[26%] top-[4%] rotate-[3deg]"><CardFace card={{ id: 'e7', rank: 7, suit: 'espadas' }} /></FanCard>
+              <FanCard className="left-[50%] top-[20%] rotate-[17deg]"><CardFace card={{ id: 'o1', rank: 1, suit: 'oros' }} /></FanCard>
+              <span className="absolute bottom-[6%] left-[6%] grid size-7 place-items-center rounded-full border-2 border-dashed border-rose-200/70 bg-rose-700 text-[11px] font-extrabold text-white shadow-lg">5</span>
+              <span className="absolute bottom-[2%] right-[8%] grid size-7 place-items-center rounded-full border-2 border-dashed border-emerald-200/70 bg-emerald-700 text-[11px] font-extrabold text-white shadow-lg">1</span>
+            </motion.div>
           </div>
-          <span className={`connection${online ? ' connection--on' : loading ? ' connection--loading' : ''}`}>
-            <i />
-            {loading ? 'Conectando' : online ? 'Disponible' : 'Sin conexión'}
-          </span>
+        </header>
+
+        {/* Cómo quieres jugar + manual */}
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-[11px] font-extrabold uppercase tracking-[.22em] text-amber-200/70">Cómo quieres jugar</span>
+          <button
+            type="button"
+            onClick={() => setManual('basico')}
+            aria-label="Abrir el manual: cómo se juega al Mus"
+            className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/35 bg-amber-300/10 py-1 pl-1.5 pr-3 text-[12px] font-bold text-amber-200 transition hover:bg-amber-300/20 active:scale-95"
+          >
+            <span className="text-amber-300"><IconInfo size={20} /></span>
+            ¿Cómo se juega?
+          </button>
         </div>
-        <label className="field">
-          <span>Tu nombre</span>
+
+        {/* Online */}
+        <motion.section
+          className="grid gap-[clamp(6px,1.1dvh,10px)] rounded-3xl border border-amber-300/15 bg-zinc-950/65 p-[clamp(10px,1.6dvh,14px)] shadow-[0_24px_70px_rgba(0,0,0,.42)] backdrop-blur-md"
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1, ease: 'easeOut' }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-amber-300/25 bg-amber-300/10 text-amber-300"><IconUsers /></span>
+            <div className="grid min-w-0 flex-1 leading-tight">
+              <h2 className="font-[var(--font-display)] text-[18px] font-bold text-stone-50">Partida online</h2>
+              <p className="truncate text-[12px] text-stone-400">{online || loading ? 'Crea una mesa privada' : 'Servidor no disponible'}</p>
+            </div>
+            <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold ${pill}`}>
+              <i className={`size-1.5 rounded-full bg-current ${loading ? 'animate-pulse' : ''}`} />
+              {loading ? 'Conectando' : online ? 'Disponible' : 'Sin conexión'}
+            </span>
+          </div>
           <input
+            className={INPUT}
             value={name}
             onChange={(e) => setName(e.target.value.slice(0, 20))}
-            placeholder="Cómo te llamamos en la mesa"
+            placeholder="Tu nombre en la mesa"
+            aria-label="Tu nombre"
             autoComplete="nickname"
             maxLength={20}
           />
-        </label>
-        <Button
-          variant="primary"
-          block
-          className="home__create !border-amber-400/40 !bg-gradient-to-r !from-amber-600 !via-yellow-500 !to-amber-600 !text-zinc-950 shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:!shadow-[0_0_24px_rgba(245,158,11,0.35)]"
-          disabled={!online || !nameOk || busy !== null}
-          onClick={() => void enter('create')}
+          <button
+            type="button"
+            disabled={!online || !nameOk || busy !== null}
+            onClick={() => void enter('create')}
+            className="h-[clamp(36px,6.4dvh,48px)] w-full rounded-2xl border border-amber-300/50 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-[16px] font-extrabold tracking-wide text-amber-950 shadow-[0_8px_24px_rgba(245,158,11,.25)] transition enabled:active:scale-[.98] disabled:opacity-40 disabled:saturate-50"
+          >
+            {busy === 'create' ? 'Creando sala…' : 'Crear sala'}
+          </button>
+          <div className="flex items-center gap-2">
+            <input
+              className={`${INPUT} w-[42%] text-center tracking-[.2em] placeholder:tracking-normal`}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              placeholder="Código"
+              aria-label="Código de la sala"
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+            />
+            <button
+              type="button"
+              disabled={!online || !nameOk || code.length < 4 || busy !== null}
+              onClick={() => void enter('join')}
+              className="h-[clamp(36px,6.4dvh,48px)] flex-1 rounded-2xl border border-white/15 bg-white/[.07] text-[15px] font-bold text-stone-100 transition enabled:hover:bg-white/10 enabled:active:scale-[.98] disabled:opacity-40"
+            >
+              {busy === 'join' ? 'Entrando…' : 'Entrar'}
+            </button>
+          </div>
+        </motion.section>
+
+        {/* Contra bots */}
+        <motion.button
+          type="button"
+          className="flex h-[clamp(48px,8dvh,66px)] items-center gap-3 rounded-3xl border border-amber-300/15 bg-zinc-950/65 px-4 text-left backdrop-blur-md transition hover:border-amber-300/30"
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.18, ease: 'easeOut' }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => { remember(); navigate('/local'); }}
         >
-          {busy === 'create' ? 'Creando sala…' : 'Crear sala'}
-        </Button>
-        <div className="join">
-          <input
-            className="code-input"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={6}
-            placeholder="Código"
-            aria-label="Código de la sala"
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-          />
-          <Button disabled={!online || !nameOk || code.length < 4 || busy !== null} onClick={() => void enter('join')}>
-            {busy === 'join' ? 'Entrando…' : 'Entrar'}
-          </Button>
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-amber-300/25 bg-amber-300/10 text-amber-300"><IconBot /></span>
+          <span className="grid min-w-0 flex-1 leading-tight">
+            <b className="font-[var(--font-display)] text-[18px] text-stone-50">Jugar contra bots</b>
+            <small className="text-[12px] text-stone-400">Sin conexión · empieza al instante</small>
+          </span>
+          <span className="text-amber-300" aria-hidden="true"><IconChevronRight /></span>
+        </motion.button>
+
+        {/* Accesos */}
+        <div className={`grid gap-2 ${canInstallHere ? 'grid-cols-3' : 'grid-cols-2'}`}>
+          <Tile icon={<IconSliders />} title="Ajustes" hint={`${config.targetPoints} piedras · ${config.eightKings ? '8' : '4'} reyes`} onClick={() => setCfgOpen(true)} />
+          <Tile icon={<IconBook />} title="Reglas" hint="Manual completo" onClick={() => setManual('puntos')} />
+          {installer.canInstall && <Tile icon={<IconDownload />} title="Instalar" hint="Acceso directo" onClick={() => void installer.install()} />}
+          {!installer.canInstall && installer.iosHint && <Tile icon={<IconDownload />} title="Instalar" hint="En el iPhone" onClick={() => setIosSheet(true)} />}
         </div>
-        {!online && !loading && (
-          <p className="note">El modo online necesita conectar Supabase (mira el README). Mientras tanto puedes jugar contra bots.</p>
-        )}
-      </motion.section>
-
-      <div className="home__or"><span>O JUEGA POR TU CUENTA</span></div>
-      <motion.button type="button" className="btn btn--secondary btn--block home__bots !border-amber-500/10 !bg-zinc-950/60 backdrop-blur-md focus-visible:ring-2 focus-visible:ring-amber-300"
-        whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} onClick={() => { remember(); navigate('/local'); }}>
-        <span className="home__bot-mark" aria-hidden="true">♟</span>
-        <span>Jugar contra bots<small>Sin conexión, cuando quieras</small></span>
-        <span className="home__arrow" aria-hidden="true">→</span>
-      </motion.button>
-
-      <div className="home__links">
-        <button type="button" onClick={() => setCfgOpen(true)}>
-          <span className="home__link-mark" aria-hidden="true">01</span>
-          <b>Ajustes de partida</b>
-          <small>{configSummary(config)}</small>
-        </button>
-        <button type="button" onClick={() => setRules(true)}>
-          <span className="home__link-mark" aria-hidden="true">02</span>
-          <b>Reglas</b><small>Cómo se puntúa</small>
-        </button>
-        {installer.canInstall && (
-          <button type="button" onClick={() => void installer.install()}>
-            <span className="home__link-mark" aria-hidden="true">↓</span>
-            <b>Instalar la app</b><small>Un acceso directo en tu dispositivo</small>
-          </button>
-        )}
-        {!installer.canInstall && installer.iosHint && (
-          <button type="button" onClick={() => setIosSheet(true)}>
-            <span className="home__link-mark" aria-hidden="true">↓</span>
-            <b>Instalar en el iPhone</b><small>Añadir a la pantalla de inicio</small>
-          </button>
-        )}
       </div>
 
       <Sheet open={cfgOpen} onClose={() => setCfgOpen(false)} title="Ajustes de partida">
+        <p className="sheet__note">{configSummary(config)}</p>
         <ConfigForm value={config} onChange={(c) => { setConfig(c); saveConfig(c); }} />
         <Button variant="primary" block onClick={() => setCfgOpen(false)}>Listo</Button>
       </Sheet>
@@ -172,7 +233,7 @@ export function Home({ initialCode }: { initialCode?: string }) {
         <p className="sheet__note">En Safari: toca <b>Compartir</b> (el cuadrado con la flecha) y elige <b>Añadir a pantalla de inicio</b>. Se abrirá como una app, sin barras del navegador.</p>
         <Button variant="primary" block onClick={() => setIosSheet(false)}>Entendido</Button>
       </Sheet>
-      <RulesSheet open={rules} onClose={() => setRules(false)} eightKings={config.eightKings} />
+      <Manual open={manual !== null} onClose={() => setManual(null)} initialTab={manual ?? 'basico'} eightKings={config.eightKings} />
     </main>
   );
 }

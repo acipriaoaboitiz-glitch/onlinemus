@@ -34,7 +34,7 @@ interface Line {
 }
 
 // Tiempos del recuento (ms). Lentos a propósito: hay que poder seguirlo.
-const REVEAL_MS = 3400; // se enseñan las cuatro manos
+const REVEAL_MS = 10_000; // las cuatro manos se quedan a la vista (y se puede pasar o volver con el botón)
 const FIRST_LINE_MS = 700; // pausa antes del primer concepto
 const LINE_MS = 1300; // entre un concepto y el siguiente
 const BEFORE_FLY_MS = 1100; // pausa antes de que las piedras salten al marcador
@@ -71,6 +71,8 @@ export function RoundRecap({ view, mySeat, seats, startPoints, busy, final = fal
   const before: [number, number] = startPoints ?? [Math.max(0, after[0] - gained[0]), Math.max(0, after[1] - gained[1])];
 
   const [stage, setStage] = useState<Stage>(revealed ? 'reveal' : 'tally');
+  /** Mostrando las cartas de los cuatro. Mientras se ven, el recuento está en pausa. */
+  const [showHands, setShowHands] = useState(Boolean(revealed));
   const [shown, setShown] = useState(0);
   const [fly, setFly] = useState<{ dx: number; dy: number }[] | null>(null);
   const stoneBox = useRef<(HTMLDivElement | null)[]>([null, null]);
@@ -79,8 +81,11 @@ export function RoundRecap({ view, mySeat, seats, startPoints, busy, final = fal
   // Guion del recuento: cada paso programa el siguiente.
   useEffect(() => {
     let t: ReturnType<typeof setTimeout> | undefined;
-    if (stage === 'reveal') {
-      t = setTimeout(() => setStage('tally'), REVEAL_MS);
+    if (showHands) {
+      // Solo la primera vez se avanza solo (tras REVEAL_MS); si las has vuelto a abrir, esperan a que tú las cierres.
+      if (stage === 'reveal') t = setTimeout(() => { setShowHands(false); setStage('tally'); }, REVEAL_MS);
+    } else if (stage === 'reveal') {
+      setStage('tally');
     } else if (stage === 'tally') {
       if (shown < lines.length) {
         t = setTimeout(() => { setShown((n) => n + 1); playSound('chips'); }, shown === 0 ? FIRST_LINE_MS : LINE_MS);
@@ -91,7 +96,7 @@ export function RoundRecap({ view, mySeat, seats, startPoints, busy, final = fal
       t = setTimeout(() => setStage('done'), FLY_MS);
     }
     return () => clearTimeout(t);
-  }, [stage, shown, lines.length, playSound]);
+  }, [stage, shown, lines.length, playSound, showHands]);
 
   // Al empezar el vuelo se mide de dónde a dónde va cada piedra.
   useEffect(() => {
@@ -104,7 +109,7 @@ export function RoundRecap({ view, mySeat, seats, startPoints, busy, final = fal
     }));
   }, [stage]);
 
-  const skip = () => { setShown(lines.length); setFly(null); setStage('done'); };
+  const skip = () => { setShowHands(false); setShown(lines.length); setFly(null); setStage('done'); };
   const flown = stage === 'fly' || stage === 'done';
   const done = stage === 'done';
 
@@ -130,7 +135,7 @@ export function RoundRecap({ view, mySeat, seats, startPoints, busy, final = fal
         {/* Cabecera */}
         <header className="grid justify-items-center gap-1 text-center">
           <span className="text-[10px] font-extrabold uppercase tracking-[.28em] text-amber-200/70">{final ? 'Última mano' : 'Fin de la mano'}</span>
-          <h2 className="font-[var(--font-display)] text-[clamp(24px,7.5vw,38px)] font-bold leading-none text-amber-50">Recuento</h2>
+          <h2 className="font-[var(--font-display)] text-[clamp(24px,7.5vw,38px)] font-bold leading-none text-amber-50">{showHands ? 'Las manos' : 'Recuento'}</h2>
           <div className="h-[22px]">
             <AnimatePresence>
               {done && winner !== null && (
@@ -200,7 +205,7 @@ export function RoundRecap({ view, mySeat, seats, startPoints, busy, final = fal
         {/* Zona central: manos enseñadas → desglose por conceptos. Nunca hace scroll. */}
         <div className="min-h-0 flex-1 overflow-hidden">
           <AnimatePresence mode="wait">
-            {stage === 'reveal' && revealed ? (
+            {showHands && revealed ? (
               <motion.div key="reveal" className="grid gap-[min(1.1dvh,8px)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.3 } }}>
                 {order.map((seat, i) => {
                   const info = describeHand(revealed[seat], view.config);
@@ -218,7 +223,7 @@ export function RoundRecap({ view, mySeat, seats, startPoints, busy, final = fal
                       </div>
                       <div className="flex gap-1">
                         {revealed[seat].map((c) => (
-                          <div key={c.id} className="aspect-[12/19] w-[min(10.5vw,5dvh,48px)] overflow-hidden rounded-[5px] shadow-[0_3px_8px_rgba(0,0,0,.45)]">
+                          <div key={c.id} className="aspect-[12/19] w-[min(10.5vw,5dvh,48px)] [@media(min-height:760px)]:w-[min(12.5vw,6.2dvh,58px)] overflow-hidden rounded-[5px] shadow-[0_3px_8px_rgba(0,0,0,.45)]">
                             <CardFace card={c} eightKings={view.config.eightKings} />
                           </div>
                         ))}
@@ -252,7 +257,7 @@ export function RoundRecap({ view, mySeat, seats, startPoints, busy, final = fal
                     );
                   })}
                 </AnimatePresence>
-                {lines.length === 0 && stage !== 'reveal' && (
+                {lines.length === 0 && (
                   <motion.li initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-4 text-center text-[14px] text-stone-400">
                     Nadie ha puntuado en esta mano
                   </motion.li>
@@ -272,10 +277,20 @@ export function RoundRecap({ view, mySeat, seats, startPoints, busy, final = fal
           >
             {iAmReady ? 'Esperando…' : continueLabel}
           </button>
-          <div className="h-[18px] text-center text-[12.5px] text-stone-400">
-            {!done ? (
+          <div className="flex min-h-[32px] items-center justify-center gap-3 text-center text-[12.5px] text-stone-400">
+            {revealed && (
+              <button
+                type="button"
+                onClick={() => { if (showHands) { setShowHands(false); if (stage === 'reveal') setStage('tally'); } else setShowHands(true); }}
+                className={`h-8 rounded-full border px-3.5 text-[12.5px] font-bold transition active:scale-95 ${showHands ? 'border-amber-300/60 bg-amber-300/15 text-amber-200' : 'border-white/15 bg-white/5 text-stone-200'}`}
+              >
+                {showHands ? 'Ver recuento ›' : '‹ Ver cartas'}
+              </button>
+            )}
+            {!done && !showHands && (
               <button type="button" onClick={skip} className="font-semibold text-stone-300 underline-offset-4 hover:underline">Saltar recuento</button>
-            ) : iAmReady && waiting.length > 0 ? `Faltan: ${waiting.join(', ')}` : null}
+            )}
+            {done && iAmReady && waiting.length > 0 && <span>{`Faltan: ${waiting.join(', ')}`}</span>}
           </div>
         </footer>
       </div>
