@@ -124,8 +124,6 @@ export function Home({ initialCode }: { initialCode?: string }) {
               <FanCard className="left-[2%] top-[22%] -rotate-[15deg]"><CardFace card={{ id: 'c12', rank: 12, suit: 'copas' }} /></FanCard>
               <FanCard className="left-[26%] top-[4%] rotate-[3deg]"><CardFace card={{ id: 'e7', rank: 7, suit: 'espadas' }} /></FanCard>
               <FanCard className="left-[50%] top-[20%] rotate-[17deg]"><CardFace card={{ id: 'o1', rank: 1, suit: 'oros' }} /></FanCard>
-              <span className="absolute bottom-[6%] left-[6%] grid size-7 place-items-center rounded-full border-2 border-dashed border-rose-200/70 bg-rose-700 text-[11px] font-extrabold text-white shadow-lg">5</span>
-              <span className="absolute bottom-[2%] right-[8%] grid size-7 place-items-center rounded-full border-2 border-dashed border-emerald-200/70 bg-emerald-700 text-[11px] font-extrabold text-white shadow-lg">1</span>
             </motion.div>
           </div>
         </header>
