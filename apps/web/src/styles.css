@@ -221,8 +221,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .home__hero { position: relative; text-align: center; padding: 4px 0 82px; display: grid; justify-items: center; gap: 10px; animation: home-enter .7s cubic-bezier(.2,.8,.2,1) both; }
 .home__brand { display: grid; grid-template-columns: auto auto; align-items: center; column-gap: 10px; row-gap: 0; margin-bottom: 4px; }
 .home__brand > span { display: grid; gap: 1px; text-align: left; }
-.home__brand b { font-size: 27px; line-height: .95; }
-.home__brand small { font-size: 12px; font-weight: 800; }
+/* El tamaño del nombre lo fija LogoMus con utilidades (text-2xl / text-xs): aquí no se fija. */
+.home__brand b { line-height: .95; }
 .home__brand .home__tagline { grid-column: 1 / -1; color: #d7c18e; font-size: 7px; letter-spacing: .14em; line-height: 1; text-align: left; }
 .home__eyebrow, .panel__eyebrow { color: var(--brass); font-size: 10px; font-weight: 800; letter-spacing: .19em; }
 .home__hero h1 { font-family: var(--font-display); font-size: clamp(42px, 12vw, 58px); font-weight: 600; letter-spacing: -.035em; line-height: .98; }
@@ -284,12 +284,9 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 
 /* ───────────────────────────── Sala de espera ─────────────────────────────── */
 
-.lobby {
-  min-height: 100dvh; max-width: 520px; margin: 0 auto;
-  padding: calc(var(--safe-t) + 12px) 16px calc(var(--safe-b) + 16px);
-  display: flex; flex-direction: column; gap: 14px;
-}
-.lobby__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+/* Alto, relleno seguro y reparto vertical: utilidades Tailwind en Lobby.tsx. */
+.lobby { max-width: 520px; margin: 0 auto; }
+.lobby__top { gap: 12px; }
 .lobby__top h1 { font-family: var(--font-display); font-size: 22px; }
 .lobby__spacer { width: 44px; }
 .codecard { background: radial-gradient(circle at 8px 8px, rgba(226,180,85,.08) 1px, transparent 1.5px) 0 0 / 16px 16px, linear-gradient(160deg, #164137, #0d2923); border: 1px solid rgba(226, 180, 85, 0.42); border-radius: 22px; padding: 16px; display: grid; gap: 10px; justify-items: center; box-shadow: inset 0 0 0 4px rgba(0,0,0,.1), 0 12px 30px rgba(0,0,0,.18); }
@@ -659,7 +656,6 @@ kbd { font: inherit; font-weight: 800; font-size: 11.5px; padding: 1px 6px; bord
   .overlay__body, .overlay__foot { max-width: 680px; margin: 0 auto; width: 100%; }
   .sheet-root { align-items: center; justify-content: center; }
   .sheet { border-radius: 24px; max-height: 84dvh; padding-bottom: 20px; }
-  .lobby { padding-top: 48px; }
 }
 
 @media (max-width: 380px) {
@@ -1287,3 +1283,20 @@ html.table-lock, html.table-lock body, html.table-lock #root {
   height: 100%; overflow: hidden; overscroll-behavior: none; touch-action: manipulation;
 }
 html.table-lock .app { min-height: 0; height: 100%; overflow: hidden; }
+
+/* ─────────── Sala de espera compacta en móviles de poca altura (solo proporciones) ─────────── */
+@media (max-height: 940px) {
+  .codecard { padding: 12px; gap: 6px; }
+  .codecard__code { font-size: 44px; }
+  .codecard__actions { gap: 8px; }
+  .codecard__actions .btn { min-height: 42px; }
+  .teams { gap: 8px; }
+  .team { padding: 8px 10px; gap: 6px; }
+  .slot { min-height: 52px; padding: 6px 10px; }
+  .cfgline { padding: 10px 12px; }
+}
+@media (max-height: 720px) {
+  .codecard__code { font-size: 38px; }
+  .lobby__tip { font-size: 11.5px; }
+  .team h2 { font-size: 11px; }
+}

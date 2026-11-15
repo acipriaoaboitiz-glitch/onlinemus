@@ -20,7 +20,7 @@ export function Scoreboard({ view, mySeat }: { view: PublicState; mySeat: Seat }
             className={`min-w-0 rounded-[13px] border border-white/10 px-[min(2.4vw,10px)] py-[min(1.1dvh,6px)] ${us ? 'bg-gradient-to-br from-teal-400/10 to-black/30' : 'bg-gradient-to-br from-orange-400/10 to-black/30'}`}
           >
             <div className="flex items-baseline justify-between gap-1">
-              <span className={`truncate text-[9px] font-extrabold uppercase tracking-[.14em] ${us ? 'text-teal-300' : 'text-orange-300'}`}>
+              <span className={`truncate text-[9px] font-extrabold uppercase tracking-[.14em] max-[350px]:text-[8px] max-[350px]:tracking-[.04em] ${us ? 'text-teal-300' : 'text-orange-300'}`}>
                 {us ? 'Nosotros' : 'Ellos'}
               </span>
               <b className="font-[var(--font-display)] text-[clamp(17px,5.4vw,22px)] leading-none tabular-nums">

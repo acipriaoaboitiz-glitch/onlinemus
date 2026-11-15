@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import type { ReactNode } from 'react';
+import { useState } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import type { RoomConfig } from '@mus/engine';
 import { CardFace } from '../components/CardFace.tsx';
@@ -18,7 +18,7 @@ import { store } from '../lib/storage.ts';
 import { toast } from '../lib/toast.ts';
 
 const INPUT =
-  'h-[clamp(36px,6.4dvh,48px)] w-full rounded-2xl border border-white/10 bg-black/35 px-4 text-[16px] text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60 focus:ring-2 focus:ring-amber-300/20 disabled:opacity-50';
+  'h-[clamp(34px,calc(var(--u)*6.2),48px)] w-full rounded-2xl border border-white/10 bg-black/35 px-4 text-[16px] text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/60 focus:ring-2 focus:ring-amber-300/20 disabled:opacity-50';
 
 /** Hueco de una carta del abanico decorativo. */
 function FanCard({ children, className }: { children: ReactNode; className: string }) {
@@ -34,7 +34,7 @@ function Tile({ icon, title, hint, onClick }: { icon: ReactNode; title: string; 
     <button
       type="button"
       onClick={onClick}
-      className="flex min-w-0 flex-col items-center gap-0.5 rounded-2xl border border-white/10 bg-white/[.04] px-2 py-[clamp(5px,1.2dvh,10px)] text-center transition hover:bg-white/[.07] active:scale-[.97]"
+      className="flex min-w-0 flex-col items-center gap-0.5 rounded-2xl border border-white/10 bg-white/[.04] px-2 py-[clamp(4px,calc(var(--u)*1.2),10px)] text-center transition hover:bg-white/[.07] active:scale-[.97]"
     >
       <span className="text-amber-300">{icon}</span>
       <b className="text-[13px] text-stone-100">{title}</b>
@@ -62,12 +62,6 @@ export function Home({ initialCode }: { initialCode?: string }) {
   const online = backend !== null;
   const canInstallHere = installer.canInstall || installer.iosHint;
 
-  // Sin scroll del documento: la portada gestiona su propio desplazamiento solo si no cupiera.
-  useEffect(() => {
-    document.documentElement.classList.add('table-lock');
-    return () => document.documentElement.classList.remove('table-lock');
-  }, []);
-
   const remember = () => {
     store.set(NAME_KEY, name.trim());
     saveConfig(config);
@@ -93,27 +87,31 @@ export function Home({ initialCode }: { initialCode?: string }) {
     : loading ? 'border-amber-300/30 bg-amber-300/10 text-amber-200' : 'border-rose-400/30 bg-rose-400/10 text-rose-300';
 
   return (
-    <main className="relative isolate h-[100dvh] w-full overflow-y-auto overflow-x-hidden overscroll-contain text-stone-100">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_70%_38%_at_88%_6%,rgba(240,195,95,.17),transparent_70%),radial-gradient(ellipse_90%_45%_at_5%_100%,rgba(18,98,76,.38),transparent_70%)]" />
+    <>
+    {/* Raíz: ocupa justo el alto visible (dvh) y reparte cabecera · héroe · tarjetas; el relleno respeta notch y barra de inicio. */}
+    <main style={{ '--u': 'calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 100)' } as CSSProperties} className="relative isolate mx-auto flex min-h-[100dvh] w-full max-w-[460px] flex-col justify-between gap-2 px-[clamp(16px,5vw,28px)] pb-[calc(env(safe-area-inset-bottom)+20px)] pt-[calc(env(safe-area-inset-top)+16px)] text-stone-100">
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_70%_38%_at_88%_6%,rgba(240,195,95,.17),transparent_70%),radial-gradient(ellipse_90%_45%_at_5%_100%,rgba(18,98,76,.38),transparent_70%)]" />
 
-      <div className="mx-auto flex min-h-full w-full max-w-[460px] flex-col gap-[min(1.4dvh,12px)] px-[clamp(16px,5vw,28px)] pb-[max(env(safe-area-inset-bottom),14px)] pt-[max(env(safe-area-inset-top),12px)]">
-        {/* Barra superior */}
-        <nav className="flex items-center justify-between" aria-label="Navegación principal">
-          <LogoMus tagline={false} iconClassName="size-[clamp(34px,5.8dvh,48px)]" />
-          <SettingsButton />
+        {/* Barra superior: espaciador 44px · logo y título centrados · ajustes 44px */}
+        <nav className="grid w-full grid-cols-[44px_1fr_44px] items-center" aria-label="Navegación principal">
+          <span aria-hidden="true" />
+          <div className="justify-self-center">
+            <LogoMus tagline={false} iconClassName="size-[clamp(40px,calc(var(--u)*7.4),76px)]" />
+          </div>
+          <div className="justify-self-end"><SettingsButton /></div>
         </nav>
 
-        {/* Héroe: elástico */}
-        <header className="relative flex min-h-[72px] flex-1 flex-col justify-center">
+        {/* Héroe: centrado en el hueco que queda entre la cabecera y las tarjetas */}
+        <header className="relative my-auto flex min-h-[72px] flex-col justify-center">
           <motion.div className="relative z-10 grid max-w-[57%] gap-1.5" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }}>
             <span className="text-[10px] font-extrabold uppercase tracking-[.26em] text-amber-300/80 [@media(max-height:620px)]:hidden">2 contra 2 · Online</span>
-            <h1 className="bg-gradient-to-b from-amber-100 via-yellow-400 to-amber-600 bg-clip-text font-[var(--font-display)] text-[clamp(28px,min(8.4vw,5.6dvh),48px)] font-bold leading-[.98] text-transparent drop-shadow-[0_4px_22px_rgba(245,158,11,.2)]">
+            <h1 className="bg-gradient-to-b from-amber-100 via-yellow-400 to-amber-600 bg-clip-text font-[var(--font-display)] text-[clamp(28px,min(8.4vw,calc(var(--u)*5.4)),48px)] font-bold leading-[.98] text-transparent drop-shadow-[0_4px_22px_rgba(245,158,11,.2)]">
               La mesa<br />está puesta.
             </h1>
-            <p className="text-[clamp(12px,3.5vw,15px)] leading-snug text-stone-400 [@media(max-height:740px)]:hidden">
+            <p className="text-[clamp(12px,3.5vw,15px)] leading-snug text-stone-400 hidden [@media(min-height:800px)]:block">
               Reúne a tu pareja, prepara los envites y que empiece la partida.
             </p>
-            <div className="mt-1.5 hidden flex-wrap gap-1.5 [@media(min-height:760px)]:flex" aria-label="Características">
+            <div className="mt-1.5 hidden flex-wrap gap-1.5 [@media(min-height:890px)]:flex" aria-label="Características">
               {['2 contra 2', 'Tiempo real', 'Con amigos o bots'].map((t) => (
                 <span key={t} className="rounded-full border border-white/10 bg-white/[.04] px-2.5 py-1 text-[11px] font-semibold text-stone-300">{t}</span>
               ))}
@@ -128,14 +126,16 @@ export function Home({ initialCode }: { initialCode?: string }) {
           </div>
         </header>
 
+        {/* Tarjetas de juego */}
+        <div className="flex flex-col gap-2 [@media(min-height:700px)]:gap-4">
         {/* Cómo quieres jugar + manual */}
         <div className="flex items-center justify-between gap-3">
-          <span className="text-[11px] font-extrabold uppercase tracking-[.22em] text-amber-200/70">Cómo quieres jugar</span>
+          <span className="whitespace-nowrap text-[11px] font-extrabold uppercase tracking-[.2em] text-amber-200/70 max-[350px]:tracking-[.1em]">Cómo quieres jugar</span>
           <button
             type="button"
             onClick={() => setManual('basico')}
             aria-label="Abrir el manual: cómo se juega al Mus"
-            className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/35 bg-amber-300/10 py-1 pl-1.5 pr-3 text-[12px] font-bold text-amber-200 transition hover:bg-amber-300/20 active:scale-95"
+            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-amber-300/35 bg-amber-300/10 py-1 pl-1.5 pr-3 text-[12px] max-[350px]:text-[11px] font-bold text-amber-200 transition hover:bg-amber-300/20 active:scale-95"
           >
             <span className="text-amber-300"><IconInfo size={20} /></span>
             ¿Cómo se juega?
@@ -144,7 +144,7 @@ export function Home({ initialCode }: { initialCode?: string }) {
 
         {/* Online */}
         <motion.section
-          className="grid gap-[clamp(6px,1.1dvh,10px)] rounded-3xl border border-amber-300/15 bg-zinc-950/65 p-[clamp(10px,1.6dvh,14px)] shadow-[0_24px_70px_rgba(0,0,0,.42)] backdrop-blur-md"
+          className="grid gap-[clamp(6px,calc(var(--u)*1.1),10px)] rounded-3xl border border-amber-300/15 bg-zinc-950/65 p-[clamp(10px,calc(var(--u)*1.6),14px)] shadow-[0_24px_70px_rgba(0,0,0,.42)] backdrop-blur-md"
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1, ease: 'easeOut' }}
         >
           <div className="flex items-center gap-3">
@@ -171,7 +171,7 @@ export function Home({ initialCode }: { initialCode?: string }) {
             type="button"
             disabled={!online || !nameOk || busy !== null}
             onClick={() => void enter('create')}
-            className="h-[clamp(36px,6.4dvh,48px)] w-full rounded-2xl border border-amber-300/50 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-[16px] font-extrabold tracking-wide text-amber-950 shadow-[0_8px_24px_rgba(245,158,11,.25)] transition enabled:active:scale-[.98] disabled:opacity-40 disabled:saturate-50"
+            className="h-[clamp(34px,calc(var(--u)*6.2),48px)] w-full rounded-2xl border border-amber-300/50 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-[16px] font-extrabold tracking-wide text-amber-950 shadow-[0_8px_24px_rgba(245,158,11,.25)] transition enabled:active:scale-[.98] disabled:opacity-40 disabled:saturate-50"
           >
             {busy === 'create' ? 'Creando sala…' : 'Crear sala'}
           </button>
@@ -190,7 +190,7 @@ export function Home({ initialCode }: { initialCode?: string }) {
               type="button"
               disabled={!online || !nameOk || code.length < 4 || busy !== null}
               onClick={() => void enter('join')}
-              className="h-[clamp(36px,6.4dvh,48px)] flex-1 rounded-2xl border border-white/15 bg-white/[.07] text-[15px] font-bold text-stone-100 transition enabled:hover:bg-white/10 enabled:active:scale-[.98] disabled:opacity-40"
+              className="h-[clamp(34px,calc(var(--u)*6.2),48px)] flex-1 rounded-2xl border border-white/15 bg-white/[.07] text-[15px] font-bold text-stone-100 transition enabled:hover:bg-white/10 enabled:active:scale-[.98] disabled:opacity-40"
             >
               {busy === 'join' ? 'Entrando…' : 'Entrar'}
             </button>
@@ -200,7 +200,7 @@ export function Home({ initialCode }: { initialCode?: string }) {
         {/* Contra bots */}
         <motion.button
           type="button"
-          className="flex h-[clamp(48px,8dvh,66px)] items-center gap-3 rounded-3xl border border-amber-300/15 bg-zinc-950/65 px-4 text-left backdrop-blur-md transition hover:border-amber-300/30"
+          className="flex h-[clamp(46px,calc(var(--u)*8),66px)] items-center gap-3 rounded-3xl border border-amber-300/15 bg-zinc-950/65 px-4 text-left backdrop-blur-md transition hover:border-amber-300/30"
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.18, ease: 'easeOut' }}
           whileTap={{ scale: 0.98 }}
           onClick={() => { remember(); navigate('/local'); }}
@@ -220,7 +220,8 @@ export function Home({ initialCode }: { initialCode?: string }) {
           {installer.canInstall && <Tile icon={<IconDownload />} title="Instalar" hint="Acceso directo" onClick={() => void installer.install()} />}
           {!installer.canInstall && installer.iosHint && <Tile icon={<IconDownload />} title="Instalar" hint="En el iPhone" onClick={() => setIosSheet(true)} />}
         </div>
-      </div>
+        </div>
+    </main>
 
       <Sheet open={cfgOpen} onClose={() => setCfgOpen(false)} title="Ajustes de partida">
         <p className="sheet__note">{configSummary(config)}</p>
@@ -232,7 +233,7 @@ export function Home({ initialCode }: { initialCode?: string }) {
         <Button variant="primary" block onClick={() => setIosSheet(false)}>Entendido</Button>
       </Sheet>
       <Manual open={manual !== null} onClose={() => setManual(null)} initialTab={manual ?? 'basico'} eightKings={config.eightKings} />
-    </main>
+    </>
   );
 }
 

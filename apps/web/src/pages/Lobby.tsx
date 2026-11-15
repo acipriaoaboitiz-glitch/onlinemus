@@ -58,13 +58,15 @@ export function Lobby({ source, onLeave }: { source: RoomSource; onLeave: () => 
   );
 
   return (
-    <main className="lobby">
-      <header className="lobby__top">
+    <main className="lobby flex min-h-[100dvh] flex-col justify-between gap-3 px-4 [@media(min-height:941px)]:gap-4 pb-[calc(env(safe-area-inset-bottom)+20px)] pt-[calc(env(safe-area-inset-top)+16px)]">
+      <header className="lobby__top grid w-full grid-cols-[44px_1fr_44px] items-center">
         <button type="button" className="icon-btn" aria-label="Salir de la sala" onClick={onLeave}><IconExit /></button>
-        <h1>Sala de espera</h1>
+        <h1 className="text-center">Sala de espera</h1>
         <span className="lobby__spacer" />
       </header>
 
+      {/* Cuerpo: centrado en el hueco entre la cabecera y el botón de empezar */}
+      <div className="my-auto flex flex-col gap-3 [@media(min-height:941px)]:gap-4">
       <section className="codecard">
         <small>Código de la sala</small>
         <div className="codecard__code" aria-label={`Código ${code}`}>{pretty}</div>
@@ -97,6 +99,7 @@ export function Lobby({ source, onLeave }: { source: RoomSource; onLeave: () => 
         <span>{configSummary(room.config)}</span>
         {snap.isHost && <b>Editar</b>}
       </button>
+      </div>
 
       <footer className="lobby__foot">
         {snap.isHost ? (

@@ -218,10 +218,10 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
 
   return (
     <main
-      className="relative h-[100dvh] w-full select-none overflow-hidden text-stone-100"
+      className="relative flex h-[100dvh] w-full select-none flex-col justify-between overflow-hidden pb-[calc(env(safe-area-inset-bottom)+12px)] pt-[calc(env(safe-area-inset-top)+8px)] text-stone-100"
       style={{ '--card-w': 'min(19vw,10.2dvh,118px)' } as CSSProperties}
     >
-      <div className="mx-auto grid h-full w-full max-w-[1100px] grid-rows-[auto_auto_minmax(0,1fr)_auto] gap-[min(1.1dvh,8px)] px-[clamp(8px,2.6vw,24px)] pb-[max(env(safe-area-inset-bottom),8px)] pt-[max(env(safe-area-inset-top),8px)]">
+      <div className="mx-auto flex min-h-0 w-full max-w-[1100px] flex-1 flex-col justify-between gap-[min(1.1dvh,8px)] px-[clamp(8px,2.6vw,24px)]">
         {/* 1 · Marcador */}
         <header className="grid grid-cols-[40px_minmax(0,1fr)_40px] items-center gap-2">
           <button type="button" className={ICON_BTN} aria-label="Ajustes" onClick={() => setSettings(true)}><IconGear /></button>
@@ -236,7 +236,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
 
         {/* 3 · Tapete: ocupa todo lo que sobra (minmax(0,1fr)) y nunca desborda */}
         <section
-          className="relative min-h-0 overflow-hidden rounded-[clamp(22px,5vw,38px)] border border-amber-200/10 shadow-[inset_0_0_60px_rgba(0,0,0,.4),0_10px_30px_rgba(0,0,0,.3)]"
+          className="relative min-h-0 flex-1 overflow-hidden rounded-[clamp(22px,5vw,38px)] border border-amber-200/10 shadow-[inset_0_0_60px_rgba(0,0,0,.4),0_10px_30px_rgba(0,0,0,.3)]"
           style={{ background: FELT_BG }}
           aria-label="Mesa de juego"
         >
