@@ -128,8 +128,8 @@ export function LogoMus({
         />
       </motion.svg>
       <span className="home__wordmark">
-        <b className="bg-gradient-to-b from-amber-100 via-yellow-400 to-amber-700 bg-clip-text font-serif text-2xl font-extrabold text-transparent tracking-[0.16em]">MUS</b>
-        <small className="font-sans text-xs font-extrabold text-white tracking-[0.3em]">ONLINE</small>
+        <b className="bg-gradient-to-b from-amber-100 via-yellow-400 to-amber-700 bg-clip-text font-serif text-3xl font-extrabold text-transparent tracking-[0.16em] max-[340px]:text-2xl min-[380px]:text-4xl">MUS</b>
+        <small className="font-sans text-xs font-extrabold text-white tracking-[0.3em] min-[380px]:text-sm">ONLINE</small>
       </span>
       {tagline && <small className="home__tagline">EL JUEGO DE SIEMPRE, EN TU MESA</small>}
     </motion.div>

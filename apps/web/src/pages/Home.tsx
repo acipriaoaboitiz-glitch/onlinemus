@@ -89,20 +89,20 @@ export function Home({ initialCode }: { initialCode?: string }) {
   return (
     <>
     {/* Raíz: ocupa justo el alto visible (dvh) y reparte cabecera · héroe · tarjetas; el relleno respeta notch y barra de inicio. */}
-    <main style={{ '--u': 'calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 100)' } as CSSProperties} className="relative isolate mx-auto flex min-h-[100dvh] w-full max-w-[460px] flex-col justify-between gap-2 px-[clamp(16px,5vw,28px)] pb-[calc(env(safe-area-inset-bottom)+20px)] pt-[calc(env(safe-area-inset-top)+16px)] text-stone-100">
+    <main style={{ '--u': 'calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 100)' } as CSSProperties} className="relative isolate mx-auto flex min-h-[100dvh] w-full max-w-[460px] flex-col justify-between gap-2 [@media(max-height:600px)]:gap-0 px-[clamp(16px,5vw,28px)] pb-[calc(env(safe-area-inset-bottom)+20px)] pt-[calc(env(safe-area-inset-top)+16px)] text-stone-100">
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_70%_38%_at_88%_6%,rgba(240,195,95,.17),transparent_70%),radial-gradient(ellipse_90%_45%_at_5%_100%,rgba(18,98,76,.38),transparent_70%)]" />
 
         {/* Barra superior: espaciador 44px · logo y título centrados · ajustes 44px */}
         <nav className="grid w-full grid-cols-[44px_1fr_44px] items-center" aria-label="Navegación principal">
           <span aria-hidden="true" />
           <div className="justify-self-center">
-            <LogoMus tagline={false} iconClassName="size-[clamp(40px,calc(var(--u)*7.4),76px)]" />
+            <LogoMus tagline={false} iconClassName="size-[clamp(42px,calc(var(--u)*9),92px)]" />
           </div>
           <div className="justify-self-end"><SettingsButton /></div>
         </nav>
 
         {/* Héroe: centrado en el hueco que queda entre la cabecera y las tarjetas */}
-        <header className="relative my-auto flex min-h-[72px] flex-col justify-center">
+        <header className="relative my-auto flex min-h-[56px] flex-col justify-center">
           <motion.div className="relative z-10 grid max-w-[57%] gap-1.5" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }}>
             <span className="text-[10px] font-extrabold uppercase tracking-[.26em] text-amber-300/80 [@media(max-height:620px)]:hidden">2 contra 2 · Online</span>
             <h1 className="bg-gradient-to-b from-amber-100 via-yellow-400 to-amber-600 bg-clip-text font-[var(--font-display)] text-[clamp(28px,min(8.4vw,calc(var(--u)*5.4)),48px)] font-bold leading-[.98] text-transparent drop-shadow-[0_4px_22px_rgba(245,158,11,.2)]">
@@ -127,7 +127,7 @@ export function Home({ initialCode }: { initialCode?: string }) {
         </header>
 
         {/* Tarjetas de juego */}
-        <div className="flex flex-col gap-2 [@media(min-height:700px)]:gap-4">
+        <div className="flex flex-col gap-2 [@media(max-height:600px)]:gap-1.5 [@media(min-height:700px)]:gap-4">
         {/* Cómo quieres jugar + manual */}
         <div className="flex items-center justify-between gap-3">
           <span className="whitespace-nowrap text-[11px] font-extrabold uppercase tracking-[.2em] text-amber-200/70 max-[350px]:tracking-[.1em]">Cómo quieres jugar</span>
