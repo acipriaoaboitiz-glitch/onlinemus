@@ -218,7 +218,7 @@ export function Table({ source, endAction, endNote, onExit }: TableProps) {
 
   return (
     <main
-      className="relative flex h-[100dvh] w-full select-none flex-col justify-between overflow-hidden pb-[calc(env(safe-area-inset-bottom)+12px)] pt-[calc(env(safe-area-inset-top)+8px)] text-stone-100"
+      className="relative flex h-[100dvh] w-full select-none flex-col justify-between overflow-hidden pb-[calc(env(safe-area-inset-bottom)+16px)] pt-[calc(env(safe-area-inset-top)+12px)] text-stone-100"
       style={{ '--card-w': 'min(19vw,10.2dvh,118px)' } as CSSProperties}
     >
       <div className="mx-auto flex min-h-0 w-full max-w-[1100px] flex-1 flex-col justify-between gap-[min(1.1dvh,8px)] px-[clamp(8px,2.6vw,24px)]">

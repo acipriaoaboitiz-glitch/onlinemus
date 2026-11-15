@@ -1,5 +1,5 @@
 /* Service worker mínimo: abre la app al instante y sin red. Nunca toca peticiones a otros orígenes (Supabase). */
-const CACHE = 'mus-v2';
+const CACHE = 'mus-v3';
 const ROOT = new URL('./', self.location).href;
 
 self.addEventListener('install', (event) => {

@@ -35,7 +35,9 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html, body, #root { height: 100%; }
+/* Lienzo a pantalla completa (también como app instalada): alto mínimo 100dvh y sin desbordamiento horizontal. */
+html, body, #root { height: 100%; min-height: 100dvh; max-width: 100%; }
+body { overflow-x: hidden; }
 
 body {
   margin: 0;

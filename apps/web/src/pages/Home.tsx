@@ -89,7 +89,7 @@ export function Home({ initialCode }: { initialCode?: string }) {
   return (
     <>
     {/* Raíz: ocupa justo el alto visible (dvh) y reparte cabecera · héroe · tarjetas; el relleno respeta notch y barra de inicio. */}
-    <main style={{ '--u': 'calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 100)' } as CSSProperties} className="relative isolate mx-auto flex min-h-[100dvh] w-full max-w-[460px] flex-col justify-between gap-2 [@media(max-height:600px)]:gap-0 px-[clamp(16px,5vw,28px)] pb-[calc(env(safe-area-inset-bottom)+20px)] pt-[calc(env(safe-area-inset-top)+16px)] text-stone-100">
+    <main style={{ '--u': 'calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 100)' } as CSSProperties} className="relative isolate mx-auto flex min-h-[100dvh] w-full max-w-[460px] flex-col justify-between md:max-w-[560px] gap-2 [@media(max-height:600px)]:gap-0 px-[clamp(16px,5vw,28px)] pb-[calc(env(safe-area-inset-bottom)+20px)] pt-[calc(env(safe-area-inset-top)+16px)] text-stone-100">
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_70%_38%_at_88%_6%,rgba(240,195,95,.17),transparent_70%),radial-gradient(ellipse_90%_45%_at_5%_100%,rgba(18,98,76,.38),transparent_70%)]" />
 
         {/* Barra superior: espaciador 44px · logo y título centrados · ajustes 44px */}
