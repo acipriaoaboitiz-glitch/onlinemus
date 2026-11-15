@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.onlinemus.twa",
+        "sha256_cert_fingerprints": ["28:8C:4D:48:23:B9:BF:65:02:6B:AD:07:FC:23:7C:08:63:45:5F:C0:3A:53:F7:E7:8D:1B:A0:9E:A1:66:71:39"]
+      }
+    }]
