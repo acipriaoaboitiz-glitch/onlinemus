@@ -1,0 +1,1190 @@
+/* Estilos de Mus Online, con ámbito .musapp para no chocar con STACKS. */
+/* ═══════════════════════════════════════════════════════════════════════════
+   Mus online · tema oscuro «mesa de taberna»: carbón azulado, tapete verde botella,
+   latón para lo importante. Móvil primero: todo pensado para el pulgar y sin zoom.
+   ═══════════════════════════════════════════════════════════════════════════ */.musapp {
+  --bg: #0b100e;
+  --bg-2: #101713;
+  --surface: #171f1a;
+  --surface-2: #202a23;
+  --surface-3: #2b382e;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.15);
+  --text: #f0eee3;
+  --muted: #a4aa9d;
+  --faint: #697266;
+  --brass: #f0c35f;
+  --brass-ink: #1b1405;
+  --us: #55d6be;
+  --them: #f29e6b;
+  --ok: #33b786;
+  --bad: #e0605c;
+  --ordago: #ff4d5e;
+  --felt: #0f2d26;
+  --felt-2: #0a1f1a;
+  --font-ui: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-display: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --card-w: min(21.5vw, 88px);
+  --btn-h: 56px;
+}
+.musapp *, .musapp *::before, .musapp *::after { box-sizing: border-box; }
+/* Lienzo a pantalla completa (también como app instalada): alto mínimo 100dvh y sin desbordamiento horizontal. */.musapp { height: 100%; min-height: 100dvh; max-width: 100%; }
+.musapp { overflow-x: hidden; }
+.musapp {
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(33, 75, 58, .22), transparent 58%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.musapp input, .musapp textarea { -webkit-user-select: text; user-select: text; }
+/* En una capa: las utilidades de Tailwind v4 (text-*, font-*) viven en @layer utilities y un estilo sin capa las pisaría. */@layer base {
+.musapp button { font: inherit; color: inherit; cursor: pointer; }
+}
+.musapp h1, .musapp h2, .musapp h3, .musapp p { margin: 0; }
+.musapp ul, .musapp ol { margin: 0; padding: 0; list-style: none; }
+.musapp .app { min-height: 100dvh; }
+.musapp :focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+/* ───────────────────────────── Botones y piezas comunes ─────────────────────────────── */.musapp .btn {
+  min-height: var(--btn-h);
+  padding: 0 18px;
+  border-radius: 15px;
+  border: 1px solid var(--line-2);
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, .14), inset 0 1px rgba(255,255,255,.035);
+  transition: transform 0.12s, filter 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.musapp .btn:active:not(:disabled) { transform: scale(0.97) translateY(1px); }
+.musapp .btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 8px 22px rgba(0, 0, 0, .23), inset 0 1px rgba(255,255,255,.05); }
+.musapp .btn:disabled { opacity: 0.42; cursor: default; }
+.musapp .btn--block { width: 100%; }
+.musapp .btn--primary { background: linear-gradient(145deg, #f0c66f, #d6a542); border-color: #f5d58e; color: var(--brass-ink); }
+.musapp .btn--ok { background: #17694f; border-color: #2fa37a; color: #e9fff6; }
+.musapp .btn--danger { background: #54232a; border-color: #b84a4f; color: #ffe9ea; }
+.musapp .btn--ghost { background: transparent; border-color: var(--line); color: var(--muted); min-height: 40px; font-size: 14px; padding: 0 12px; }
+.musapp .span-2 { grid-column: 1 / -1; }
+.musapp .icon-btn {
+  width: 44px; height: 44px; flex: none;
+  border-radius: 14px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--text);
+  display: grid; place-items: center;
+}
+.musapp .avatar {
+  display: inline-grid; place-items: center; flex: none;
+  border-radius: 50%;
+  font-family: var(--font-display); font-weight: 700;
+  border: 2px solid transparent;
+  box-shadow: 0 3px 12px rgba(0,0,0,.24), inset 0 1px rgba(255,255,255,.12);
+}
+.musapp .avatar--us, .musapp .avatar--me { background: linear-gradient(145deg, #1f6a5e, #154a42); color: #c6f7ed; border-color: rgba(85, 214, 190, 0.55); }
+.musapp .avatar--them { background: linear-gradient(145deg, #77412c, #54301f); color: #ffdcc8; border-color: rgba(242, 158, 107, 0.55); }
+.musapp .avatar--neutral { background: var(--surface-3); color: var(--text); border-color: var(--line-2); }
+.musapp .switch {
+  width: 46px; height: 28px; border-radius: 99px; flex: none;
+  background: var(--surface-3); border: 1px solid var(--line-2);
+  position: relative; transition: background 0.2s;
+}
+.musapp .switch::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; border-radius: 50%; background: #b9c4d2;
+  transition: transform 0.2s, background 0.2s;
+}
+.musapp .switch.on { background: #17694f; border-color: #2fa37a; }
+.musapp .switch.on::after { transform: translateX(18px); background: #e9fff6; }
+/* ───────────────────────────── Hojas (bottom sheets) y avisos ─────────────────────────────── */.musapp .sheet-root { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; }
+.musapp .sheet-backdrop { position: absolute; inset: 0; background: rgba(3, 6, 9, 0.62); animation: fade 0.2s ease-out both; }
+.musapp .sheet {
+  position: relative; width: 100%; max-width: 560px; margin: 0 auto;
+  max-height: 88dvh; overflow: auto;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 24px 24px 0 0;
+  padding: 8px 18px calc(20px + var(--safe-b));
+  animation: sheet-in 0.24s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  display: grid; gap: 14px; align-content: start;
+}
+.musapp .sheet__grab { width: 40px; height: 4px; border-radius: 4px; background: var(--line-2); margin: 4px auto 2px; }
+.musapp .sheet__title { font-family: var(--font-display); font-size: 24px; font-weight: 700; }
+.musapp .sheet__note { color: var(--muted); font-size: 14px; }
+.musapp .toaster {
+  position: fixed; left: 12px; right: 12px; top: calc(var(--safe-t) + 10px);
+  z-index: 90; display: grid; gap: 8px; justify-items: center; pointer-events: none;
+}
+.musapp .toast {
+  max-width: 460px; padding: 11px 16px; border-radius: 14px;
+  background: #2a3647; border: 1px solid var(--line-2);
+  font-weight: 600; font-size: 14.5px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  animation: drop 0.25s ease-out both;
+}
+.musapp .toast--error { background: #4a2024; border-color: #b84a4f; color: #ffe9ea; }
+.musapp .toast--ok { background: #13463a; border-color: #2fa37a; color: #e9fff6; }
+.musapp .chip {
+  min-width: 52px; height: 44px; padding: 0 14px; border-radius: 12px;
+  background: var(--surface-2); border: 1px solid var(--line-2); font-weight: 700; font-size: 16px;
+}
+.musapp .chip.on { background: var(--brass); border-color: #f1cb7c; color: var(--brass-ink); }
+/* Ajustes */.musapp .cfg { display: grid; gap: 14px; }
+.musapp .cfg__row { display: grid; gap: 8px; }
+.musapp .cfg__label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.musapp .seg { display: flex; gap: 6px; padding: 4px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; }
+.musapp .seg__opt { flex: 1; min-height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font-weight: 700; font-size: 15px; }
+.musapp .seg__opt.on { background: var(--surface-3); color: var(--text); box-shadow: inset 0 0 0 1px var(--line-2); }
+.musapp .cfg__toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left;
+  padding: 12px 14px; border-radius: 14px; background: var(--bg-2); border: 1px solid var(--line);
+}
+.musapp .cfg__toggle b { display: block; font-size: 15px; }
+.musapp .cfg__toggle small { display: block; color: var(--muted); font-size: 13px; }
+.musapp .cfg__volume { display: grid; gap: 8px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg-2); }
+.musapp .cfg__volume input[type='range'] { accent-color: var(--brass); }
+.musapp .rules { display: grid; gap: 8px; font-size: 14.5px; color: #c4cedb; }
+.musapp .rules h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--brass); margin-top: 6px; }
+.musapp .rules ul { display: grid; gap: 6px; padding-left: 18px; list-style: disc; }
+.musapp .rules b { color: var(--text); }
+/* ───────────────────────────── Inicio ─────────────────────────────── */@keyframes home-dust { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, -16px, 0); } }
+.musapp .home {
+  min-height: 100dvh; max-width: 560px; margin: 0 auto;
+  padding: calc(var(--safe-t) + 16px) 20px calc(var(--safe-b) + 18px);
+  display: flex; flex-direction: column; gap: 12px;
+  background:
+    radial-gradient(75% 42% at 12% 0%, rgba(20, 91, 64, .3), transparent 74%),
+    radial-gradient(55% 40% at 96% 12%, rgba(217, 153, 43, .11), transparent 78%),
+    radial-gradient(60% 48% at 52% 82%, rgba(12, 57, 43, .19), transparent 82%);
+}
+.musapp .home::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .43;
+  background-image:
+    radial-gradient(1.5px 1.5px at 13% 17%, rgba(255,235,174,.75), transparent 2px),
+    radial-gradient(1px 1px at 82% 22%, rgba(255,230,156,.7), transparent 1.8px),
+    radial-gradient(1.5px 1.5px at 71% 67%, rgba(128,223,174,.65), transparent 2px),
+    radial-gradient(1px 1px at 24% 76%, rgba(255,220,133,.7), transparent 1.8px),
+    radial-gradient(1px 1px at 91% 88%, rgba(255,235,174,.65), transparent 1.8px);
+  animation: home-dust 18s ease-in-out infinite alternate;
+}
+.musapp .home__navbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; margin-bottom: 5px;
+}
+.musapp .home__nav-tag {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px;
+  border: 1px solid rgba(226,180,85,.16); border-radius: 999px;
+  background: rgba(8,13,10,.45); color: #b6c1b6; font-size: 9px;
+  font-weight: 800; letter-spacing: .12em; white-space: nowrap;
+}
+.musapp .home__nav-tag i {
+  width: 5px; height: 5px; border-radius: 50%; background: #49d69a;
+  box-shadow: 0 0 9px rgba(73,214,154,.75);
+}
+.musapp .home--center { justify-content: center; align-items: center; text-align: center; }
+.musapp .home__hero { position: relative; text-align: center; padding: 4px 0 82px; display: grid; justify-items: center; gap: 10px; animation: home-enter .7s cubic-bezier(.2,.8,.2,1) both; }
+.musapp .home__brand { display: grid; grid-template-columns: auto auto; align-items: center; column-gap: 10px; row-gap: 0; margin-bottom: 4px; }
+.musapp .home__brand > span { display: grid; gap: 1px; text-align: left; }
+/* El tamaño del nombre lo fija LogoMus con utilidades (text-2xl / text-xs): aquí no se fija. */.musapp .home__brand b { line-height: .95; }
+.musapp .home__brand .home__tagline { grid-column: 1 / -1; color: #d7c18e; font-size: 7px; letter-spacing: .14em; line-height: 1; text-align: left; }
+.musapp .home__eyebrow, .musapp .panel__eyebrow { color: var(--brass); font-size: 10px; font-weight: 800; letter-spacing: .19em; }
+.musapp .home__hero h1 { font-family: var(--font-display); font-size: clamp(42px, 12vw, 58px); font-weight: 600; letter-spacing: -.035em; line-height: .98; }
+.musapp .home__hero h1 em { color: var(--brass); font-weight: 500; }
+.musapp .home__headline-accent { display: inline-block; padding-bottom: .08em; }
+.musapp .home__hero p { color: #a7b3bf; font-size: 14px; line-height: 1.65; }
+.musapp .home__features { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; margin-top: 2px; }
+.musapp .home__features span { padding: 6px 10px; border: 1px solid rgba(255,255,255,.09); border-radius: 99px; background: rgba(255,255,255,.035); color: #b6c1cb; font-size: 11px; font-weight: 650; }
+.musapp .home__art { position: absolute; width: 190px; height: 96px; right: calc(50% - 95px); bottom: 0; perspective: 700px; }
+.musapp .home__art-card { position: absolute; width: 58px; height: 92px; border: 2px solid #e6ddc9; border-radius: 8px; background: #f6f0e2; box-shadow: 0 14px 24px rgba(0,0,0,.42); overflow: hidden; transform-origin: 50% 90%; }
+.musapp .home__art-card--back { left: 72px; top: 7px; transform: rotate(4deg); animation: card-float-center 4s ease-in-out infinite; }
+.musapp .home__art-card--left { left: 43px; top: 11px; transform: rotate(-15deg); animation: card-float-left 4.4s ease-in-out infinite; }
+.musapp .home__art-card--right { left: 101px; top: 3px; transform: rotate(13deg); animation: card-float-right 4.8s ease-in-out infinite; }
+.musapp .home__art-chip { position: absolute; z-index: 2; display: grid; place-items: center; width: 28px; height: 28px; border: 2px dashed rgba(255,255,255,.7); border-radius: 50%; background: #a7473d; color: #fff3da; box-shadow: 0 3px 8px rgba(0,0,0,.35); font-family: var(--font-display); font-size: 12px; font-weight: 700; }
+.musapp .home__art-chip--one { left: 16px; bottom: 8px; }
+.musapp .home__art-chip--two { right: 12px; bottom: 4px; background: #28644f; }
+.musapp .home__art-spark { position: absolute; top: 0; right: 27px; color: var(--brass); font-size: 17px; text-shadow: 0 0 15px rgba(226,180,85,.6); }
+.musapp .panel { background: rgba(9,12,10,.6); border: 1px solid rgba(245,158,11,.1); border-radius: 22px; padding: 17px; display: grid; gap: 13px; box-shadow: 0 24px 70px rgba(0,0,0,.42), inset 0 1px rgba(255,255,255,.045); }
+.musapp .panel__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 1px; }
+.musapp .panel__head h2 { margin-top: 5px; font-size: 18px; letter-spacing: -.02em; }
+.musapp .panel__head p { margin-top: 3px; color: var(--muted); font-size: 12px; }
+.musapp .connection { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 6px 8px; border: 1px solid rgba(224,96,92,.2); border-radius: 99px; color: #e7a19e; background: rgba(224,96,92,.07); font-size: 10px; font-weight: 750; }
+.musapp .connection i { width: 6px; height: 6px; border-radius: 50%; background: #e0605c; box-shadow: 0 0 9px currentColor; }
+.musapp .connection--on { color: #72d6ae; border-color: rgba(51,183,134,.22); background: rgba(51,183,134,.08); }
+.musapp .connection--on i { background: #33b786; }
+.musapp .connection--loading { color: #e5c27e; border-color: rgba(226,180,85,.2); background: rgba(226,180,85,.07); }
+.musapp .connection--loading i { background: var(--brass); }
+.musapp .field { display: grid; gap: 6px; }
+.musapp .field span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.musapp .field input, .musapp .code-input {
+  width: 100%; height: 52px; border-radius: 14px; border: 1px solid var(--line-2);
+  background: var(--bg-2); color: var(--text); padding: 0 14px; font: inherit; font-size: 17px;
+}
+.musapp .field input:focus, .musapp .code-input:focus { border-color: var(--brass); outline: none; box-shadow: 0 0 0 3px rgba(226, 180, 85, 0.18); }
+.musapp .join { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+.musapp .code-input::placeholder { letter-spacing: 0.02em; font-family: var(--font-ui); font-size: 17px; font-weight: 500; }
+.musapp .code-input { text-align: center; letter-spacing: 0.32em; font-family: var(--font-display); font-size: 24px; font-weight: 700; padding-left: calc(14px + 0.32em); }
+.musapp .note { color: var(--muted); font-size: 13.5px; text-align: center; }
+.musapp .home__or { display: flex; align-items: center; gap: 12px; color: var(--faint); font-size: 9px; font-weight: 800; letter-spacing: .16em; }
+.musapp .home__or::before, .musapp .home__or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.musapp .home__bots { min-height: 66px; padding: 0 16px; display: flex; justify-content: flex-start; gap: 12px; text-align: left; border-color: rgba(226,180,85,.34); background: linear-gradient(110deg, rgba(226,180,85,.2), rgba(29,40,30,.76) 68%); }
+.musapp .home__bots > span:nth-child(2) { display: grid; gap: 3px; flex: 1; }
+.musapp .home__bots small { color: var(--muted); font-size: 11px; font-weight: 500; }
+.musapp .home__bot-mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 11px; background: rgba(226,180,85,.13); color: var(--brass); font-size: 19px; }
+.musapp .home__arrow { color: var(--brass); font-size: 20px; }
+.musapp .home__bots:hover .home__arrow { transform: translateX(4px); transition: transform .18s ease; }
+.musapp .home__links { display: grid; grid-template-columns: 1fr; gap: 9px; margin-top: 2px; }
+.musapp .home__links button {
+  min-width: 0; text-align: left; padding: 13px 14px; border-radius: 15px; background: rgba(255,255,255,.04); border: 1px solid rgba(226,180,85,.22);
+  display: grid; grid-template-columns: 32px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 10px; row-gap: 3px; align-content: center;
+  transition: background .16s, border-color .16s, transform .16s, box-shadow .16s;
+  box-shadow: 0 10px 24px rgba(0,0,0,.12);
+}
+.musapp .home__links button:first-child { grid-column: auto; }
+.musapp .home__links button:hover { background: rgba(255,255,255,.07); border-color: rgba(226,180,85,.42); transform: translateY(-1px); box-shadow: 0 14px 28px rgba(0,0,0,.16); }
+.musapp .home__link-mark { grid-row: 1 / span 2; align-self: center; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; background: rgba(226,180,85,.12); color: var(--brass); font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+.musapp .home__links b { font-size: 13px; }
+.musapp .home__links small { min-width: 0; color: var(--muted); font-size: 10.5px; line-height: 1.4; overflow-wrap: anywhere; }
+/* ───────────────────────────── Sala de espera ─────────────────────────────── *//* Alto, relleno seguro y reparto vertical: utilidades Tailwind en Lobby.tsx. */.musapp .lobby { max-width: 520px; margin: 0 auto; }
+.musapp .lobby__top { gap: 12px; }
+.musapp .lobby__top h1 { font-family: var(--font-display); font-size: 22px; }
+.musapp .lobby__spacer { width: 44px; }
+.musapp .codecard { background: radial-gradient(circle at 8px 8px, rgba(226,180,85,.08) 1px, transparent 1.5px) 0 0 / 16px 16px, linear-gradient(160deg, #164137, #0d2923); border: 1px solid rgba(226, 180, 85, 0.42); border-radius: 22px; padding: 16px; display: grid; gap: 10px; justify-items: center; box-shadow: inset 0 0 0 4px rgba(0,0,0,.1), 0 12px 30px rgba(0,0,0,.18); }
+.musapp .codecard small { color: #9fc6bd; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11.5px; }
+.musapp .codecard__code { font-family: var(--font-display); font-size: 54px; font-weight: 700; letter-spacing: 0.06em; color: var(--brass); line-height: 1; }
+.musapp .codecard__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.musapp .codecard__actions .btn { min-height: 48px; font-size: 15px; }
+.musapp .teams { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.musapp .team { background: linear-gradient(145deg, rgba(28,38,31,.96), rgba(20,27,22,.96)); border: 1px solid var(--line); border-radius: 20px; padding: 12px; display: grid; gap: 8px; box-shadow: inset 0 1px rgba(255,255,255,.025); }
+.musapp .team h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); padding: 0 4px; }
+.musapp .team--a { border-left: 3px solid var(--us); }
+.musapp .team--b { border-left: 3px solid var(--them); }
+.musapp .slot { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 10px; border-radius: 14px; background: linear-gradient(110deg, rgba(255,255,255,.025), transparent), var(--bg-2); border: 1px solid var(--line); box-shadow: inset 0 1px rgba(255,255,255,.025); }
+.musapp .slot--mine { border-color: rgba(226, 180, 85, 0.55); }
+.musapp .slot--empty { border-style: dashed; }
+.musapp .slot__ghost { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--faint); flex: none; }
+.musapp .slot__ghost--bot { color: var(--brass); }
+.musapp .slot__text { flex: 1; min-width: 0; display: grid; }
+.musapp .slot__text b { font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.musapp .slot__text small { color: var(--muted); font-size: 12.5px; display: inline-flex; align-items: center; gap: 4px; }
+.musapp .slot__actions { display: flex; gap: 4px; }
+.musapp .lobby__tip { color: var(--faint); font-size: 12.5px; text-align: center; }
+.musapp .cfgline { display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; padding: 12px 14px; border-radius: 14px; background: transparent; border: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+.musapp .cfgline b { color: var(--brass); font-size: 13px; }
+.musapp .cfgline:disabled { opacity: 1; cursor: default; }
+.musapp .lobby__foot { margin-top: auto; padding-top: 6px; }
+.musapp .lobby__wait { text-align: center; color: var(--muted); padding: 14px 0; }
+/* ───────────────────────────── Mesa ─────────────────────────────── */.musapp .table {
+  position: relative; width: 100%; height: 100dvh; overflow: hidden; max-width: 1600px; margin: 0 auto;
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  background: radial-gradient(120% 50% at 50% 0%, rgba(35, 91, 67, 0.3), transparent 70%), var(--bg);
+}
+.musapp .table--loading { place-items: center; color: var(--muted); }
+.musapp .table__top { display: flex; align-items: center; gap: 8px; padding: calc(var(--safe-t) + 8px) 12px 8px; }
+.musapp .reconnect { position: absolute; z-index: 20; top: calc(var(--safe-t) + 70px); left: 50%; transform: translateX(-50%); background: #7a1e2b; padding: 5px 14px; border-radius: 99px; font-size: 13px; font-weight: 700; }
+/* Marcador */.musapp .score { flex: 1; display: grid; gap: 7px; min-width: 0; }
+.musapp .score__row {
+  --c: var(--us);
+  display: grid;
+  grid-template-columns: minmax(62px, auto) 1fr auto;
+  grid-template-areas: "name total meta" "markers markers markers" "track track track" "units units units";
+  align-items: center; gap: 3px 9px; min-height: 44px; padding: 5px 9px;
+  border: 1px solid rgba(255,255,255,.075); border-radius: 12px;
+  background: linear-gradient(110deg, color-mix(in srgb, var(--c) 9%, transparent), rgba(16,23,19,.78) 55%);
+  box-shadow: inset 0 1px rgba(255,255,255,.035);
+}
+.musapp .score__row--them { --c: var(--them); }
+.musapp .score__name { grid-area: name; font-size: 10px; font-weight: 850; letter-spacing: 0.1em; color: var(--c); text-transform: uppercase; }
+.musapp .amarraco { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,.17); background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.12), transparent 55%), rgba(0,0,0,.18); transition: background 0.3s, transform 0.3s; flex: none; }
+.musapp .amarraco.on { border-color: color-mix(in srgb, var(--c) 76%, white); background: radial-gradient(circle at 35% 28%, color-mix(in srgb, var(--c) 55%, white), var(--c) 60%); box-shadow: 0 0 9px color-mix(in srgb, var(--c) 38%, transparent), inset 0 0 0 1px rgba(0,0,0,.15); transform: scale(1.05); }
+.musapp .score__gap { width: 6px; flex: none; }
+.musapp .piedra { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); transition: background 0.3s; flex: none; }
+.musapp .piedra.on { background: #f3ead2; }
+.musapp .score__total { grid-area: total; justify-self: end; font-family: var(--font-display); font-size: 20px; text-align: right; font-variant-numeric: tabular-nums; line-height: 1; animation: score-pop .35s cubic-bezier(.2,1.3,.3,1) both; }
+.musapp .score__total small { color: var(--muted); font: 700 10px var(--font-ui); }
+.musapp .score__meta { grid-area: meta; display: inline-flex; align-items: center; gap: 5px; min-width: 0; }
+.musapp .score__dentro { font-style: normal; font-size: 8px; font-weight: 850; letter-spacing: 0.06em; text-transform: uppercase; background: var(--brass); color: var(--brass-ink); padding: 3px 6px; border-radius: 99px; }
+.musapp .score__track { grid-area: track; position: relative; display: block; width: 100%; height: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,.08); border-radius: 99px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 calc(12.5% - 1px), rgba(5,9,7,.6) calc(12.5% - 1px) 12.5%); }
+.musapp .score__track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 65%, #15211a), var(--c)); box-shadow: 0 0 10px color-mix(in srgb, var(--c) 65%, transparent); transition: width .65s cubic-bezier(.2,.8,.2,1); animation: score-flash .5s ease-out both; }
+.musapp .score__markers { grid-area: markers; display: flex; align-items: center; gap: 5px; min-height: 15px; }
+.musapp .score__gem { width: 9px; height: 9px; flex: none; border: 1px solid rgba(255,255,255,.22); border-radius: 2px; background: rgba(255,255,255,.035); transform: rotate(45deg) scale(.82); transition: background .3s, box-shadow .3s, transform .3s; }
+.musapp .score__gem.on { border-color: color-mix(in srgb, var(--c) 75%, white); background: linear-gradient(145deg, color-mix(in srgb, var(--c) 54%, white), var(--c) 72%); box-shadow: 0 0 9px color-mix(in srgb, var(--c) 48%, transparent); transform: rotate(45deg) scale(1); }
+.musapp .score__stone { width: 6px; height: 6px; flex: none; border: 1px solid rgba(255,255,255,.24); border-radius: 50%; background: rgba(255,255,255,.04); transition: background .3s, box-shadow .3s; }
+.musapp .score__stone.on { border-color: #fff0c2; background: #ffe5a0; box-shadow: 0 0 7px rgba(255,220,130,.65); }
+.musapp .score__units { grid-area: units; color: var(--muted); font-size: 9px; font-weight: 650; letter-spacing: .015em; }
+.musapp .score__units i { display: inline-block; width: 3px; height: 3px; margin: 0 5px 2px; border-radius: 50%; background: var(--faint); }
+.musapp .pips { display: inline-flex; gap: 3px; }
+.musapp .pip { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--faint); }
+.musapp .pip.on { background: var(--brass); border-color: var(--brass); box-shadow: 0 0 7px rgba(226,180,85,.45); }
+.musapp .pips--vaca .pip { border-radius: 2px; transform: rotate(45deg); width: 7px; height: 7px; }
+/* Tapete */.musapp .table__felt {
+  position: relative; margin: 0 10px; min-height: 0;
+  border-radius: 28px; padding: 10px 6px 8px;
+  display: grid; grid-template-columns: minmax(54px, .58fr) minmax(0, 2fr) minmax(54px, .58fr);
+  grid-template-rows: minmax(104px, auto) minmax(0, 1fr); align-items: stretch; gap: 10px 4px;
+  background:
+    radial-gradient(ellipse at 50% 48%, transparent 0 47%, rgba(226,180,85,.055) 47.2% 47.5%, transparent 47.8%),
+    radial-gradient(120% 90% at 50% 0%, #1b5144 0%, var(--felt) 52%, var(--felt-2) 100%);
+  border: 1px solid rgba(226, 180, 85, 0.2);
+  box-shadow: inset 0 0 0 5px rgba(0, 0, 0, 0.18), inset 0 0 0 6px rgba(226,180,85,.055), inset 0 12px 40px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0,0,0,.18);
+}
+.musapp .opponents { display: contents; }
+.musapp .seat { position: relative; display: grid; justify-items: center; gap: 3px; min-width: 0; }
+.musapp .opponents > .seat:nth-child(1) { grid-column: 1; grid-row: 2; align-self: center; }
+.musapp .opponents > .seat:nth-child(2) { grid-column: 2; grid-row: 1; align-self: start; }
+.musapp .opponents > .seat:nth-child(3) { grid-column: 3; grid-row: 2; align-self: center; }
+.musapp .seat__avatar { position: relative; width: 58px; height: 58px; display: grid; place-items: center; }
+.musapp .seat--turn .seat__avatar::before { content: ''; position: absolute; inset: -4px; border: 1.5px solid rgba(242,202,112,.82); border-radius: 50%; box-shadow: 0 0 8px rgba(242,202,112,.55), 0 0 22px rgba(242,202,112,.25), inset 0 0 12px rgba(242,202,112,.14); animation: turn-halo 1.8s ease-in-out infinite; }
+.musapp .seat--turn .avatar { box-shadow: 0 0 0 2px var(--brass), 0 0 18px rgba(226, 180, 85, 0.45); }
+.musapp .ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); pointer-events: none; }
+.musapp .ring circle { fill: none; stroke: var(--brass); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 100; animation: ring linear forwards; }
+.musapp .seat__mano { position: absolute; top: -2px; right: -2px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--brass); color: var(--brass-ink); font-size: 11px; font-weight: 800; border: 2px solid var(--felt); }
+.musapp .seat__dot { position: absolute; bottom: 1px; right: 1px; width: 11px; height: 11px; border-radius: 50%; background: var(--bad); border: 2px solid var(--felt); }
+.musapp .seat__dot.on { background: var(--ok); }
+.musapp .seat__name { font-size: 13px; font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #e8f0ee; }
+.musapp .seat--turn .seat__name { color: #ffe4a0; text-shadow: 0 0 12px rgba(226,180,85,.38); }
+.musapp .seat__cards { display: inline-flex; gap: 2px; }
+.musapp .seat__card { position: relative; width: 11px; height: 16px; }
+.musapp .seat__card .card-back { border-radius: 3px; border-width: 1px; }
+.musapp .bubble {
+  position: absolute; top: calc(100% + 2px); left: 50%; transform: translateX(-50%); z-index: 4;
+  white-space: nowrap; font-size: 12.5px; font-weight: 800; padding: 4px 11px; border-radius: 12px;
+  background: #e9eef5; color: #0b0f14; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  animation: pop 0.24s cubic-bezier(0.2, 1.3, 0.3, 1) both;
+}
+.musapp .bubble--bet { background: var(--brass); color: var(--brass-ink); }
+.musapp .bubble--good { background: #c3f1dc; }
+.musapp .bubble--bad { background: #ffd0d0; }
+.musapp .bubble--ordago { background: var(--ordago); color: #fff; }
+.musapp .bubble--me { position: static; transform: none; margin-left: 4px; animation-name: pop-flat; }
+/* Centro */.musapp .center { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; justify-items: center; align-items: center; gap: clamp(8px, 1.5vh, 14px); padding: 4px; }
+.musapp .table__felt > .center { grid-column: 2; grid-row: 2; }
+.musapp .lances { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; align-self: start; }
+.musapp .lance { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 99px; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: rgba(255, 255, 255, 0.35); }
+.musapp .lance small { font-weight: 800; font-size: 11px; }
+.musapp .lance--done { color: rgba(255, 255, 255, 0.62); background: rgba(255, 255, 255, 0.05); }
+.musapp .lance--now { color: var(--brass-ink); background: linear-gradient(145deg, #f0c66f, #d6a542); border-color: #f1cb7c; box-shadow: 0 3px 12px rgba(0,0,0,.2); }
+.musapp .center__main { width: 100%; display: grid; place-content: center; justify-items: center; gap: 8px; min-height: 0; text-align: center; }
+.musapp .center__title { font-family: var(--font-display); font-size: 38px; font-weight: 700; color: #f3ebd7; letter-spacing: 0.01em; line-height: 1; }
+.musapp .center__bet { padding: 8px 16px; border-radius: 14px; background: rgba(0, 0, 0, 0.28); border: 1px solid rgba(255, 255, 255, 0.1); display: grid; gap: 1px; }
+.musapp .center__bet b { font-size: 16px; }
+.musapp .center__bet span { font-size: 12.5px; color: #a9bdb8; }
+.musapp .center__bet--hot { border-color: rgba(226, 180, 85, 0.65); }
+.musapp .center__bet--ordago { border-color: var(--ordago); background: radial-gradient(ellipse at 50% 0, rgba(255,77,94,.22), transparent 80%), rgba(65,18,26,.76); box-shadow: 0 0 22px rgba(255,77,94,.2), inset 0 0 14px rgba(255,77,94,.08); animation: ordago-pulse 1.5s ease-in-out infinite; }
+.musapp .banner { font-family: var(--font-display); font-size: 30px; font-weight: 700; color: var(--brass); text-align: center; animation: banner 0.45s cubic-bezier(0.2, 1.2, 0.3, 1) both; }
+.musapp .hint { max-width: 100%; font-size: 14.5px; color: #a9bdb8; text-align: center; min-height: 22px; padding-bottom: 2px; }
+.musapp .hint--mine { color: var(--brass); font-weight: 800; }
+/* Tu zona */.musapp .table__me { padding: 4px 0 0; position: relative; }
+.musapp .me-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 14px 0; min-height: 44px; }
+.musapp .me { display: flex; align-items: center; gap: 8px; font-size: 14px; border-radius: 99px; padding: 3px 12px 3px 4px; }
+.musapp .me--turn { background: rgba(226, 180, 85, 0.12); box-shadow: inset 0 0 0 1px rgba(226, 180, 85, 0.45); }
+.musapp .chip-mano { font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; background: rgba(226, 180, 85, 0.16); color: var(--brass); padding: 3px 8px; border-radius: 99px; }
+.musapp .sign-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 38px; padding: 0 12px; border-radius: 999px; background: linear-gradient(145deg, rgba(226,180,85,.18), rgba(255,255,255,.04)); border: 1px solid rgba(226,180,85,.32); color: #f7d77c; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; box-shadow: 0 4px 14px rgba(0,0,0,.16); transition: transform .18s, background .18s, box-shadow .18s; }
+.musapp .sign-btn:hover:not(:disabled) { transform: translateY(-2px); background: rgba(226,180,85,.22); box-shadow: 0 7px 18px rgba(0,0,0,.24); }
+.musapp .sign-btn:active { color: var(--text); }
+.musapp .sign-btn svg { width: 16px; height: 16px; }
+.musapp .catch-signal {
+  min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 0 10px; border-radius: 99px; border: 1px solid rgba(242,158,107,.28);
+  background: rgba(242,158,107,.07); color: #efb28e; font-size: 12px; font-weight: 850;
+  letter-spacing: .04em; transition: background .16s, border-color .16s, opacity .16s;
+}
+.musapp .catch-signal svg { width: 17px; height: 17px; }
+.musapp .catch-signal:hover:not(:disabled) { background: rgba(242,158,107,.17); border-color: rgba(242,158,107,.55); }
+.musapp .catch-signal--window { border-color: rgba(255,77,94,.7); color: #ff9aa1; box-shadow: 0 0 13px rgba(255,77,94,.14); }
+.musapp .catch-signal:disabled { opacity: .44; cursor: default; }
+.musapp .catch-signal small { color: var(--muted); font-size: 10px; }
+.musapp .me__avatar { display: grid; place-items: center; border-radius: 50%; touch-action: manipulation; }
+.musapp .me__avatar:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+.musapp .signal-alert {
+  position: fixed; inset: 0; z-index: 80; display: grid; align-content: center; justify-items: center; gap: 10px;
+  padding: 24px; text-align: center; pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(16,25,26,.94), rgba(4,8,9,.78) 65%, transparent);
+}
+.musapp .signal-alert > span { font-size: 11px; font-weight: 900; letter-spacing: .24em; }
+.musapp .signal-alert > b { max-width: 620px; font: 700 clamp(25px, 6vw, 44px)/1.08 var(--font-display); color: var(--text); text-shadow: 0 5px 28px rgba(0,0,0,.7); }
+.musapp .signal-alert > small { color: #c1c9c4; font-size: 13px; }
+.musapp .signal-alert--caught > span { color: #ff6a74; text-shadow: 0 0 22px rgba(255,77,94,.6); }
+.musapp .signal-alert--false > span { color: var(--brass); text-shadow: 0 0 22px rgba(240,195,95,.5); }
+.musapp .turnbar { height: 3px; margin: 2px 14px 0; background: rgba(255, 255, 255, 0.06); border-radius: 3px; overflow: hidden; }
+.musapp .turnbar i { display: block; height: 100%; background: var(--brass); transform-origin: left; animation: bar linear forwards; }
+/* Cartas */.musapp .hand { display: flex; justify-content: center; gap: 6px; padding: 24px 8px 6px; }
+.musapp .card {
+  position: relative; width: var(--card-w); aspect-ratio: 12 / 19; padding: 0; border: 0; border-radius: 11px; background: none;
+  touch-action: none; flex: none;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.38), 0 2px 3px rgba(0,0,0,.22);
+  transform: translate3d(0, var(--card-lift, 0px), 0);
+  transition: transform 0.24s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.24s, filter .2s, rotate .24s;
+  animation: deal 0.52s cubic-bezier(0.2, 0.9, 0.3, 1) backwards;
+}
+.musapp .card:nth-child(2) { animation-delay: 0.05s; }
+.musapp .card:nth-child(3) { animation-delay: 0.1s; }
+.musapp .card:nth-child(4) { animation-delay: 0.15s; }
+.musapp .card:disabled { opacity: 1; cursor: default; }
+.musapp .card--drag { transition: none; }
+.musapp .card--selected { box-shadow: 0 0 0 2px var(--brass), 0 12px 24px rgba(226, 180, 85, 0.28); }
+.musapp .hand--live .card { cursor: grab; }
+.musapp .hand .card:nth-child(1) { rotate: -3deg; }
+.musapp .hand .card:nth-child(2) { rotate: -1deg; }
+.musapp .hand .card:nth-child(3) { rotate: 1deg; }
+.musapp .hand .card:nth-child(4) { rotate: 3deg; }
+.musapp .hand--live .card:hover:not(.card--drag) { filter: brightness(1.05); translate: 0 -9px; }
+.musapp .hand--live .card:active:not(.card--drag) { scale: .98; }
+.musapp .card__mark { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: var(--brass); color: var(--brass-ink); font-size: 10px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; pointer-events: none; }
+.musapp .card-svg { width: 100%; height: 100%; display: block; }
+.musapp .card-back {
+  position: absolute; inset: 0; border-radius: 11px; border: 0;
+  display: block; width: 100%; height: 100%; object-fit: cover;
+ 
+}
+/* Acciones */.musapp .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 8px 12px calc(10px + var(--safe-b)); min-height: calc(var(--btn-h) * 2 + 28px + var(--safe-b)); align-content: start; }
+.musapp .actions--pills { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; width: fit-content; max-width: 100%; min-height: 0; margin: 0 auto; padding: 4px 12px 0; }
+.musapp .actions--pills .btn { min-height: 42px; padding: 0 17px; border-radius: 999px; font-size: 14px; box-shadow: 0 5px 16px rgba(0,0,0,.24), inset 0 1px rgba(255,255,255,.12); }
+.musapp .actions--pills .hold { min-height: 42px; padding: 0 18px; }
+.musapp .actions--pills .hold__label { font-size: 14px; }
+.musapp .actions--pills .hold__hint { font-size: 8px; }
+.musapp .actions__group { display: flex; flex: 0 1 auto; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; min-width: 0; }
+.musapp .actions--pills .actions__pass { flex: none; margin-left: 0; gap: 7px; padding: 0 16px; border-color: rgba(240,195,95,.56); background: linear-gradient(145deg, rgba(240,195,95,.18), rgba(32,42,35,.96)); color: #ffe3a0; box-shadow: 0 4px 14px rgba(0,0,0,.2), inset 0 0 0 1px rgba(240,195,95,.08); }
+.musapp .actions__pass span { font-size: 16px; line-height: 1; }
+.musapp .actions--pills .actions__pass:hover:not(:disabled) { border-color: var(--brass); background: rgba(240,195,95,.22); }
+.musapp .actions--idle { display: grid; place-items: center; color: var(--muted); font-size: 15px; }
+.musapp .actions--discard { grid-template-columns: 1fr; min-height: 0; text-align: center; align-content: center; gap: 8px; }
+.musapp .actions--discard p { color: var(--muted); font-size: 14px; }
+.musapp .hold { position: relative; overflow: hidden; flex-direction: column; gap: 0; line-height: 1.1; background: #5d1a26; border-color: var(--ordago); color: #fff; }
+.musapp .hold__fill { position: absolute; inset: 0; background: linear-gradient(90deg, #ff4d5e, #ff7a5c); transform-origin: left; transform: scaleX(0); }
+.musapp .hold--on .hold__fill { animation: hold var(--hold-ms, 650ms) linear forwards; }
+.musapp .hold__label { position: relative; font-size: 18px; }
+.musapp .hold__hint { position: relative; font-size: 10.5px; font-weight: 600; opacity: 0.75; letter-spacing: 0.04em; }
+.musapp .bet { display: grid; grid-template-columns: 64px 1fr 64px; align-items: center; gap: 12px; }
+.musapp .bet__step { height: 64px; border-radius: 18px; border: 1px solid var(--line-2); background: var(--surface-2); font-size: 30px; font-weight: 700; }
+.musapp .bet__value { text-align: center; display: grid; }
+.musapp .bet__value b { font-family: var(--font-display); font-size: 56px; line-height: 1; color: var(--brass); }
+.musapp .bet__value small { color: var(--muted); font-size: 13px; }
+.musapp .bet__chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+/* Pantallas superpuestas */.musapp .overlay { position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; background: rgba(9, 15, 11, 0.96); animation: fade 0.25s ease-out both; padding-top: var(--safe-t); }
+.musapp .overlay--center { justify-content: center; }
+.musapp .overlay__body { flex: 1; overflow: auto; padding: 18px 16px 8px; display: grid; gap: 14px; align-content: start; }
+.musapp .overlay__body--center { align-content: center; justify-items: center; text-align: center; }
+.musapp .overlay__title { font-family: var(--font-display); font-size: 26px; font-weight: 700; text-align: center; }
+.musapp .overlay__title--big { font-size: 34px; color: var(--brass); }
+.musapp .overlay__sub { color: var(--muted); }
+.musapp .overlay__foot { padding: 10px 16px calc(14px + var(--safe-b)); display: grid; gap: 8px; }
+.musapp .overlay__wait { text-align: center; color: var(--muted); font-size: 13.5px; }
+.musapp .reveal { display: grid; gap: 8px; }
+.musapp .reveal__row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: var(--surface); border-left: 3px solid var(--faint); }
+.musapp .reveal__row--us, .musapp .reveal__row--me { border-left-color: var(--us); }
+.musapp .reveal__row--them { border-left-color: var(--them); }
+.musapp .reveal__who { display: grid; min-width: 0; font-size: 12.5px; color: var(--muted); }
+.musapp .reveal__who b { color: var(--text); font-size: 15px; }
+.musapp .reveal__cards { display: flex; gap: 4px; }
+.musapp .mini { width: 44px; aspect-ratio: 12 / 19; border-radius: 6px; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45); }
+.musapp .awards { display: grid; gap: 6px; }
+.musapp .awards__row { display: grid; grid-template-columns: 62px 1fr auto; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 12px; background: var(--surface); font-size: 14px; border-left: 3px solid var(--them); }
+.musapp .awards__row--us { border-left-color: var(--us); }
+.musapp .awards__lance { font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--brass); }
+.musapp .awards__label { color: var(--muted); font-size: 13px; }
+.musapp .awards__row b { white-space: nowrap; }
+.musapp .awards__row b span { color: var(--brass); }
+.musapp .awards__empty { text-align: center; color: var(--muted); padding: 10px; }
+.musapp .hand-score { display: grid; gap: 8px; }
+.musapp .hand-score h3 { color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-align: center; text-transform: uppercase; }
+.musapp .hand-score__teams { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.musapp .hand-score__team { --score-color: var(--us); min-width: 0; padding: 9px 10px; border: 1px solid color-mix(in srgb, var(--score-color) 25%, transparent); border-radius: 13px; background: color-mix(in srgb, var(--score-color) 7%, var(--surface)); }
+.musapp .hand-score__team--them { --score-color: var(--them); }
+.musapp .hand-score__head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; color: var(--score-color); font-size: 12px; font-weight: 800; }
+.musapp .hand-score__head b { font-family: var(--font-display); font-size: 20px; font-variant-numeric: tabular-nums; }
+.musapp .hand-score__stones { display: flex; flex-wrap: wrap; gap: 5px; min-height: 10px; margin-top: 6px; }
+.musapp .hand-score__stones i { width: 8px; height: 8px; border: 1px solid color-mix(in srgb, var(--score-color) 55%, white); border-radius: 50%; background: var(--score-color); box-shadow: 0 0 8px color-mix(in srgb, var(--score-color) 50%, transparent); }
+.musapp .trophy { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; font-size: 44px; background: var(--surface-2); color: var(--faint); }
+.musapp .trophy--win { background: var(--brass); color: var(--brass-ink); box-shadow: 0 0 50px rgba(226, 180, 85, 0.45); }
+/* Señas */.musapp .signs__group { display: grid; gap: 8px; }
+.musapp .signs__group h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.musapp .signs__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.musapp .sign { text-align: left; padding: 11px 12px; border-radius: 14px; background: linear-gradient(145deg, rgba(226,180,85,.09), transparent 70%), var(--surface-2); border: 1px solid rgba(226,180,85,.32); display: grid; gap: 3px; min-height: 70px; transition: transform .16s, border-color .16s, background .16s, box-shadow .16s; box-shadow: inset 0 1px rgba(255,255,255,.03); }
+.musapp .sign:hover:not(:disabled) { transform: translateY(-2px); border-color: rgba(226,180,85,.6); box-shadow: 0 8px 20px rgba(0,0,0,.12); }
+.musapp .sign b { font-size: 16px; }
+.musapp .sign small { color: var(--muted); font-size: 12px; line-height: 1.3; }
+.musapp .sign:disabled { opacity: 0.32; }
+.musapp .sign-toast { position: relative; z-index: 30; display: flex; align-items: center; gap: 10px; width: fit-content; max-width: min(100%, 440px); margin: 0 auto 6px; padding: 9px 12px; border-radius: 14px; background: #1d2938; border: 1px solid var(--brass); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32); animation: drop 0.3s cubic-bezier(0.2, 1.1, 0.3, 1) both; color: var(--brass); }
+.musapp .sign-toast div { display: grid; line-height: 1.2; }
+.musapp .sign-toast small { color: var(--muted); font-size: 12px; }
+.musapp .sign-toast b { font-size: 19px; font-family: var(--font-display); color: var(--text); }
+.musapp .sign-toast em { font-style: normal; color: #b6c2d1; font-size: 12.5px; }
+/* Menú */.musapp .menu { display: grid; gap: 8px; }
+.musapp .menu__item { display: flex; align-items: center; gap: 12px; min-height: 54px; padding: 0 14px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); font-weight: 600; font-size: 16px; text-align: left; }
+.musapp .menu__item .switch { margin-left: auto; }
+.musapp .menu__item--danger { color: #ff9c9f; }
+/* Registro y atajos, accesibles desde el menú en cualquier tamaño */.musapp .log { display: grid; gap: 6px; align-content: start; max-height: min(45dvh, 360px); overflow: auto; font-size: 14px; }
+.musapp .log li { padding: 9px 11px; border-radius: 10px; background: var(--bg-2); color: #c4cedb; animation: fade 0.3s ease-out both; }
+.musapp .log li:first-child { box-shadow: inset 0 0 0 1px var(--line-2); color: var(--text); }
+.musapp .log__head { color: var(--brass) !important; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; font-size: 12px; }
+.musapp .log__good { border-left: 3px solid var(--us); }
+.musapp .log__bad { border-left: 3px solid var(--them); }
+.musapp .log__bet { border-left: 3px solid var(--brass); }
+.musapp .log__ordago { border-left: 3px solid var(--ordago); }
+.musapp .side__keys { display: grid; gap: 6px; font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+.musapp .side__keys b { color: var(--text); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+.musapp kbd { font: inherit; font-weight: 800; font-size: 11.5px; padding: 1px 6px; border-radius: 6px; background: var(--surface-3); border: 1px solid var(--line-2); color: var(--text); }
+/* Girar el móvil */.musapp .rotate-hint { display: none; }
+@media (orientation: landscape) and (max-height: 520px) {
+.musapp .rotate-hint { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; text-align: center; padding: 24px; background: var(--bg); font-size: 18px; font-weight: 700; color: var(--brass); }
+}
+/* Pantallas bajas (iPhone SE y similares) */@media (max-height: 700px) {
+.musapp { --card-w: min(19vw, 74px); --btn-h: 50px; }
+.musapp .seat__avatar { width: 52px; height: 52px; }
+.musapp .center__title { font-size: 30px; }
+.musapp .opponents { margin-bottom: 34px; }
+}
+/* ───────────────────────────── Escritorio ─────────────────────────────── */@media (min-width: 900px) and (min-height: 620px) {
+.musapp { --card-w: clamp(92px, 8vw, 118px); }
+.musapp { background: radial-gradient(75% 55% at 50% 0%, #153b2f 0%, #0b100e 72%) fixed; }
+.musapp .home {
+    max-width: 1120px; padding: 48px 36px;
+    display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+    grid-template-rows: auto auto auto auto auto; align-content: center; align-items: center;
+    column-gap: clamp(38px, 6vw, 76px); row-gap: 16px;
+  }
+.musapp .home__navbar { grid-column: 1 / -1; grid-row: 1; }
+.musapp .home__hero { grid-column: 1; grid-row: 2; justify-items: start; text-align: left; gap: 14px; padding: 0 0 126px; }
+.musapp .home__art { width: 236px; height: 126px; right: 0; transform: scale(1.12); transform-origin: bottom right; }
+.musapp .home__art-card { width: 66px; height: 104px; }
+.musapp .home__art-card--back { left: 83px; top: 7px; }
+.musapp .home__art-card--left { left: 49px; top: 11px; }
+.musapp .home__art-card--right { left: 116px; top: 3px; }
+.musapp .home__brand { margin-bottom: 5px; }
+.musapp .home__hero h1 { font-size: clamp(64px, 7vw, 82px); }
+.musapp .home__hero p { font-size: 15px; }
+.musapp .home__desktop-break { display: none; }
+.musapp .home__features { justify-content: flex-start; margin-top: 5px; }
+.musapp .home .panel { grid-column: 2; grid-row: 2 / span 4; align-self: center; padding: 24px; gap: 16px; }
+.musapp .panel__head h2 { font-size: 21px; }
+.musapp .panel__head p { font-size: 13px; }
+.musapp .home__or { grid-column: 1; grid-row: 3; }
+.musapp .home__bots { grid-column: 1; grid-row: 4; }
+.musapp .home__links { grid-column: 1; grid-row: 5; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.musapp .home__links button:first-child { grid-column: 1 / -1; }
+.musapp .table {
+    max-width: 1600px; padding: 0 28px 14px; column-gap: 0;
+    grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto;
+    background: none;
+  }
+.musapp .table__top { grid-column: 1; padding-left: 0; padding-right: 0; }
+.musapp .score { max-width: 920px; }
+.musapp .table__top { justify-content: space-between; }
+.musapp .sign-toast { position: fixed; top: calc(var(--safe-t) + 82px); right: max(64px, calc((100vw - 1600px) / 2 + 72px)); width: min(320px, calc(100vw - 140px)); max-width: 320px; margin: 0; }
+.musapp .table__felt { grid-column: 1; margin: 0; border-radius: 34px; grid-template-columns: minmax(120px,.72fr) minmax(0,2fr) minmax(120px,.72fr); grid-template-rows: minmax(116px,auto) minmax(0,1fr); padding: 18px 12px; }
+.musapp .table__me { grid-column: 1; }
+.musapp .opponents { padding: 0; margin: 0; }
+.musapp .seat__avatar { width: 68px; height: 68px; }
+.musapp .seat__name { font-size: 15px; }
+.musapp .center__title { font-size: clamp(36px, 4vw, 44px); }
+.musapp .banner { font-size: clamp(30px, 3.2vw, 36px); }
+.musapp .hint { font-size: 17px; }
+.musapp .overlay__body, .musapp .overlay__foot { max-width: 680px; margin: 0 auto; width: 100%; }
+.musapp .sheet-root { align-items: center; justify-content: center; }
+.musapp .sheet { border-radius: 24px; max-height: 84dvh; padding-bottom: 20px; }
+}
+@media (max-width: 380px) {
+.musapp .home { padding-left: 15px; padding-right: 15px; }
+.musapp .panel { padding: 14px; }
+.musapp .panel__head { flex-direction: column; }
+.musapp .home__links button { padding: 10px; }
+}
+@media (max-height: 700px) {
+.musapp .sign-toast { padding: 7px 10px; }
+.musapp .sign-toast em { display: none; }
+.musapp .sign-toast b { font-size: 16px; }
+}
+/* ───────────────────────────── Animaciones ─────────────────────────────── */@keyframes fade { from { opacity: 0; } }
+@keyframes home-enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes turn-halo { 0%, 100% { opacity: .76; transform: scale(.98); } 50% { opacity: 1; transform: scale(1.035); } }
+@keyframes score-pop { 0% { transform: scale(1); } 42% { transform: scale(1.22); color: #ffe6a3; text-shadow: 0 0 16px rgba(226,180,85,.7); } 100% { transform: scale(1); } }
+@keyframes score-flash { 0% { filter: brightness(1.8); } 100% { filter: brightness(1); } }
+@keyframes ordago-pulse { 0%, 100% { box-shadow: 0 0 14px rgba(255,77,94,.14), inset 0 0 10px rgba(255,77,94,.06); } 50% { box-shadow: 0 0 26px rgba(255,77,94,.35), inset 0 0 18px rgba(255,77,94,.12); } }
+@keyframes card-float-center { 0%, 100% { transform: translateY(0) rotate(4deg); } 50% { transform: translateY(-7px) rotate(2deg); } }
+@keyframes card-float-left { 0%, 100% { transform: translateY(0) rotate(-15deg); } 50% { transform: translateY(-5px) rotate(-12deg); } }
+@keyframes card-float-right { 0%, 100% { transform: translateY(0) rotate(13deg); } 50% { transform: translateY(-8px) rotate(16deg); } }
+@keyframes sheet-in { from { transform: translateY(40px); opacity: 0; } }
+@keyframes drop { from { transform: translateY(-14px); opacity: 0; } }
+@keyframes pop { from { transform: translateX(-50%) scale(0.6); opacity: 0; } }
+@keyframes pop-flat { from { transform: scale(0.6); opacity: 0; } }
+@keyframes banner { from { transform: scale(0.7); opacity: 0; } }
+@keyframes deal { from { transform: translateY(-60px) scale(0.9); opacity: 0; } }
+@keyframes ring { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 100; } }
+@keyframes bar { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes hold { to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) {
+.musapp *, .musapp *::before, .musapp *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; }
+}
+@media (max-width: 899px) {
+.musapp .table__top { gap: 6px; padding-left: 8px; padding-right: 8px; }
+.musapp .score { gap: 5px; }
+.musapp .score__row { grid-template-columns: minmax(54px,auto) 1fr auto; padding: 4px 7px; }
+.musapp .score__name { font-size: 9px; }
+.musapp .score__total { font-size: 18px; }
+.musapp .score__units { font-size: 8px; }
+.musapp .score__track { height: 5px; }
+.musapp .score__meta { gap: 3px; }
+.musapp .pip { width: 6px; height: 6px; }
+.musapp .actions--pills { gap: 7px; padding-right: 10px; padding-left: 10px; }
+.musapp .actions__group { gap: 7px; }
+}
+@media (max-width: 380px) {
+.musapp .actions--pills { gap: 6px; padding-right: 8px; padding-left: 8px; }
+.musapp .actions__group { gap: 6px; }
+.musapp .actions--pills .btn { min-height: 40px; padding-right: 13px; padding-left: 13px; font-size: 13px; }
+.musapp .actions--pills .actions__pass { margin-left: 0; padding-right: 12px; padding-left: 12px; }
+}
+@media (min-width: 900px) {
+.musapp .score { max-width: 460px; grid-template-columns: 1fr 1fr; }
+.musapp .score__row { min-width: 0; }
+.musapp .table__top { position: relative; z-index: 1; }
+}
+/* Mesa inmersiva: HUD y jugadores en el perímetro, tapete central despejado. */.musapp .table {
+  --card-w: clamp(56px, 17vw, 88px);
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: 1600px;
+  height: 100dvh;
+  min-height: 560px;
+  margin: 0 auto;
+  padding: 0 12px calc(5px + var(--safe-b));
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: clamp(5px, 1.1vh, 12px);
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(12, 72, 53, .24), transparent 55%),
+    radial-gradient(ellipse at 50% 0%, rgba(31, 69, 54, .24), transparent 54%),
+    #090d0c;
+}
+.musapp .table--loading { place-items: center; color: var(--muted); }
+.musapp .table__top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: calc(var(--safe-t) + 9px) 50px 0;
+}
+.musapp .table__score-island {
+  width: min(100%, 520px);
+  padding: 7px 10px 8px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 21px;
+  background: linear-gradient(145deg, rgba(28,36,32,.88), rgba(11,17,15,.84));
+  box-shadow: 0 12px 35px rgba(0,0,0,.24), inset 0 1px rgba(255,255,255,.05);
+ 
+}
+.musapp .table__eyebrow {
+  display: block;
+  margin: 0 0 5px 2px;
+  color: #8e9b90;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .16em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.musapp .table__top > .icon-btn {
+  position: absolute;
+  top: calc(var(--safe-t) + 12px);
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border-color: rgba(255,255,255,.12);
+  background: rgba(22,29,25,.82);
+ 
+}
+.musapp .score {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+.musapp .score__row {
+  grid-template-columns: minmax(0,1fr) auto;
+  grid-template-areas: "name total" "markers meta";
+  gap: 5px 6px;
+  min-width: 0;
+  min-height: 0;
+  padding: 6px 8px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--c) 11%, transparent), rgba(5,9,8,.35));
+}
+.musapp .score__name { font-size: 9px; letter-spacing: .13em; }
+.musapp .score__total { font-size: 20px; }
+.musapp .score__total small { font-size: 9px; }
+.musapp .score__track, .musapp .score__units { display: none; }
+.musapp .score__markers { gap: 4px; min-height: 11px; }
+.musapp .score__gem { width: 6px; height: 6px; }
+.musapp .score__stone { width: 5px; height: 5px; }
+.musapp .score__meta { justify-self: end; gap: 4px; }
+.musapp .pips { gap: 2px; }
+.musapp .pip { width: 6px; height: 6px; }
+.musapp .table__status { width: min(100%, 760px); margin: 0 auto; padding: 0 5px; }
+.musapp .game-hud {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.musapp .lances { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; }
+.musapp .lance {
+  gap: 4px;
+  padding: 4px 8px;
+  border-color: rgba(255,255,255,.08);
+  background: rgba(255,255,255,.025);
+  font-size: 8px;
+  letter-spacing: .08em;
+}
+.musapp .lance small { font-size: 9px; }
+.musapp .center__main { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px 10px; }
+.musapp .center__title { font-size: 16px; color: #e4d8bb; }
+.musapp .center__bet {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.045);
+  font-size: 10px;
+}
+.musapp .center__bet b { font-size: 10px; }
+.musapp .center__bet span { font-size: 9px; }
+.musapp .hint { min-height: 0; padding: 0; font-size: 10px; color: #89978d; }
+.musapp .table__felt {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 12px 8px;
+  display: grid;
+  grid-template-columns: minmax(72px,.65fr) minmax(90px,1fr) minmax(72px,.65fr);
+  grid-template-rows: auto minmax(0,1fr);
+  gap: 8px 4px;
+  border: 1px solid rgba(193,166,103,.17);
+  border-radius: 30px;
+  background:
+    radial-gradient(ellipse at 50% 53%, rgba(21,83,60,.2), transparent 47%),
+    radial-gradient(ellipse at center, rgba(13,49,38,.85), #0b211a 72%, #091813 100%);
+  box-shadow:
+    inset 0 0 0 5px rgba(0,0,0,.13),
+    inset 0 0 0 6px rgba(226,180,85,.035),
+    inset 0 0 70px rgba(0,0,0,.25),
+    0 14px 40px rgba(0,0,0,.2);
+}
+.musapp .opponents { display: contents; }
+.musapp .table__felt .opponents > .seat:nth-child(1) { grid-column: 1; grid-row: 2; align-self: center; }
+.musapp .table__felt .opponents > .seat:nth-child(2) { grid-column: 2; grid-row: 1; align-self: start; }
+.musapp .table__felt .opponents > .seat:nth-child(3) { grid-column: 3; grid-row: 2; align-self: center; }
+.musapp .seat { gap: 3px; }
+.musapp .seat__avatar { width: 48px; height: 48px; }
+.musapp .seat__avatar .avatar { width: 40px !important; height: 40px !important; font-size: 15px; }
+.musapp .seat__name { max-width: 100%; font-size: 10px; }
+.musapp .seat__cards { gap: 3px; }
+.musapp .seat__card { width: 13px; height: 19px; }
+.musapp .seat__card .card-back { border-width: 1px; border-radius: 4px; }
+.musapp .seat__mano { width: 17px; height: 17px; font-size: 9px; }
+.musapp .seat__dot { width: 9px; height: 9px; }
+.musapp .bubble { max-width: min(170px, 46vw); white-space: normal; text-align: center; font-size: 10px; }
+.musapp .table__announcement {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  width: min(90%, 520px);
+  transform: translate(-50%,-50%);
+  color: #ffdf97;
+  font-family: var(--font-display);
+  font-size: clamp(25px, 6vw, 44px);
+  font-weight: 700;
+  line-height: 1.08;
+  text-align: center;
+  text-shadow: 0 0 18px rgba(240,195,95,.65), 0 4px 24px rgba(0,0,0,.65);
+  pointer-events: none;
+  animation: banner .45s cubic-bezier(.2,1.2,.3,1) both;
+}
+.musapp .table__me {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  padding: 0 0 2px;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+.musapp .me-row { width: min(100%, 540px); min-height: 38px; padding: 0 5px; }
+.musapp .me { gap: 7px; padding: 2px 10px 2px 3px; font-size: 12px; }
+.musapp .me .avatar { width: 30px !important; height: 30px !important; }
+.musapp .sign-btn { width: 36px; height: 36px; border-radius: 50%; }
+.musapp .turnbar { width: min(100% - 12px, 520px); margin: 0 auto; }
+.musapp .actions--pills {
+  width: fit-content;
+  max-width: min(100%, 560px);
+  min-height: 0;
+  margin: 2px auto 0;
+  padding: 5px;
+  gap: 5px;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 999px;
+  background: rgba(17,24,21,.78);
+  box-shadow: 0 8px 24px rgba(0,0,0,.25), inset 0 1px rgba(255,255,255,.06);
+ 
+}
+.musapp .actions__group { gap: 5px; }
+.musapp .actions--pills .btn, .musapp .actions--pills .hold {
+  min-height: 36px;
+  padding: 0 13px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.musapp .actions--pills .hold__label { font-size: 12px; }
+.musapp .actions--pills .hold__hint { display: none; }
+.musapp .actions--pills .actions__pass { padding: 0 12px; font-size: 12px; }
+.musapp .actions--idle { padding: 5px 12px; min-height: 34px; font-size: 11px; }
+.musapp .hand { justify-content: center; gap: clamp(3px, 1.3vw, 9px); padding: 5px 0 2px; }
+.musapp .card { border-radius: 9px; }
+.musapp .card-svg { border-radius: 9px; }
+.musapp .actions--discard { padding: 4px 8px; gap: 4px; }
+.musapp .actions--discard p { font-size: 11px; }
+.musapp .actions--discard .btn { min-height: 36px; border-radius: 999px; font-size: 12px; }
+.musapp .reconnect { top: calc(var(--safe-t) + 104px); }
+@media (min-width: 700px) {
+.musapp .table { --card-w: clamp(86px, 9vw, 116px); padding: 0 28px calc(12px + var(--safe-b)); gap: 10px; }
+.musapp .table__top { padding-top: calc(var(--safe-t) + 14px); }
+.musapp .table__top > .icon-btn { right: 0; top: calc(var(--safe-t) + 16px); }
+.musapp .table__score-island { padding: 9px 13px 10px; }
+.musapp .score__row { padding: 7px 11px; }
+.musapp .score__name { font-size: 9px; }
+.musapp .score__total { font-size: 21px; }
+.musapp .table__status { padding: 0; }
+.musapp .lance { font-size: 9px; padding: 5px 10px; }
+.musapp .center__title { font-size: 18px; }
+.musapp .center__bet b { font-size: 11px; }
+.musapp .hint { font-size: 11px; }
+.musapp .table__felt { padding: 18px 16px; grid-template-columns: minmax(130px,.7fr) minmax(160px,1fr) minmax(130px,.7fr); border-radius: 36px; }
+.musapp .seat__avatar { width: 64px; height: 64px; }
+.musapp .seat__avatar .avatar { width: 52px !important; height: 52px !important; font-size: 18px; }
+.musapp .seat__name { font-size: 13px; }
+.musapp .seat__card { width: 16px; height: 24px; }
+.musapp .table__me { gap: 4px; }
+.musapp .me-row { min-height: 42px; }
+.musapp .actions--pills .btn, .musapp .actions--pills .hold { min-height: 39px; padding: 0 16px; font-size: 13px; }
+.musapp .actions--pills .hold__label { font-size: 13px; }
+.musapp .hand { gap: 10px; padding-top: 7px; }
+}
+@media (max-width: 380px) {
+.musapp .table { padding-right: 8px; padding-left: 8px; gap: 4px; }
+.musapp .table__top { padding-right: 43px; padding-left: 43px; }
+.musapp .table__score-island { padding: 6px 6px 7px; }
+.musapp .score { gap: 4px; }
+.musapp .score__row { padding: 5px 6px; gap: 4px; }
+.musapp .score__total { font-size: 16px; }
+.musapp .score__gem { width: 5px; height: 5px; }
+.musapp .table__felt { grid-template-columns: minmax(64px,.65fr) minmax(80px,1fr) minmax(64px,.65fr); padding: 10px 4px; }
+.musapp .seat__card { width: 11px; height: 17px; }
+.musapp .actions--pills { padding: 4px; gap: 3px; }
+.musapp .actions__group { gap: 3px; }
+.musapp .actions--pills .btn, .musapp .actions--pills .hold { min-height: 34px; padding: 0 10px; font-size: 11px; }
+.musapp .actions--pills .actions__pass { padding: 0 9px; }
+}
+@media (min-width: 1100px) and (min-height: 700px) {
+.musapp .table { gap: 12px; }
+.musapp .table__score-island { width: 540px; }
+.musapp .table__felt { padding: 22px 24px; }
+}
+/* Composición de la mesa: HUD arriba, tapete despejado y controles abajo. */.musapp .table {
+  --card-w: clamp(52px, 15vw, 96px);
+  height: 100dvh;
+  min-height: 0;
+  padding: 0 clamp(8px, 2vw, 28px) calc(6px + var(--safe-b));
+  overflow-x: hidden;
+  overflow-y: auto;
+  grid-template-rows: auto auto minmax(180px, 1fr) auto;
+  gap: clamp(5px, 1vh, 12px);
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(12, 72, 53, .2), transparent 58%),
+    radial-gradient(ellipse at 50% 0%, rgba(31, 69, 54, .23), transparent 54%),
+    #090d0c;
+}
+.musapp .table__top {
+  padding: calc(var(--safe-t) + 8px) 48px 0;
+}
+.musapp .table__score-island {
+  width: min(100%, 620px);
+  padding: 8px 10px 9px;
+  border-color: rgba(240, 195, 95, .18);
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(28, 36, 32, .78), rgba(11, 17, 15, .76));
+  box-shadow: 0 12px 35px rgba(0, 0, 0, .24), inset 0 1px rgba(255, 255, 255, .055);
+}
+.musapp .table__top > .icon-btn {
+  right: max(8px, calc((100vw - 1544px) / 2));
+}
+.musapp .score {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  width: 100%;
+  max-width: none;
+}
+.musapp .score__row {
+  min-width: 0;
+  min-height: 0;
+  padding: 6px 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "name total" "markers meta";
+  gap: 5px 6px;
+  border-color: rgba(255, 255, 255, .08);
+  border-radius: 13px;
+}
+.musapp .score__track, .musapp .score__units { display: none; }
+.musapp .score__markers { min-height: 10px; gap: 3px; }
+.musapp .score__gem { width: 6px; height: 6px; }
+.musapp .score__stone { width: 5px; height: 5px; }
+.musapp .score__meta { justify-self: end; gap: 4px; }
+.musapp .table__status {
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, .075);
+  border-radius: 16px;
+  background: rgba(20, 28, 24, .58);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .025);
+ 
+}
+.musapp .game-hud { gap: 5px; }
+.musapp .lances { gap: 4px; }
+.musapp .lance {
+  padding: 4px 8px;
+  border-color: rgba(255, 255, 255, .08);
+  background: rgba(255, 255, 255, .025);
+  font-size: 8px;
+  letter-spacing: .08em;
+}
+.musapp .lance small { font-size: 9px; }
+.musapp .center__main { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px 10px; }
+.musapp .center__title { font-size: 15px; color: #e4d8bb; }
+.musapp .center__bet {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, .045);
+  font-size: 10px;
+}
+.musapp .center__bet b { font-size: 10px; }
+.musapp .center__bet span { font-size: 9px; }
+.musapp .hint { min-height: 0; padding: 0; font-size: 10px; color: #98a49a; }
+.musapp .table__status .banner {
+  font-size: clamp(16px, 1.8vw, 20px);
+  line-height: 1;
+  text-shadow: 0 0 12px rgba(240, 195, 95, .38);
+}
+.musapp .table__felt {
+  width: 100%;
+  min-width: 0;
+  min-height: 180px;
+  margin: 0 auto;
+  padding: clamp(10px, 2vw, 22px);
+  display: grid;
+  grid-template-columns: minmax(56px, .75fr) minmax(0, 1.5fr) minmax(56px, .75fr);
+  grid-template-rows: minmax(70px, .72fr) minmax(90px, 1.28fr);
+  grid-template-areas: "left partner right" "left center right";
+  gap: 8px;
+  border: 1px solid rgba(193, 166, 103, .18);
+  border-radius: clamp(22px, 4vw, 38px);
+  background:
+    radial-gradient(ellipse at 50% 52%, rgba(18, 83, 60, .2), transparent 52%),
+    radial-gradient(ellipse at center, rgba(13, 49, 38, .9), #0b211a 72%, #091813 100%);
+  box-shadow:
+    inset 0 0 0 5px rgba(0, 0, 0, .13),
+    inset 0 0 0 6px rgba(226, 180, 85, .035),
+    inset 0 0 70px rgba(0, 0, 0, .25),
+    0 14px 40px rgba(0, 0, 0, .2);
+}
+.musapp .opponents { display: contents; }
+.musapp .table__seat { position: relative; display: grid; place-items: center; min-width: 0; }
+.musapp .table__seat--left { grid-area: left; }
+.musapp .table__seat--partner { grid-area: partner; align-self: start; }
+.musapp .table__seat--right { grid-area: right; }
+.musapp .table__seat .seat { gap: 3px; }
+.musapp .table__seat .seat__avatar { width: 54px; height: 54px; }
+.musapp .table__seat .seat__avatar .avatar { width: 42px !important; height: 42px !important; font-size: 17px !important; }
+.musapp .table__seat .seat__name { max-width: min(100%, 140px); font-size: 11px; }
+.musapp .table__seat .seat__cards { gap: 2px; }
+.musapp .table__seat .seat__card { width: clamp(10px, 1.1vw, 16px); height: clamp(15px, 1.65vw, 23px); }
+.musapp .table__seat .seat__card .card-back { border-width: 1px; border-radius: 4px; }
+.musapp .table__seat .seat__mano { width: 17px; height: 17px; font-size: 9px; }
+.musapp .table__seat .seat__dot { width: 9px; height: 9px; }
+.musapp .table__seat--left .bubble { left: 0; transform: none; }
+.musapp .table__seat--right .bubble { right: 0; left: auto; transform: none; }
+.musapp .table__seat--partner .bubble { top: auto; bottom: calc(100% + 4px); }
+.musapp .table__me {
+  width: min(100%, 820px);
+  margin: 0 auto;
+  padding: 0 0 calc(2px + var(--safe-b));
+  display: grid;
+  justify-items: center;
+  gap: clamp(2px, .5vh, 6px);
+}
+.musapp .me-row { width: min(100%, 620px); min-height: 36px; padding: 0 4px; }
+.musapp .me { gap: 7px; padding: 2px 10px 2px 3px; font-size: 12px; }
+.musapp .me .avatar { width: 30px !important; height: 30px !important; }
+.musapp .sign-btn { width: 36px; height: 36px; border-radius: 50%; }
+.musapp .turnbar { width: min(100% - 12px, 580px); height: 2px; margin: 0 auto; }
+.musapp .actions--pills {
+  width: fit-content;
+  max-width: min(100%, 620px);
+  min-height: 0;
+  margin: 1px auto 0;
+  padding: 5px;
+  gap: 5px;
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 999px;
+  background: rgba(17, 24, 21, .76);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25), inset 0 1px rgba(255, 255, 255, .06);
+ 
+}
+.musapp .actions__group { gap: 5px; }
+.musapp .actions--pills .btn, .musapp .actions--pills .hold {
+  min-height: 36px;
+  padding: 0 13px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.musapp .actions--pills .hold__label { font-size: 12px; }
+.musapp .actions--pills .hold__hint { display: none; }
+.musapp .actions--pills .actions__pass { padding: 0 12px; font-size: 12px; }
+.musapp .actions--idle { padding: 5px 12px; font-size: 11px; }
+.musapp .hand { justify-content: center; gap: clamp(3px, 1.1vw, 10px); padding: 4px 0 2px; }
+.musapp .card, .musapp .card-svg { border-radius: 10px; }
+.musapp .actions--discard { min-height: 0; padding: 4px 8px; gap: 4px; }
+.musapp .actions--discard p { font-size: 11px; }
+.musapp .actions--discard .btn { min-height: 36px; border-radius: 999px; font-size: 12px; }
+.musapp .sign-toast {
+  position: relative;
+  top: auto;
+  right: auto;
+  width: fit-content;
+  max-width: min(100%, 420px);
+  margin: 0 auto 2px;
+  padding: 6px 10px;
+ 
+}
+@media (min-width: 700px) {
+.musapp .table { --card-w: clamp(86px, 8vw, 116px); padding-right: 28px; padding-left: 28px; }
+.musapp .table__top { padding-top: calc(var(--safe-t) + 14px); }
+.musapp .table__score-island { padding: 9px 13px 10px; }
+.musapp .table__status { padding: 9px 14px; }
+.musapp .table__felt { grid-template-columns: minmax(120px, .75fr) minmax(0, 1.5fr) minmax(120px, .75fr); }
+.musapp .table__seat .seat__avatar { width: 66px; height: 66px; }
+.musapp .table__seat .seat__avatar .avatar { width: 52px !important; height: 52px !important; font-size: 21px !important; }
+.musapp .table__seat .seat__name { font-size: 13px; }
+.musapp .table__seat .seat__card { width: 16px; height: 24px; }
+.musapp .me-row { min-height: 40px; }
+.musapp .actions--pills .btn, .musapp .actions--pills .hold { min-height: 39px; padding: 0 16px; font-size: 13px; }
+.musapp .actions--pills .hold__label { font-size: 13px; }
+}
+@media (max-width: 380px) {
+.musapp .table { padding-right: 8px; padding-left: 8px; }
+.musapp .table__top { padding-right: 43px; padding-left: 43px; }
+.musapp .table__score-island { padding: 6px; }
+.musapp .score { gap: 4px; }
+.musapp .score__row { padding: 5px 6px; gap: 4px; }
+.musapp .score__name { font-size: 7px; }
+.musapp .score__total { font-size: 16px; }
+.musapp .score__gem { width: 5px; height: 5px; }
+.musapp .table__status { padding: 6px 8px; }
+.musapp .table__felt { grid-template-columns: minmax(46px, .7fr) minmax(0, 1.4fr) minmax(46px, .7fr); padding: 8px 5px; }
+.musapp .table__seat .seat__avatar { width: 46px; height: 46px; }
+.musapp .table__seat .seat__avatar .avatar { width: 36px !important; height: 36px !important; font-size: 15px !important; }
+.musapp .table__seat .seat__name { font-size: 9px; }
+.musapp .actions--pills { padding: 4px; gap: 3px; }
+.musapp .actions__group { gap: 3px; }
+.musapp .actions--pills .btn, .musapp .actions--pills .hold { min-height: 34px; padding: 0 10px; font-size: 11px; }
+.musapp .actions--pills .actions__pass { padding: 0 9px; }
+}
+@media (max-height: 700px) {
+.musapp .table { gap: 4px; }
+.musapp .table__felt { min-height: 150px; }
+.musapp .table__me { gap: 2px; }
+.musapp .hand { padding-top: 2px; }
+}
+@media (min-width: 1100px) and (min-height: 700px) {
+.musapp .table__score-island { width: 620px; }
+.musapp .table__felt { padding: 22px 24px; }
+}
+/* ═══════════════ Ajustes globales: color del tapete y engranaje ═══════════════ */.musapp {
+  --mesa-glow: rgba(12, 72, 53, .2);
+  --mesa-glow-2: rgba(31, 69, 54, .23);
+}
+:root[data-table='rojo'] {
+  --tapete-a: rgba(74, 20, 24, .92);
+  --tapete-b: #34100f;
+  --tapete-c: #230a0b;
+  --tapete-glow: rgba(150, 48, 44, .22);
+  --mesa-glow: rgba(110, 30, 30, .22);
+  --mesa-glow-2: rgba(80, 28, 30, .22);
+}
+:root[data-table='oscuro'] {
+  --tapete-a: rgba(36, 42, 47, .94);
+  --tapete-b: #171c20;
+  --tapete-c: #0d1013;
+  --tapete-glow: rgba(110, 124, 136, .16);
+  --mesa-glow: rgba(70, 80, 90, .18);
+  --mesa-glow-2: rgba(60, 68, 76, .18);
+}
+.musapp .table {
+  background:
+    radial-gradient(ellipse at 50% 48%, var(--mesa-glow), transparent 58%),
+    radial-gradient(ellipse at 50% 0%, var(--mesa-glow-2), transparent 54%),
+    #090d0c;
+}
+.musapp .table__felt {
+  background:
+    radial-gradient(ellipse at 50% 52%, var(--tapete-glow), transparent 52%),
+    radial-gradient(ellipse at center, var(--tapete-a), var(--tapete-b) 72%, var(--tapete-c) 100%);
+  transition: background .35s;
+}
+/* Engranaje: a la izquierda de la marcador en la mesa, junto a la etiqueta en la portada */.musapp .table__top > .icon-btn.icon-btn--gear { right: auto; left: max(8px, calc((100vw - 1544px) / 2)); }
+.musapp .home__nav-actions { display: inline-flex; align-items: center; gap: 8px; }
+.musapp .home__gear { width: 38px; height: 38px; border-radius: 50%; background: rgba(8, 13, 10, .55); }
+/* ═══════════════ Mesa «one-screen»: cero scroll en cualquier dispositivo ═══════════════ */html.table-lock, html.table-lock body, html.table-lock #root {
+  height: 100%; overflow: hidden; overscroll-behavior: none; touch-action: manipulation;
+}
+html.table-lock .app { min-height: 0; height: 100%; overflow: hidden; }
+/* ─────────── Sala de espera compacta en móviles de poca altura (solo proporciones) ─────────── */@media (max-height: 940px) {
+.musapp .codecard { padding: 12px; gap: 6px; }
+.musapp .codecard__code { font-size: 44px; }
+.musapp .codecard__actions { gap: 8px; }
+.musapp .codecard__actions .btn { min-height: 42px; }
+.musapp .teams { gap: 8px; }
+.musapp .team { padding: 8px 10px; gap: 6px; }
+.musapp .slot { min-height: 52px; padding: 6px 10px; }
+.musapp .cfgline { padding: 10px 12px; }
+}
+@media (max-height: 720px) {
+.musapp .codecard__code { font-size: 38px; }
+.musapp .lobby__tip { font-size: 11.5px; }
+.musapp .team h2 { font-size: 11px; }
+}
+/* ─────────── iOS PWA (standalone): el lienzo cubre toda la pantalla, también bajo la barra de inicio ─────────── */.musapp { min-height: 100vh; min-height: 100dvh; }
+@supports (-webkit-touch-callout: none) {
+.musapp { min-height: -webkit-fill-available; }
+}

@@ -1,0 +1,4 @@
+Baraja inglesa de 52 cartas (SVG) para Blackjack.
+Fuente: https://github.com/hayeah/playing-cards-assets (carpeta svg-cards, licencia MIT del repositorio).
+Las cartas proceden de "Vector Playing Cards" (http://code.google.com/p/vector-playing-cards/), de David Bellot,
+publicadas bajo LGPL 2.1: conserva este aviso y los comentarios de licencia que llevan los propios SVG.
